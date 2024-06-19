@@ -1,16 +1,31 @@
 #!/bin/bash
 
+# Function to print messages in green
+print_success() {
+  echo -e "\033[0;32m✓ $1\033[0m"
+}
+
+# Function to print messages in red
+print_error() {
+  echo -e "\033[0;31m☠ $1\033[0m"
+}
+
+# Function to print messages in cyan
+print_info() {
+  echo -e "\033[0;36mℹ $1\033[0m"
+}
+
 # Function to pull the GitHub repository and run the main.sh script
 setup_environment() {
   local repo_url="https://github.com/nodetec/relaywizard.git"
   local repo_dir="/tmp/relaywizard_setup"
 
   # Clone the GitHub repository
-  echo "Cloning the repository from $repo_url..."
+  print_info "Cloning the repository from $repo_url..."
   git clone "$repo_url" "$repo_dir"
 
   if [ $? -ne 0 ]; then
-    echo "Failed to clone the repository."
+    print_error "Failed to clone the repository."
     exit 1
   fi
 
@@ -18,19 +33,24 @@ setup_environment() {
   cd "$repo_dir" || exit
 
   # Make all scripts executable
-  echo "Making all scripts executable..."
+  print_info "Making all scripts executable..."
   chmod +x lib/print_colors.sh install_packages.sh configure_nginx_http.sh get_certificates.sh configure_nginx_https.sh install_nostr_rs_relay.sh configure_nostr_rs_relay.sh setup_nostr_rs_relay_service.sh main.sh
 
+  # Prompt for domain name if not provided as an argument
+  read -p "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name
+
+  read -p "Enter the email address for SSL certificate registration: " email
+
   # Run the main.sh script
-  echo "Running the main.sh script..."
-  ./main.sh
+  print_info "Running the main.sh script..."
+  ./main.sh "$domain_name" "$email"
 
   if [ $? -ne 0 ]; then
-    echo "Failed to execute the main.sh script."
+    print_error "Failed to execute the main.sh script."
     exit 1
   fi
 
-  echo "Environment setup completed successfully."
+  print_success "Environment setup completed successfully."
 }
 
 # Call the setup_environment function with the provided arguments
