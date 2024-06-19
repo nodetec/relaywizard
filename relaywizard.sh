@@ -33,9 +33,9 @@ setup_environment() {
   cd "$repo_dir" || exit
 
   # Prompt for domain name if not provided as an argument
-  read -p "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name
+  read -p "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name < /dev/tty
 
-  read -p "Enter the email address for SSL certificate registration: " email
+  read -p "Enter the email address for SSL certificate registration: " email < /dev/tty
 
   # Run the main.sh script
   print_info "Running the main.sh script..."
@@ -51,3 +51,4 @@ setup_environment() {
 
 # Call the setup_environment function with the provided arguments
 setup_environment
+
