@@ -32,10 +32,6 @@ setup_environment() {
   # Change to the repository directory
   cd "$repo_dir" || exit
 
-  # Make all scripts executable
-  print_info "Making all scripts executable..."
-  chmod +x lib/print_colors.sh install_packages.sh configure_nginx_http.sh get_certificates.sh configure_nginx_https.sh install_nostr_rs_relay.sh configure_nostr_rs_relay.sh setup_nostr_rs_relay_service.sh main.sh
-
   # Prompt for domain name if not provided as an argument
   read -p "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name
 
