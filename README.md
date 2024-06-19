@@ -2,8 +2,6 @@
 
 ## TODO
 
-configure_nginx_http.sh
-
 get_certificates.sh
 
 configure_nginx_https.sh

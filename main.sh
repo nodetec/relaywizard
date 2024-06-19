@@ -6,13 +6,17 @@ source ./lib/print_colors.sh
 # Source the scripts containing the functions
 source ./install_packages.sh
 source ./configure_nginx_http.sh
+source ./get_certificates.sh
 
 # Prompt for domain name if not provided as an argument
 if [ -z "$1" ]; then
-  read -p -r "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name
+	read -p "Enter the domain name for the nostr relay site (e.g., example.com): " domain_name
 else
-  domain_name="$1"
+	domain_name="$1"
 fi
+
+# Prompt for email address
+read -p "Enter the email address for SSL certificate registration: " email
 
 # Call the function to install packages
 print_info "Running install_packages function..."
@@ -21,5 +25,9 @@ install_packages
 # Call the function to configure nginx for HTTP
 print_info "Running configure_nginx_http function..."
 configure_nginx_http "$domain_name"
+
+# Call the function to get SSL certificates
+print_info "Running get_certificates function..."
+get_certificates "$domain_name" "$email"
 
 print_success "Setup completed successfully."
