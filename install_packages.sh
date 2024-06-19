@@ -8,7 +8,7 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-print_info "Updating package lists silently..."
+print_info "Updating package lists..."
 apt update -qq >/dev/null 2>&1
 
 # Check if nginx is installed, install if not
