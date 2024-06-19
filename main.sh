@@ -9,6 +9,7 @@ source ./configure_nginx_http.sh
 source ./get_certificates.sh
 source ./configure_nginx_https.sh
 source ./install_nostr_rs_relay.sh
+source ./configure_nostr_rs_relay.sh
 
 # Prompt for domain name if not provided as an argument
 if [ -z "$1" ]; then
@@ -43,5 +44,9 @@ configure_nginx_https "$domain_name"
 # Call the function to install nostr relay
 print_info "Running install_nostr_rs_relay function..."
 install_nostr_rs_relay
+
+# Call the function to configure nostr relay
+print_info "Running configure_nostr_rs_relay function..."
+configure_nostr_rs_relay "$domain_name"
 
 print_success "Setup completed successfully."
