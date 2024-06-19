@@ -17,6 +17,10 @@ print_info() {
 
 # Function to pull the GitHub repository and run the main.sh script
 setup_environment() {
+
+  print_info "Installing git..."
+  apt install -y -qq git >/dev/null 2>&1
+
   local repo_url="https://github.com/nodetec/relaywizard.git"
   local repo_dir="/tmp/relaywizard_setup"
 

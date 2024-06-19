@@ -5,6 +5,7 @@ source ./lib/print_colors.sh
 
 # Source the scripts containing the functions
 source ./install_packages.sh
+source ./configure_firewall.sh
 source ./configure_nginx_http.sh
 source ./get_certificates.sh
 source ./configure_nginx_https.sh
@@ -29,6 +30,10 @@ fi
 # Call the function to install packages
 print_info "Running install_packages function..."
 install_packages
+
+# Call the function to configure the firewall
+print_info "Running configure_firewall function..."
+configure_firewall
 
 # Call the function to configure nginx for HTTP
 print_info "Running configure_nginx_http function..."
