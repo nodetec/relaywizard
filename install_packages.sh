@@ -45,11 +45,3 @@ else
   print_info "Sourcing Rust environment..."
   source $HOME/.cargo/env
 fi
-
-# Example of other formatting functions
-print_bg_blue "This is a message with a blue background"
-print_blink "This is a blinking message"
-print_inverted "This is a message with inverted colors"
-print_high_intensity_green "This is a high intensity green message"
-print_dim "This is a dim text message"
-
