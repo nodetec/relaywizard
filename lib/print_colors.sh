@@ -12,7 +12,7 @@ print_error() {
 
 # Function to print messages in cyan
 print_info() {
-  echo -e "\033[0;36mⓘ $1\033[0m"
+  echo -e "\033[0;36mℹ $1\033[0m"
 }
 
 # Function to print messages in yellow
