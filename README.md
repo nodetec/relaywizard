@@ -6,7 +6,7 @@
     <a href="https://github.com/nodetec/relaywizard/pulse">
       <img alt="Last commit" src="https://img.shields.io/github/last-commit/nodetec/relaywizard?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41"/>
     </a>
-    <a href="https://github.com/nodetec/relaywizard/blob/master/LICENSE">
+     <a href="https://github.com/nodetec/relaywizard/blob/main/LICENSE">
       <img alt="License" src="https://img.shields.io/github/license/nodetec/relaywizard?style=for-the-badge&logo=starship&color=ee999f&logoColor=D9E0EE&labelColor=302D41" />
     </a>
     <a href="https://github.com/nodetec/relaywizard/stargazers">
@@ -18,6 +18,7 @@
     <a href="https://github.com/nodetec/relaywizard">
       <img alt="Repo Size" src="https://img.shields.io/github/repo-size/nodetec/relaywizard?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41" />
     </a>
+
   <p align="center">
     <img src="https://stars.medv.io/nodetec/relaywizard.svg", title="commits"/>
   </p>
