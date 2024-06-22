@@ -1,6 +1,5 @@
-# Relay Wizard
-
 <div align="center"><p>
+# Relay Wizard
     <a href="https://github.com/nodetec/relaywizard/releases/latest">
       <img alt="Latest release" src="https://img.shields.io/github/v/release/nodetec/relaywizard?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41" />
     </a>
