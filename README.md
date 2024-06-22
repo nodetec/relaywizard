@@ -1,6 +1,13 @@
-# Relay Wizard
-
 <div align="center"><p>
+
+```
+   ___      __            _      ___                 __
+  / _ \___ / /__ ___ __  | | /| / (_)__ ___ ________/ /
+ / , _/ -_) / _ `/ // /  | |/ |/ / /_ // _ `/ __/ _  /
+/_/|_|\__/_/\_,_/\_, /   |__/|__/_//__/\_,_/_/  \_,_/
+                /___/
+```
+
     <a href="https://github.com/nodetec/relaywizard/releases/latest">
       <img alt="Latest release" src="https://img.shields.io/github/v/release/nodetec/relaywizard?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41" />
     </a>
@@ -19,6 +26,7 @@
     <a href="https://github.com/nodetec/relaywizard">
       <img alt="Repo Size" src="https://img.shields.io/github/repo-size/nodetec/relaywizard?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41" />
     </a>
+
   <p align="center">
     <img src="https://stars.medv.io/nodetec/relaywizard.svg", title="commits"/>
   </p>
