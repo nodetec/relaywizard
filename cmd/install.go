@@ -19,7 +19,10 @@ var installCmd = &cobra.Command{
 		ui.Greet()
 
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
-		email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
+		pterm.Println()
+		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications from Let's Encrypt about your SSL cert."))
+		pterm.Println()
+		ssl_email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
 		pubkey, _ := pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
 
 		pterm.Println()
@@ -36,7 +39,7 @@ var installCmd = &cobra.Command{
 		network.ConfigureNginxHttp(relayDomain)
 
 		// Step 4: Get SSL certificates
-		var shouldContinue = network.GetCertificates(relayDomain, email)
+		var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
 
 		if !shouldContinue {
 			return
@@ -55,6 +58,7 @@ var installCmd = &cobra.Command{
 		pterm.Println(pterm.Magenta("The installation is complete."))
 		pterm.Println(pterm.Magenta("You can access your relay at wss://" + relayDomain))
 		pterm.Println()
+		pterm.Println(pterm.Magenta("You can re-run this installer with `relaywiz install`."))
 	},
 }
 

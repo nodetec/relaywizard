@@ -17,11 +17,11 @@ func GetCertificates(domainName, email string) bool {
 
 	prompt := pterm.DefaultInteractiveContinue.WithOptions(options)
 
-  pterm.Println()
+	pterm.Println()
 	pterm.Println(pterm.Cyan("Do you want to obtain SSL certificates using Certbot?"))
 	pterm.Println(pterm.Cyan("This step requires that you already have a configured domain name."))
 	pterm.Println(pterm.Cyan("You can always re-run this installer after you have configured your domain name."))
-  pterm.Println()
+	pterm.Println()
 
 	result, _ := prompt.Show()
 
@@ -48,10 +48,18 @@ func GetCertificates(domainName, email string) bool {
 	}
 
 	spinner.UpdateText("Obtaining SSL certificates...")
-	cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
-	err = cmd.Run()
-	if err != nil {
-		log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
+	if email == "" {
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
+		err = cmd.Run()
+		if err != nil {
+			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
+		}
+	} else {
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
+		err = cmd.Run()
+		if err != nil {
+			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
+		}
 	}
 
 	spinner.Success("SSL certificates obtained successfully.")
