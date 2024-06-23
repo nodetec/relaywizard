@@ -30,6 +30,8 @@ const envTemplate = `
 DOMAIN={{.Domain}}
 RELAY_NAME=nostr-relay-pyramid
 RELAY_PUBKEY={{.PubKey}}
+DATABASE_PATH=/var/lib/nostr-relay-pyramid/db
+USERDATA_PATH=/var/lib/nostr-relay-pyramid/users.json
 `
 
 // Path for the systemd service file
@@ -84,7 +86,8 @@ func SetupRelayService(domain, pubKey string) {
 		log.Fatalf("Error creating data directory: %v", err)
 	}
 
-	err = os.Chown(dataDir, os.Getuid(), os.Getgid())
+	// Use chown command to set ownership of the data directory to the nostr user
+	err = exec.Command("chown", "-R", "nostr:nostr", dataDir).Run()
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
 	}
