@@ -15,11 +15,6 @@
     <a href="https://github.com/nodetec/relaywizard">
       <img alt="Repo Size" src="https://img.shields.io/github/repo-size/nodetec/relaywizard?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41" />
     </a>
-
-  <p align="center">
-    <img src="https://stars.medv.io/nodetec/relaywizard.svg", title="commits"/>
-  </p>
-
 </div>
 
 ![0622](https://github.com/nodetec/relaywizard/assets/29136904/eb226b30-9250-43c6-ba2a-0361446d790b)
