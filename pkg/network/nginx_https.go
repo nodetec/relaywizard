@@ -32,16 +32,16 @@ upstream websocket {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-		http2 on;
+    http2 on;
     server_name %s;
 
-		root /var/www/%s;
+    root /var/www/%s;
 
     location / {
-				# First attempt to serve request as file, then
-		    # as directory, then fall back to displaying 404.
-				try_files $uri $uri/ =404;
-        proxy_pass http://websocket;
+	# First attempt to serve request as file, then
+ 	# as directory, then fall back to displaying 404.
+  	try_files $uri $uri/ =404;
+   	proxy_pass http://websocket;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -50,26 +50,26 @@ server {
     }
 
     #### SSL Configuration ####
-		# Test configuration:
+    # Test configuration:
     # https://www.ssllabs.com/ssltest/analyze.html
-		# https://cryptcheck.fr/
+    # https://cryptcheck.fr/
     ssl_certificate /etc/letsencrypt/live/%s/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/%s/privkey.pem;
-		# Verify chain of trust of OCSP response using Root CA and Intermediate certs
-		ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
+    # Verify chain of trust of OCSP response using Root CA and Intermediate certs
+    ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
 
-		# Only return Nginx in server header
+    # Only return Nginx in server header
     server_tokens off;
 
-		# TODO
-		# Add support to generate the file in the script
+    # TODO
+    # Add support to generate the file in the script
     #ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
     ssl_protocols TLSv1.2 TLSv1.3;
 
-		# For more information on the security of different cipher suites, you can refer to the following link:
+    # For more information on the security of different cipher suites, you can refer to the following link:
     # https://ciphersuite.info/
-		# Compilation of the top cipher suites 2024:
+    # Compilation of the top cipher suites 2024:
     # https://ssl-config.mozilla.org/#server=nginx
     ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305";
     
@@ -92,9 +92,9 @@ server {
     ssl_stapling_verify on;
 
     # Security headers
-		# Test configuration:
-		# https://securityheaders.com/
-		# https://observatory.mozilla.org/
+    # Test configuration:
+    # https://securityheaders.com/
+    # https://observatory.mozilla.org/
     add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
 
     add_header X-Frame-Options DENY;
@@ -109,7 +109,7 @@ server {
     add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
 
     # Content-Security-Policy (CSP)
-		add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests;" always;
+    add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests;" always;
 }
 
 server {
