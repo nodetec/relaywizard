@@ -123,7 +123,7 @@ server {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, domainName, domainName, domainName, dirName, domainName)
+`, domainName, dirName, domainName, domainName, domainName, dirName, domainName)
 
 	err = os.WriteFile("/etc/nginx/conf.d/nostr_relay.conf", []byte(configContent), 0644)
 	if err != nil {
