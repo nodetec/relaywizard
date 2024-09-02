@@ -30,9 +30,8 @@ upstream websocket {
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name %s;
 
     root /var/www/%s;
@@ -55,8 +54,6 @@ server {
     # https://cryptcheck.fr/
     ssl_certificate /etc/letsencrypt/live/%s/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/%s/privkey.pem;
-    # Verify chain of trust of OCSP response using Root CA and Intermediate certs
-    ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
 
     # Only return Nginx in server header
     server_tokens off;
