@@ -54,6 +54,8 @@ server {
     # https://cryptcheck.fr/
     ssl_certificate /etc/letsencrypt/live/%s/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/%s/privkey.pem;
+		# Verify chain of trust of OCSP response using Root CA and Intermediate certs
+		ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
 
     # Only return Nginx in server header
     server_tokens off;
@@ -123,7 +125,7 @@ server {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, dirName, domainName, domainName, domainName, dirName, domainName)
+`, domainName, dirName, domainName, domainName, domainName, domainName, dirName, domainName)
 
 	err = os.WriteFile("/etc/nginx/conf.d/nostr_relay.conf", []byte(configContent), 0644)
 	if err != nil {
