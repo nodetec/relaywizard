@@ -1,31 +1,29 @@
-package relay
+package khatru_pyramid
 
 import (
+	"github.com/pterm/pterm"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/pterm/pterm"
 )
-
-// URL of the binary to download
-const downloadURL = "https://github.com/github-tijlxyz/khatru-pyramid/releases/download/v0.0.5/khatru-pyramid-v0.0.5-linux-amd64"
-
-// Name of the binary after downloading
-const binaryName = "nostr-relay-pyramid"
-
-// Destination directory for the binary
-const destDir = "/usr/local/bin"
-
-// Data directory for the relay
-const dataDir = "/var/lib/nostr-relay-pyramid"
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
+	// URL of the binary to download
+	const downloadURL = "https://github.com/github-tijlxyz/khatru-pyramid/releases/download/v0.0.5/khatru-pyramid-v0.0.5-linux-amd64"
 
-	spinner, _ := pterm.DefaultSpinner.Start("Installing relay...")
+	// Name of the binary after downloading
+	const binaryName = "nostr-relay-khatru-pyramid"
+
+	// Destination directory for the binary
+	const destDir = "/usr/local/bin"
+
+	// Data directory for the relay
+	const dataDir = "/var/lib/nostr-relay-khatru-pyramid"
+
+	spinner, _ := pterm.DefaultSpinner.Start("Installing Khatru Pyramid relay...")
 	// Ensure the data directory exists
 	err := os.MkdirAll(dataDir, 0755)
 	if err != nil {
@@ -75,6 +73,5 @@ func InstallRelayBinary() {
 		log.Fatalf("Error making file executable: %v", err)
 	}
 
-  spinner.Success("Relay installed successfully.")
+	spinner.Success("Khatru Pyramid relay installed successfully.")
 }
-

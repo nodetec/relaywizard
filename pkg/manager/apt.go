@@ -1,52 +1,56 @@
 package manager
 
 import (
-	"os/exec"
-
+	"fmt"
 	"github.com/pterm/pterm"
+	"log"
+	"os/exec"
 )
 
-// Function to check if a command exists
-func commandExists(command string) bool {
-	_, err := exec.LookPath(command)
-	return err == nil
+// Function to check if a package is installed
+func IsPackageInstalled(packageName string) bool {
+	out, err := exec.Command("dpkg-query", "-W", "-f='${Status}'", packageName).Output()
+
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			errorCode := exitError.ExitCode()
+			// Package not found
+			if errorCode == 1 {
+				return false
+			} else {
+				log.Fatalf("Error checking if package is installed: %v", err)
+			}
+		}
+	}
+
+	status := string(out)
+
+	if status == "'unknown ok not-installed'" {
+		return false
+	} else if status == "'install ok installed'" {
+		return true
+	}
+
+	return false
 }
 
 // Function to install necessary packages
 func AptInstallPackages() {
 	spinner, _ := pterm.DefaultSpinner.Start("Updating and installing packages...")
+
 	exec.Command("apt", "update", "-qq").Run()
 
-	// Check if nginx is installed, install if not
-	if commandExists("nginx") {
-		spinner.UpdateText("nginx is already installed.")
-	} else {
-		spinner.UpdateText("Installing nginx...")
-		exec.Command("apt", "install", "-y", "-qq", "nginx").Run()
-	}
+	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban"}
 
-	// Check if Certbot is installed, install if not
-	if commandExists("certbot") {
-		spinner.UpdateText("Certbot is already installed.")
-	} else {
-		spinner.UpdateText("Installing Certbot...")
-		exec.Command("apt", "install", "-y", "-qq", "certbot", "python3-certbot-nginx").Run()
-	}
-
-	// Check if ufw is installed, install if not
-	if commandExists("ufw") {
-		spinner.UpdateText("ufw is already installed.")
-	} else {
-		spinner.UpdateText("Installing ufw...")
-		exec.Command("apt", "install", "-y", "-qq", "ufw").Run()
+	// Check if package is installed, install if not
+	for _, p := range packages {
+		if IsPackageInstalled(p) {
+			spinner.UpdateText(fmt.Sprintf("%s is already installed.", p))
+		} else {
+			spinner.UpdateText(fmt.Sprintf("Installing %s...", p))
+			exec.Command("apt", "install", "-y", "-qq", p).Run()
+		}
 	}
 
 	spinner.Success("Packages updated and installed successfully.")
-}
-
-// Function to check if a package is installed
-func isPackageInstalled(packageName string) bool {
-	cmd := exec.Command("dpkg", "-l", packageName)
-	err := cmd.Run()
-	return err == nil
 }

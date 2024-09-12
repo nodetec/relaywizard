@@ -3,11 +3,10 @@ package network
 import (
 	"fmt"
 	"github.com/nodetec/relaywiz/pkg/utils"
+	"github.com/pterm/pterm"
 	"log"
 	"os"
 	"os/exec"
-
-	"github.com/pterm/pterm"
 )
 
 // Function to get SSL certificates using Certbot
@@ -33,8 +32,6 @@ func GetCertificates(domainName, email string) bool {
 
 	spinner, _ := pterm.DefaultSpinner.Start("Checking SSL certificates...")
 
-	dirName := utils.GetDirectoryName(domainName)
-
 	// Check if certificates already exist
 	if utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domainName)) &&
 		utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domainName)) {
@@ -42,20 +39,20 @@ func GetCertificates(domainName, email string) bool {
 		return true
 	}
 
-	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", dirName), 0755)
+	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
 	if err != nil {
 		log.Fatalf("Error creating directories for Certbot: %v", err)
 	}
 
 	spinner.UpdateText("Obtaining SSL certificates...")
 	if email == "" {
-		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 		err = cmd.Run()
 		if err != nil {
 			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 		}
 	} else {
-		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", dirName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 		err = cmd.Run()
 		if err != nil {
 			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)

@@ -1,35 +1,27 @@
-package network
+package strfry
 
 import (
 	"fmt"
-	"github.com/nodetec/relaywiz/pkg/utils"
+	"github.com/pterm/pterm"
 	"log"
 	"os"
 	"os/exec"
-
-	"github.com/pterm/pterm"
 )
 
 // Function to configure nginx for HTTPS
 func ConfigureNginxHttps(domainName string) {
-	dirName := utils.GetDirectoryName(domainName)
-
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
-	err := os.Remove("/etc/nginx/conf.d/nostr_relay.conf")
+
+	const configFile = "nostr_relay_strfry.conf"
+
+	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatalf("Error removing existing nginx configuration: %v", err)
 	}
 
-	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
-    default upgrade;
-    '' close;
-}
+	var configContent string
 
-upstream websocket {
-    server 0.0.0.0:3334;
-}
-
-server {
+	configContent = fmt.Sprintf(`server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name %s;
@@ -40,12 +32,12 @@ server {
 	# First attempt to serve request as file, then
  	# as directory, then fall back to displaying 404.
   	try_files $uri $uri/ =404;
-   	proxy_pass http://websocket;
+		proxy_pass http://127.0.0.1:7777;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+		    proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $remote_addr;
+		    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     #### SSL Configuration ####
@@ -125,9 +117,9 @@ server {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, dirName, domainName, domainName, domainName, domainName, dirName, domainName)
+`, domainName, domainName, domainName, domainName, domainName, domainName, domainName, domainName)
 
-	err = os.WriteFile("/etc/nginx/conf.d/nostr_relay.conf", []byte(configContent), 0644)
+	err = os.WriteFile(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile), []byte(configContent), 0644)
 	if err != nil {
 		log.Fatalf("Error writing nginx configuration: %v", err)
 	}
