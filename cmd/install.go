@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/pterm/pterm"
-
 	"github.com/nodetec/relaywiz/pkg/manager"
 	"github.com/nodetec/relaywiz/pkg/network"
-	"github.com/nodetec/relaywiz/pkg/relay"
+	"github.com/nodetec/relaywiz/pkg/relays/khatru_pyramid"
+	"github.com/nodetec/relaywiz/pkg/relays/strfry"
 	"github.com/nodetec/relaywiz/pkg/ui"
+	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
 
@@ -23,7 +23,23 @@ var installCmd = &cobra.Command{
 		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications from Let's Encrypt about your SSL cert."))
 		pterm.Println()
 		ssl_email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
-		pubkey, _ := pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
+
+		pterm.Println()
+		// Supported relay options
+		options := []string{"Khatru Pyramid", "strfry"}
+
+		// Use PTerm's interactive select feature to present the options to the user and capture their selection
+		// The Show() method displays the options and waits for the user's input
+		selectedRelayOption, _ := pterm.DefaultInteractiveSelect.WithOptions(options).Show()
+
+		// Display the selected option to the user with a green color for emphasis
+		pterm.Info.Printfln("Selected option: %s", pterm.Green(selectedRelayOption))
+
+		var pubkey string
+		if selectedRelayOption == "Khatru Pyramid" {
+			pterm.Println()
+			pubkey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
+		}
 
 		pterm.Println()
 		pterm.Println(pterm.Yellow("If you make a mistake, you can always re-run this installer."))
@@ -32,11 +48,19 @@ var installCmd = &cobra.Command{
 		// Step 1: Install necessary packages using APT
 		manager.AptInstallPackages()
 
+		if selectedRelayOption == "strfry" {
+			strfry.AptInstallDependencies()
+		}
+
 		// Step 2: Configure the firewall
 		network.ConfigureFirewall()
 
 		// Step 3: Configure Nginx for HTTP
-		network.ConfigureNginxHttp(relayDomain)
+		if selectedRelayOption == "Khatru Pyramid" {
+			khatru_pyramid.ConfigureNginxHttp(relayDomain)
+		} else if selectedRelayOption == "strfry" {
+			strfry.ConfigureNginxHttp(relayDomain)
+		}
 
 		// Step 4: Get SSL certificates
 		var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
@@ -46,13 +70,25 @@ var installCmd = &cobra.Command{
 		}
 
 		// Step 5: Configure Nginx for HTTPS
-		network.ConfigureNginxHttps(relayDomain)
+		if selectedRelayOption == "Khatru Pyramid" {
+			khatru_pyramid.ConfigureNginxHttps(relayDomain)
+		} else if selectedRelayOption == "strfry" {
+			strfry.ConfigureNginxHttps(relayDomain)
+		}
 
 		// Step 6: Download and install the relay binary
-		relay.InstallRelayBinary()
+		if selectedRelayOption == "Khatru Pyramid" {
+			khatru_pyramid.InstallRelayBinary()
+		} else if selectedRelayOption == "strfry" {
+			strfry.InstallRelayBinary()
+		}
 
 		// Step 7: Set up the relay service
-		relay.SetupRelayService(relayDomain, pubkey)
+		if selectedRelayOption == "Khatru Pyramid" {
+			khatru_pyramid.SetupRelayService(relayDomain, pubkey)
+		} else if selectedRelayOption == "strfry" {
+			strfry.SetupRelayService(relayDomain)
+		}
 
 		pterm.Println()
 		pterm.Println(pterm.Magenta("The installation is complete."))

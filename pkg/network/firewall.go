@@ -1,10 +1,9 @@
 package network
 
 import (
+	"github.com/pterm/pterm"
 	"log"
 	"os/exec"
-
-	"github.com/pterm/pterm"
 )
 
 // Function to configure the firewall
