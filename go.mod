@@ -1,4 +1,4 @@
-module github.com/nodetec/relaywiz
+module github.com/nodetec/rwz
 
 go 1.22.4
 

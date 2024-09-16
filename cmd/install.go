@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/nodetec/relaywiz/pkg/manager"
-	"github.com/nodetec/relaywiz/pkg/network"
-	"github.com/nodetec/relaywiz/pkg/relays/khatru29"
-	"github.com/nodetec/relaywiz/pkg/relays/khatru_pyramid"
-	"github.com/nodetec/relaywiz/pkg/relays/strfry"
-	"github.com/nodetec/relaywiz/pkg/ui"
+	"github.com/nodetec/rwz/pkg/manager"
+	"github.com/nodetec/rwz/pkg/network"
+	"github.com/nodetec/rwz/pkg/relays/khatru29"
+	"github.com/nodetec/rwz/pkg/relays/khatru_pyramid"
+	"github.com/nodetec/rwz/pkg/relays/strfry"
+	"github.com/nodetec/rwz/pkg/ui"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -137,7 +137,7 @@ var installCmd = &cobra.Command{
 		pterm.Println(pterm.Magenta("We plan to use relay groups for support in the future..."))
 
 		pterm.Println()
-		pterm.Println(pterm.Magenta("You can re-run this installer with `relaywiz install`."))
+		pterm.Println(pterm.Magenta("You can re-run this installer with `rwz install`."))
 	},
 }
 

@@ -2,7 +2,7 @@ package strfry
 
 import (
 	"fmt"
-	"github.com/nodetec/relaywiz/pkg/manager"
+	"github.com/nodetec/rwz/pkg/manager"
 	"github.com/pterm/pterm"
 	"os/exec"
 )
