@@ -1,4 +1,4 @@
-package khatru_pyramid
+package khatru29
 
 import (
 	"fmt"
@@ -14,18 +14,18 @@ import (
 // Function to download and make the binary executable
 func InstallRelayBinary() {
 	// URL of the binary to download
-	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.1.0/khatru-pyramid-0.0.5-x86_64-linux-gnu.tar.gz"
+	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.1.0/khatru29-0.4.0-x86_64-linux-gnu.tar.gz"
 
 	// Name of the binary after downloading
-	const binaryName = "nostr-relay-khatru-pyramid"
+	const binaryName = "nostr-relay-khatru29"
 
 	// Destination directory for the binary
 	const destDir = "/usr/local/bin"
 
 	// Data directory for the relay
-	const dataDir = "/var/lib/nostr-relay-khatru-pyramid"
+	const dataDir = "/var/lib/nostr-relay-khatru29"
 
-	spinner, _ := pterm.DefaultSpinner.Start("Installing Khatru Pyramid relay...")
+	spinner, _ := pterm.DefaultSpinner.Start("Installing khatru29 relay...")
 
 	// Ensure the data directory exists
 	err := os.MkdirAll(dataDir, 0755)
@@ -80,5 +80,5 @@ func InstallRelayBinary() {
 		log.Fatalf("Error making file executable: %v", err)
 	}
 
-	spinner.Success("Khatru Pyramid relay installed successfully.")
+	spinner.Success("khatru29 relay installed successfully.")
 }

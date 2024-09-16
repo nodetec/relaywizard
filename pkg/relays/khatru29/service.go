@@ -1,4 +1,4 @@
-package strfry
+package khatru29
 
 import (
 	"fmt"
@@ -17,36 +17,46 @@ func userExists(username string) bool {
 }
 
 // Function to set up the relay service
-// TODO
-// Check working directory
-// WorkingDirectory=/home/nostr
-func SetupRelayService(domain string) {
+func SetupRelayService(domain, privKey string) {
 	// Template for the systemd service file
 	const serviceTemplate = `[Unit]
-Description=Nostr Relay strfry 
+Description=Nostr Relay Khatru29
 After=network.target
 
 [Service]
 Type=simple
 User=nostr
 Group=nostr
-ExecStart=/usr/local/bin/nostr-relay-strfry relay
+WorkingDirectory=/home/nostr
+EnvironmentFile=/etc/systemd/system/nostr-relay-khatru29.env
+ExecStart=/usr/local/bin/nostr-relay-khatru29
 Restart=on-failure
-RestartSec=5
-ProtectHome=yes
-NoNewPrivileges=yes
-ProtectSystem=full
-LimitCORE=1000000000
 
 [Install]
 WantedBy=multi-user.target
 `
 
+	// Template for the environment file
+	const envTemplate = `
+PORT=5577
+DOMAIN={{.Domain}}
+RELAY_NAME=nostr-relay-khatru29
+RELAY_PRIVKEY={{.PrivKey}}
+RELAY_DESCRIPTION=Khatru29 Nostr Relay
+RELAY_CONTACT=devs@node-tec.com
+DATABASE_PATH=/var/lib/nostr-relay-khatru29/db
+`
 	// Path for the systemd service file
-	const serviceFilePath = "/etc/systemd/system/nostr-relay-strfry.service"
+	const serviceFilePath = "/etc/systemd/system/nostr-relay-khatru29.service"
+
+	// Path for the environment file
+	const envFilePath = "/etc/systemd/system/nostr-relay-khatru29.env"
 
 	// Data directory
-	const dataDir = "/var/lib/nostr-relay-strfry"
+	const dataDir = "/var/lib/nostr-relay-khatru29"
+
+	// Relay service
+	const relayService = "nostr-relay-khatru29"
 
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
@@ -55,6 +65,14 @@ WantedBy=multi-user.target
 		err = os.Remove(serviceFilePath)
 		if err != nil {
 			log.Fatalf("Error removing service file: %v", err)
+		}
+	}
+
+	// Check if the environment file exists and remove it if it does
+	if _, err := os.Stat(envFilePath); err == nil {
+		err = os.Remove(envFilePath)
+		if err != nil {
+			log.Fatalf("Error removing environment file: %v", err)
 		}
 	}
 
@@ -82,42 +100,22 @@ WantedBy=multi-user.target
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
 	}
 
-	filePath := "/tmp/strfry/strfry.conf"
-
-	// Construct the sed command to change the db path
-	cmd := exec.Command("sed", "-i", fmt.Sprintf(`s|db = ".*"|db = "%s"|`, dataDir), filePath)
-
-	// Execute the command
-	if err = cmd.Run(); err != nil {
-		log.Fatalf("Error changing the db path: %v", err)
-	}
-
-	// TODO
-	// Determine system hard limit
-	// Determine preferred nofiles value
-	cmd = exec.Command("sed", "-i", `s|nofiles = .*|nofiles = 0|`, filePath)
-
-	// Execute the command
-	if err = cmd.Run(); err != nil {
-		log.Fatalf("Error changing the nofiles option: %v", err)
-	}
-
-	// Check for and remove existing config file
-	err = os.Remove("/etc/strfry.conf")
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatalf("Error removing existing config file: %v", err)
-	}
-
-	// Copy config file to /etc
-	err = exec.Command("cp", "/tmp/strfry/strfry.conf", "/etc").Run()
+	// Create the environment file
+	spinner.UpdateText("Creating environment file...")
+	envFile, err := os.Create(envFilePath)
 	if err != nil {
-		log.Fatalf("Error copying config file: %v", err)
+		log.Fatalf("Error creating environment file: %v", err)
+	}
+	defer envFile.Close()
+
+	envTmpl, err := template.New("env").Parse(envTemplate)
+	if err != nil {
+		log.Fatalf("Error parsing environment template: %v", err)
 	}
 
-	// Use chown command to set ownership of the config file to the nostr user
-	err = exec.Command("chown", "nostr:nostr", "/etc/strfry.conf").Run()
+	err = envTmpl.Execute(envFile, struct{ Domain, PrivKey string }{Domain: domain, PrivKey: privKey})
 	if err != nil {
-		log.Fatalf("Error setting ownership of the config file: %v", err)
+		log.Fatalf("Error executing environment template: %v", err)
 	}
 
 	// Create the systemd service file
@@ -133,7 +131,7 @@ WantedBy=multi-user.target
 		log.Fatalf("Error parsing service template: %v", err)
 	}
 
-	err = tmpl.Execute(serviceFile, struct{}{})
+	err = tmpl.Execute(serviceFile, struct{ Domain, PrivKey string }{Domain: domain, PrivKey: privKey})
 	if err != nil {
 		log.Fatalf("Error executing service template: %v", err)
 	}
@@ -147,12 +145,12 @@ WantedBy=multi-user.target
 
 	// Enable and start the nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	err = exec.Command("systemctl", "enable", "nostr-relay-strfry").Run()
+	err = exec.Command("systemctl", "enable", fmt.Sprintf("%s", relayService)).Run()
 	if err != nil {
 		log.Fatalf("Error enabling nostr relay service: %v", err)
 	}
 
-	err = exec.Command("systemctl", "start", "nostr-relay-strfry").Run()
+	err = exec.Command("systemctl", "start", fmt.Sprintf("%s", relayService)).Run()
 	if err != nil {
 		log.Fatalf("Error starting nostr relay service: %v", err)
 	}
