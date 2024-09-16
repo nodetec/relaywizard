@@ -2,7 +2,7 @@ package network
 
 import (
 	"fmt"
-	"github.com/nodetec/relaywiz/pkg/utils"
+	"github.com/nodetec/rwz/pkg/utils"
 	"github.com/pterm/pterm"
 	"log"
 	"os"

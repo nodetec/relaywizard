@@ -1,4 +1,4 @@
-package khatru_pyramid
+package khatru29
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 func ConfigureNginxHttps(domainName string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 
-	const configFile = "nostr_relay_khatru_pyramid.conf"
+	const configFile = "nostr_relay_khatru29.conf"
 
 	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {
@@ -26,8 +26,8 @@ func ConfigureNginxHttps(domainName string) {
     '' close;
 }
 
-upstream websocket_khatru_pyramid {
-    server 0.0.0.0:3334;
+upstream websocket_khatru29 {
+    server 0.0.0.0:5577;
 }
 
 server {
@@ -41,7 +41,7 @@ server {
 	# First attempt to serve request as file, then
  	# as directory, then fall back to displaying 404.
   	try_files $uri $uri/ =404;
-   	proxy_pass http://websocket_khatru_pyramid;
+   	proxy_pass http://websocket_khatru29;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;

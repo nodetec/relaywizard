@@ -1,1 +1,4 @@
 relaywiz
+
+# Ignore .DS_Store files
+.DS_Store

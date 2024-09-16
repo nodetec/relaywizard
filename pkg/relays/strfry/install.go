@@ -2,24 +2,22 @@ package strfry
 
 import (
 	"fmt"
+	"github.com/pterm/pterm"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
-
-	"github.com/pterm/pterm"
+	"path/filepath"
 )
 
-// Function to download, build, and install the binary
+// Function to download and make the binary executable
 func InstallRelayBinary() {
-	// TODO
-	// Create the binary on a different machine then download it instead of building it here
-	// Use these variables and model it after Khatru Pyramid installation
-
 	// Temporary directory for git repository
 	const tempDir = "/tmp/strfry"
 
 	// URL of the binary to download
-	// const downloadURL = "https://..."
+	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.1.0/strfry-0.9.7-x86_64-linux-gnu.tar.gz"
 
 	// Name of the binary after downloading
 	const binaryName = "nostr-relay-strfry"
@@ -27,67 +25,67 @@ func InstallRelayBinary() {
 	// Destination directory for the binary
 	const destDir = "/usr/local/bin"
 
-	// Data directory for the relay
-	// const dataDir = "/var/lib/nostr-relay-strfry"
-
 	spinner, _ := pterm.DefaultSpinner.Start("Installing strfry relay...")
 
-	pterm.Println()
-	pterm.Println(pterm.Magenta("Go get coffee, this may take a few minutes..."))
-	pterm.Println()
-
-	// Download
-	// Check for and remove existing repository
+	// Check for and remove existing git repository
 	err := os.RemoveAll(fmt.Sprintf("%s", tempDir))
 	if err != nil && !os.IsNotExist(err) {
 		log.Fatalf("Error removing existing repository: %v", err)
 	}
 
 	// Download git repository
-	err = exec.Command("git", "clone", "https://github.com/hoytech/strfry.git", fmt.Sprintf("%s", tempDir)).Run()
+	err = exec.Command("git", "clone", "-b", "0.9.7", "https://github.com/hoytech/strfry.git", fmt.Sprintf("%s", tempDir)).Run()
 	if err != nil {
 		log.Fatalf("Error downloading repository: %v", err)
 	}
 
-	// Build
-	// TODO
-	// Check for development environment variable instead of commenting and uncommenting these lines
-
-	// Check for and remove existing binary
-	// When developing comment to prevent unecessary builds
-	err = os.Remove(fmt.Sprintf("%s/%s", destDir, binaryName))
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatalf("Error removing existing binary: %v", err)
-	}
-
-	// Check if binary exists
-	// When developing uncomment to prevent unecessary builds
-	// _, err = os.Stat(fmt.Sprintf("%s/%s", destDir, binaryName))
-	// if os.IsNotExist(err) {
-	// Intialize and update git submodule
-	err = exec.Command("git", "-C", fmt.Sprintf("%s", tempDir), "submodule", "update", "--init").Run()
-	if err != nil {
-		log.Fatalf("Error initializing and updating git submodule: %v", err)
-	}
-
-	// Make setup-golpe
-	err = exec.Command("make", "-C", fmt.Sprintf("%s", tempDir), "setup-golpe").Run()
-	if err != nil {
-		log.Fatalf("Error making setup-golpe: %v", err)
-	}
-
-	// Make -j2
-	err = exec.Command("make", "-C", fmt.Sprintf("%s", tempDir), "-j2").Run()
-	if err != nil {
-		log.Fatalf("Error making -j2: %v", err)
-	}
-
 	// Install
-	err = exec.Command("mv", fmt.Sprintf("%s/strfry", tempDir), fmt.Sprintf("%s/%s", destDir, binaryName)).Run()
+	// Determine the file name from the URL
+	tempFileName := filepath.Base(downloadURL)
+
+	// Create the temporary file
+	out, err := os.Create(fmt.Sprintf("/tmp/%s", tempFileName))
 	if err != nil {
-		log.Fatalf("Error installing binary: %v", err)
+		log.Fatalf("Error creating temporary file: %v", err)
 	}
-	// }
+	defer out.Close()
+
+	// Download the file
+	resp, err := http.Get(downloadURL)
+	if err != nil {
+		log.Fatalf("Error downloading file: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Bad status: %s", resp.Status)
+	}
+
+	// Write the body to the temporary file
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		log.Fatalf("Error writing to temporary file: %v", err)
+	}
+
+	// Extract binary
+	err = exec.Command("tar", "-xf", fmt.Sprintf("/tmp/%s", tempFileName), "-C", fmt.Sprintf("%s", destDir)).Run()
+	if err != nil {
+		log.Fatalf("Error extracting binary to /usr/local/bin: %v", err)
+	}
+
+	// TODO
+	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
+	// Ideally, the extracted binary file should be renamed to match the binaryName variable
+
+	// Define the final destination path
+	destPath := filepath.Join(destDir, binaryName)
+
+	// Make the file executable
+	err = os.Chmod(destPath, 0755)
+	if err != nil {
+		log.Fatalf("Error making file executable: %v", err)
+	}
 
 	spinner.Success("strfry relay installed successfully.")
 }

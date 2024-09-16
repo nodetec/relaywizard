@@ -1,5 +1,5 @@
 <div align="center"><p>
-    <h1>Relay Wizard 🪄</h1>
+    <h1>Relay Wizard 🧙</h1>
     <a href="https://github.com/nodetec/relaywizard/releases/latest">
       <img alt="Latest release" src="https://img.shields.io/github/v/release/nodetec/relaywizard?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41" />
     </a>
@@ -35,7 +35,7 @@ The program will automate the following steps:
 To install a relay, spin up a new Debian server, hook up a domain name, and run the following command:
 
 ```bash
-curl -sL https://relayrunner.org/relaywizard.sh | bash
+curl -sL https://relaywizard.com/install.sh | bash
 ```
 
 ## Learn more

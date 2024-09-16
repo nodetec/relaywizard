@@ -1,4 +1,4 @@
-package khatru_pyramid
+package khatru29
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func ConfigureNginxHttp(domainName string) {
 		log.Fatalf("Error creating directories: %v", err)
 	}
 
-	const configFile = "nostr_relay_khatru_pyramid.conf"
+	const configFile = "nostr_relay_khatru29.conf"
 
 	err = os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {
@@ -31,8 +31,8 @@ func ConfigureNginxHttp(domainName string) {
     '' close;
 }
 
-upstream websocket_khatru_pyramid {
-    server 0.0.0.0:3334;
+upstream websocket_khatru29 {
+    server 0.0.0.0:5577;
 }
 
 # %s
@@ -47,7 +47,7 @@ server {
     }
 
     location / {
-        proxy_pass http://websocket_khatru_pyramid;
+        proxy_pass http://websocket_khatru29;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;

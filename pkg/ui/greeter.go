@@ -6,5 +6,5 @@ import (
 
 func Greet() {
 	pterm.DefaultCenter.WithCenterEachLineSeparately().Println(
-		pterm.Magenta("\nWelcome to Relay Wizard 🪄") + pterm.Gray("\nInstall and manage your relays with ease!") + pterm.Gray("\nv0.1.0"))
+		pterm.Magenta("\nWelcome to Relay Wizard 🧙") + pterm.Gray("\nInstall and manage your relays with ease!") + pterm.Gray("\nv0.2.0"))
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nodetec/relaywiz/cmd"
+	"github.com/nodetec/rwz/cmd"
 )
 
 func main() {

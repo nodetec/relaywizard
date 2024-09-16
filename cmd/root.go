@@ -6,9 +6,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "relaywiz",
+	Use:   "rwz",
 	Short: "A wizard for relay runners",
-	Long: `relaywiz is a CLI tool for relays operators that 
+	Long: `rwz is a CLI tool for relays operators that 
 helps install and configure your relay.`,
 }
 
@@ -30,5 +30,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
