@@ -137,7 +137,7 @@ By completing the above steps you will have successfully verified the integrity 
 
 ## Learn more
 
-If you want to learn more about how to setup a relay from scratch, check out [Relay Runner](https://relayrunner.org "Relay Runner")
+If you want to learn more about how to setup a relay from scratch, check out [Relay Runner](https://relayrunner.org "Relay Runner").
 
 If you just want to know enough to get started, read the following sections to get a server, hook up a domain name and setup remote access:
 
