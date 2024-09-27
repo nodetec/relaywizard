@@ -1,4 +1,4 @@
-package khatru29
+package wot_relay
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 func ConfigureNginxHttps(domainName string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 
-	const configFile = "khatru29.conf"
+	const configFile = "wot_relay.conf"
 
 	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {
@@ -26,8 +26,8 @@ func ConfigureNginxHttps(domainName string) {
     '' close;
 }
 
-upstream websocket_khatru29 {
-    server 0.0.0.0:5577;
+upstream websocket_wot_relay {
+    server localhost:3334;
 }
 
 server {
@@ -38,15 +38,17 @@ server {
     root /var/www/%s;
 
     location / {
-	# First attempt to serve request as file, then
- 	# as directory, then fall back to displaying 404.
-  	try_files $uri $uri/ =404;
-   	proxy_pass http://websocket_khatru29;
+				# First attempt to serve request as file, then
+ 				# as directory, then fall back to displaying 404.
+  			try_files $uri $uri/ =404;
+				proxy_pass http://websocket_wot_relay;
+        proxy_set_header Host $host;
+		    proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $remote_addr;
+				proxy_set_header Connection $connection_upgrade;
     }
 
     #### SSL Configuration ####
@@ -85,7 +87,7 @@ server {
 
     # By default, the buffer size is 16k, which corresponds to minimal overhead when sending big responses.
     # To minimize Time To First Byte it may be beneficial to use smaller values
-    ssl_buffer_size 8k;
+		ssl_buffer_size 8k;
 
     # OCSP stapling
     ssl_stapling on;

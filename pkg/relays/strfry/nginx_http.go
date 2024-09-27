@@ -17,7 +17,7 @@ func ConfigureNginxHttp(domainName string) {
 		log.Fatalf("Error creating directories: %v", err)
 	}
 
-	const configFile = "nostr_relay_strfry.conf"
+	const configFile = "strfry.conf"
 
 	err = os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {

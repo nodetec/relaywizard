@@ -14,16 +14,16 @@ import (
 // Function to download and make the binary executable
 func InstallRelayBinary() {
 	// URL of the binary to download
-	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.1.0/khatru-pyramid-0.0.5-x86_64-linux-gnu.tar.gz"
+	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.2.0/khatru-pyramid-0.1.0-x86_64-linux-gnu.tar.gz"
 
 	// Name of the binary after downloading
-	const binaryName = "nostr-relay-khatru-pyramid"
+	const binaryName = "khatru-pyramid"
 
 	// Destination directory for the binary
 	const destDir = "/usr/local/bin"
 
 	// Data directory for the relay
-	const dataDir = "/var/lib/nostr-relay-khatru-pyramid"
+	const dataDir = "/var/lib/khatru-pyramid"
 
 	spinner, _ := pterm.DefaultSpinner.Start("Installing Khatru Pyramid relay...")
 

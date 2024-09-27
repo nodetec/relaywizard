@@ -1,14 +1,15 @@
-package khatru_pyramid
+package khatru29
 
 import (
 	"github.com/pterm/pterm"
 )
 
 func SuccessMessages(domain string) {
-	const dataDir = "/var/lib/nostr-relay-khatru-pyramid"
-	const envFile = "/etc/systemd/system/nostr-relay-khatru-pyramid.env"
-	const service = "nostr-relay-khatru-pyramid"
-	const githubLink = "https://github.com/github-tijlxyz/khatru-pyramid"
+	const dataDir = "/var/lib/khatru29"
+	const envFile = "/etc/systemd/system/khatru29.env"
+	const serviceFile = "/etc/systemd/system/khatru29.service"
+	const service = "khatru29"
+	const githubLink = "https://github.com/fiatjaf/relay29/tree/master"
 
 	pterm.Println()
 	pterm.Println(pterm.Magenta("The installation is complete."))
@@ -26,6 +27,10 @@ func SuccessMessages(domain string) {
 	pterm.Println(pterm.Magenta(envFile))
 
 	pterm.Println()
+	pterm.Println(pterm.Magenta("Your relay's service file is located here:"))
+	pterm.Println(pterm.Magenta(serviceFile))
+
+	pterm.Println()
 	pterm.Println(pterm.Magenta("To check the status of your relay run:"))
 	pterm.Println(pterm.Magenta("systemctl status " + service))
 
@@ -38,6 +43,6 @@ func SuccessMessages(domain string) {
 	pterm.Println(pterm.Magenta("systemctl restart " + service))
 
 	pterm.Println()
-	pterm.Println(pterm.Magenta("Khatru Pyramid GitHub"))
+	pterm.Println(pterm.Magenta("Khatru29 GitHub"))
 	pterm.Println(pterm.Magenta(githubLink))
 }

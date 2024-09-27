@@ -12,7 +12,7 @@ import (
 func ConfigureNginxHttps(domainName string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 
-	const configFile = "nostr_relay_khatru_pyramid.conf"
+	const configFile = "khatru_pyramid.conf"
 
 	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {

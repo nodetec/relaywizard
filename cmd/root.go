@@ -7,9 +7,9 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "rwz",
-	Short: "A wizard for relay runners",
-	Long: `rwz is a CLI tool for relays operators that 
-helps install and configure your relay.`,
+	Short: "A wizard for Nostr relay runners",
+	Long: `rwz is a CLI tool for Nostr relay operators that 
+helps install and configure your specified relay.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
