@@ -6,6 +6,7 @@ import (
 	"github.com/nodetec/rwz/pkg/relays/khatru29"
 	"github.com/nodetec/rwz/pkg/relays/khatru_pyramid"
 	"github.com/nodetec/rwz/pkg/relays/strfry"
+	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/nodetec/rwz/pkg/ui"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -13,8 +14,8 @@ import (
 
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install and configure the nostr relay",
-	Long:  `Install and configure the nostr relay, including package installation, nginx configuration, firewall setup, SSL certificates, and starting the relay service.`,
+	Short: "Install and configure your Nostr relay",
+	Long:  `Install and configure your Nostr relay, including package installation, nginx configuration, firewall setup, SSL certificates, and starting the relay service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		ui.Greet()
@@ -27,7 +28,7 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		// Supported relay options
-		options := []string{"Khatru Pyramid", "strfry", "khatru29"}
+		options := []string{"Khatru Pyramid", "strfry", "Khatru29", "WoT Relay"}
 
 		// Use PTerm's interactive select feature to present the options to the user and capture their selection
 		// The Show() method displays the options and waits for the user's input
@@ -38,10 +39,10 @@ var installCmd = &cobra.Command{
 
 		var privkey string
 		var pubkey string
-		if selectedRelayOption == "Khatru Pyramid" {
+		if selectedRelayOption == "Khatru Pyramid" || selectedRelayOption == "WoT Relay" {
 			pterm.Println()
 			pubkey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
-		} else if selectedRelayOption == "khatru29" {
+		} else if selectedRelayOption == "Khatru29" {
 			pterm.Println()
 			privkey, _ = pterm.DefaultInteractiveTextInput.Show("Private key (hex not nsec)")
 		}
@@ -78,33 +79,30 @@ var installCmd = &cobra.Command{
 			// Step 8: Show success messages
 			khatru_pyramid.SuccessMessages(relayDomain)
 		} else if selectedRelayOption == "strfry" {
-			// Step 2: Install necessary strfry package dependencies
-			strfry.AptInstallDependencies()
-
-			// Step 3: Configure the firewall
+			// Step 2: Configure the firewall
 			network.ConfigureFirewall()
 
-			// Step 4: Configure Nginx for HTTP
+			// Step 3: Configure Nginx for HTTP
 			strfry.ConfigureNginxHttp(relayDomain)
 
-			// Step 5: Get SSL certificates
+			// Step 4: Get SSL certificates
 			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
 			if !shouldContinue {
 				return
 			}
 
-			// Step 6: Configure Nginx for HTTPS
+			// Step 5: Configure Nginx for HTTPS
 			strfry.ConfigureNginxHttps(relayDomain)
 
-			// Step 7: Download and install the relay binary
+			// Step 6: Download and install the relay binary
 			strfry.InstallRelayBinary()
 
-			// Step 8: Set up the relay service
+			// Step 7: Set up the relay service
 			strfry.SetupRelayService(relayDomain)
 
-			// Step 9: Show success messages
+			// Step 8: Show success messages
 			strfry.SuccessMessages(relayDomain)
-		} else if selectedRelayOption == "khatru29" {
+		} else if selectedRelayOption == "Khatru29" {
 			// Step 2: Configure the firewall
 			network.ConfigureFirewall()
 
@@ -128,6 +126,30 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			khatru29.SuccessMessages(relayDomain)
+		} else if selectedRelayOption == "WoT Relay" {
+			// Step 2: Configure the firewall
+			network.ConfigureFirewall()
+
+			// Step 3: Configure Nginx for HTTP
+			wot_relay.ConfigureNginxHttp(relayDomain)
+
+			// Step 4: Get SSL certificates
+			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
+			if !shouldContinue {
+				return
+			}
+
+			// Step 5: Configure Nginx for HTTPS
+			wot_relay.ConfigureNginxHttps(relayDomain)
+
+			// Step 6: Download and install the relay binary
+			wot_relay.InstallRelayBinary()
+
+			// Step 7: Set up the relay service
+			wot_relay.SetupRelayService(relayDomain, pubkey)
+
+			// Step 8: Show success messages
+			wot_relay.SuccessMessages(relayDomain)
 		}
 
 		pterm.Println()

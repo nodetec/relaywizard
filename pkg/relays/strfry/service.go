@@ -23,14 +23,14 @@ func userExists(username string) bool {
 func SetupRelayService(domain string) {
 	// Template for the systemd service file
 	const serviceTemplate = `[Unit]
-Description=Nostr Relay strfry 
+Description=strfry Nostr Relay Service
 After=network.target
 
 [Service]
 Type=simple
 User=nostr
 Group=nostr
-ExecStart=/usr/local/bin/nostr-relay-strfry relay
+ExecStart=/usr/local/bin/strfry relay
 Restart=on-failure
 RestartSec=5
 ProtectHome=yes
@@ -42,21 +42,13 @@ LimitCORE=1000000000
 WantedBy=multi-user.target
 `
 
-	// Path for the systemd service file
-	const serviceFilePath = "/etc/systemd/system/nostr-relay-strfry.service"
-
 	// Data directory
-	const dataDir = "/var/lib/nostr-relay-strfry"
+	const dataDir = "/var/lib/strfry"
+
+	// Path for the systemd service file
+	const serviceFilePath = "/etc/systemd/system/strfry.service"
 
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
-
-	// Check if the service file exists and remove it if it does
-	if _, err := os.Stat(serviceFilePath); err == nil {
-		err = os.Remove(serviceFilePath)
-		if err != nil {
-			log.Fatalf("Error removing service file: %v", err)
-		}
-	}
 
 	// Ensure the user for the relay service exists
 	if !userExists("nostr") {
@@ -80,6 +72,14 @@ WantedBy=multi-user.target
 	err = exec.Command("chown", "-R", "nostr:nostr", dataDir).Run()
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
+	}
+
+	// Check if the service file exists and remove it if it does
+	if _, err := os.Stat(serviceFilePath); err == nil {
+		err = os.Remove(serviceFilePath)
+		if err != nil {
+			log.Fatalf("Error removing service file: %v", err)
+		}
 	}
 
 	filePath := "/tmp/strfry/strfry.conf"
@@ -145,16 +145,16 @@ WantedBy=multi-user.target
 		log.Fatalf("Error reloading systemd daemon: %v", err)
 	}
 
-	// Enable and start the nostr relay service
+	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	err = exec.Command("systemctl", "enable", "nostr-relay-strfry").Run()
+	err = exec.Command("systemctl", "enable", "strfry").Run()
 	if err != nil {
-		log.Fatalf("Error enabling nostr relay service: %v", err)
+		log.Fatalf("Error enabling Nostr relay service: %v", err)
 	}
 
-	err = exec.Command("systemctl", "start", "nostr-relay-strfry").Run()
+	err = exec.Command("systemctl", "start", "strfry").Run()
 	if err != nil {
-		log.Fatalf("Error starting nostr relay service: %v", err)
+		log.Fatalf("Error starting Nostr relay service: %v", err)
 	}
 
 	spinner.Success("Nostr relay service configured")

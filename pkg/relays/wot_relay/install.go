@@ -1,4 +1,4 @@
-package khatru29
+package wot_relay
 
 import (
 	"fmt"
@@ -14,21 +14,39 @@ import (
 // Function to download and make the binary executable
 func InstallRelayBinary() {
 	// URL of the binary to download
-	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.2.0/khatru29-0.4.0-x86_64-linux-gnu.tar.gz"
+	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.2.0/wot-relay-0.1.12-x86_64-linux-gnu.tar.gz"
 
 	// Name of the binary after downloading
-	const binaryName = "khatru29"
+	const binaryName = "wot-relay"
 
 	// Destination directory for the binary
 	const destDir = "/usr/local/bin"
 
-	// Data directory for the relay
-	const dataDir = "/var/lib/khatru29"
+	// Templates directory for the relay
+	const templatesDir = "/etc/wot-relay/templates"
 
-	spinner, _ := pterm.DefaultSpinner.Start("Installing Khatru29 relay...")
+	// Static directory for the relay
+	const staticDir = "/etc/wot-relay/templates/static"
+
+	// Data directory for the relay
+	const dataDir = "/var/lib/wot-relay"
+
+	spinner, _ := pterm.DefaultSpinner.Start("Installing WoT Relay...")
+
+	// Ensure the templates directory exists
+	err := os.MkdirAll(templatesDir, 0755)
+	if err != nil {
+		log.Fatalf("Error creating templates directory: %v", err)
+	}
+
+	// Ensure the static directory exists
+	err = os.MkdirAll(staticDir, 0755)
+	if err != nil {
+		log.Fatalf("Error creating static directory: %v", err)
+	}
 
 	// Ensure the data directory exists
-	err := os.MkdirAll(dataDir, 0755)
+	err = os.MkdirAll(dataDir, 0755)
 	if err != nil {
 		log.Fatalf("Error creating data directory: %v", err)
 	}
@@ -80,5 +98,5 @@ func InstallRelayBinary() {
 		log.Fatalf("Error making file executable: %v", err)
 	}
 
-	spinner.Success("Khatru29 relay installed successfully.")
+	spinner.Success("WoT Relay installed successfully.")
 }

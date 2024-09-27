@@ -17,9 +17,19 @@ func userExists(username string) bool {
 
 // Function to set up the relay service
 func SetupRelayService(domain, pubKey string) {
+	// Template for the environment file
+	const envTemplate = `DOMAIN="{{.Domain}}"
+DATABASE_PATH="/var/lib/khatru-pyramid/db"
+USERDATA_PATH="/var/lib/khatru-pyramid/users.json"
+MAX_INVITES_PER_PERSON="3"
+RELAY_NAME="Khatru Pyramid"
+RELAY_PUBKEY="{{.PubKey}}"
+RELAY_DESCRIPTION="Khatru Pyramid Nostr Relay"
+RELAY_CONTACT="your-email@example.com"
+`
 	// Template for the systemd service file
 	const serviceTemplate = `[Unit]
-Description=Nostr Relay Khatru Pyramid
+Description=Khatru Pyramid Nostr Relay Service
 After=network.target
 
 [Service]
@@ -27,48 +37,24 @@ Type=simple
 User=nostr
 Group=nostr
 WorkingDirectory=/home/nostr
-EnvironmentFile=/etc/systemd/system/nostr-relay-khatru-pyramid.env
-ExecStart=/usr/local/bin/nostr-relay-khatru-pyramid
+EnvironmentFile=/etc/systemd/system/khatru-pyramid.env
+ExecStart=/usr/local/bin/khatru-pyramid
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 `
 
-	// Template for the environment file
-	const envTemplate = `
-DOMAIN={{.Domain}}
-RELAY_NAME=nostr-relay-khatru-pyramid
-RELAY_PUBKEY={{.PubKey}}
-DATABASE_PATH=/var/lib/nostr-relay-khatru-pyramid/db
-USERDATA_PATH=/var/lib/nostr-relay-khatru-pyramid/users.json
-`
-	// Path for the systemd service file
-	const serviceFilePath = "/etc/systemd/system/nostr-relay-khatru-pyramid.service"
+	// Data directory
+	const dataDir = "/var/lib/khatru-pyramid"
 
 	// Path for the environment file
-	const envFilePath = "/etc/systemd/system/nostr-relay-khatru-pyramid.env"
+	const envFilePath = "/etc/systemd/system/khatru-pyramid.env"
 
-	// Data directory
-	const dataDir = "/var/lib/nostr-relay-khatru-pyramid"
+	// Path for the systemd service file
+	const serviceFilePath = "/etc/systemd/system/khatru-pyramid.service"
 
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
-
-	// Check if the service file exists and remove it if it does
-	if _, err := os.Stat(serviceFilePath); err == nil {
-		err = os.Remove(serviceFilePath)
-		if err != nil {
-			log.Fatalf("Error removing service file: %v", err)
-		}
-	}
-
-	// Check if the environment file exists and remove it if it does
-	if _, err := os.Stat(envFilePath); err == nil {
-		err = os.Remove(envFilePath)
-		if err != nil {
-			log.Fatalf("Error removing environment file: %v", err)
-		}
-	}
 
 	// Ensure the user for the relay service exists
 	if !userExists("nostr") {
@@ -92,6 +78,22 @@ USERDATA_PATH=/var/lib/nostr-relay-khatru-pyramid/users.json
 	err = exec.Command("chown", "-R", "nostr:nostr", dataDir).Run()
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
+	}
+
+	// Check if the environment file exists and remove it if it does
+	if _, err := os.Stat(envFilePath); err == nil {
+		err = os.Remove(envFilePath)
+		if err != nil {
+			log.Fatalf("Error removing environment file: %v", err)
+		}
+	}
+
+	// Check if the service file exists and remove it if it does
+	if _, err := os.Stat(serviceFilePath); err == nil {
+		err = os.Remove(serviceFilePath)
+		if err != nil {
+			log.Fatalf("Error removing service file: %v", err)
+		}
 	}
 
 	// Create the environment file
@@ -125,7 +127,7 @@ USERDATA_PATH=/var/lib/nostr-relay-khatru-pyramid/users.json
 		log.Fatalf("Error parsing service template: %v", err)
 	}
 
-	err = tmpl.Execute(serviceFile, struct{ Domain, PubKey string }{Domain: domain, PubKey: pubKey})
+	err = tmpl.Execute(serviceFile, struct{}{})
 	if err != nil {
 		log.Fatalf("Error executing service template: %v", err)
 	}
@@ -137,16 +139,16 @@ USERDATA_PATH=/var/lib/nostr-relay-khatru-pyramid/users.json
 		log.Fatalf("Error reloading systemd daemon: %v", err)
 	}
 
-	// Enable and start the nostr relay service
+	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	err = exec.Command("systemctl", "enable", "nostr-relay-khatru-pyramid").Run()
+	err = exec.Command("systemctl", "enable", "khatru-pyramid").Run()
 	if err != nil {
-		log.Fatalf("Error enabling nostr relay service: %v", err)
+		log.Fatalf("Error enabling Nostr relay service: %v", err)
 	}
 
-	err = exec.Command("systemctl", "start", "nostr-relay-khatru-pyramid").Run()
+	err = exec.Command("systemctl", "start", "khatru-pyramid").Run()
 	if err != nil {
-		log.Fatalf("Error starting nostr relay service: %v", err)
+		log.Fatalf("Error starting Nostr relay service: %v", err)
 	}
 
 	spinner.Success("Nostr relay service configured")

@@ -18,9 +18,19 @@ func userExists(username string) bool {
 
 // Function to set up the relay service
 func SetupRelayService(domain, privKey string) {
+	// Template for the environment file
+	const envTemplate = `PORT="5577"
+DOMAIN="{{.Domain}}"
+RELAY_NAME="Khatru29"
+RELAY_PRIVKEY="{{.PrivKey}}"
+RELAY_DESCRIPTION="Khatru29 Nostr Relay"
+RELAY_CONTACT="your-email@example.com"
+DATABASE_PATH=/var/lib/khatru29/db
+`
+
 	// Template for the systemd service file
 	const serviceTemplate = `[Unit]
-Description=Nostr Relay Khatru29
+Description=Khatru29 Nostr Relay Service
 After=network.target
 
 [Service]
@@ -28,53 +38,27 @@ Type=simple
 User=nostr
 Group=nostr
 WorkingDirectory=/home/nostr
-EnvironmentFile=/etc/systemd/system/nostr-relay-khatru29.env
-ExecStart=/usr/local/bin/nostr-relay-khatru29
+EnvironmentFile=/etc/systemd/system/khatru29.env
+ExecStart=/usr/local/bin/khatru29
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 `
 
-	// Template for the environment file
-	const envTemplate = `
-PORT=5577
-DOMAIN={{.Domain}}
-RELAY_NAME=nostr-relay-khatru29
-RELAY_PRIVKEY={{.PrivKey}}
-RELAY_DESCRIPTION=Khatru29 Nostr Relay
-RELAY_CONTACT=devs@node-tec.com
-DATABASE_PATH=/var/lib/nostr-relay-khatru29/db
-`
-	// Path for the systemd service file
-	const serviceFilePath = "/etc/systemd/system/nostr-relay-khatru29.service"
+	// Data directory
+	const dataDir = "/var/lib/khatru29"
 
 	// Path for the environment file
-	const envFilePath = "/etc/systemd/system/nostr-relay-khatru29.env"
+	const envFilePath = "/etc/systemd/system/khatru29.env"
 
-	// Data directory
-	const dataDir = "/var/lib/nostr-relay-khatru29"
+	// Path for the systemd service file
+	const serviceFilePath = "/etc/systemd/system/khatru29.service"
 
 	// Relay service
-	const relayService = "nostr-relay-khatru29"
+	const relayService = "khatru29"
 
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
-
-	// Check if the service file exists and remove it if it does
-	if _, err := os.Stat(serviceFilePath); err == nil {
-		err = os.Remove(serviceFilePath)
-		if err != nil {
-			log.Fatalf("Error removing service file: %v", err)
-		}
-	}
-
-	// Check if the environment file exists and remove it if it does
-	if _, err := os.Stat(envFilePath); err == nil {
-		err = os.Remove(envFilePath)
-		if err != nil {
-			log.Fatalf("Error removing environment file: %v", err)
-		}
-	}
 
 	// Ensure the user for the relay service exists
 	if !userExists("nostr") {
@@ -98,6 +82,22 @@ DATABASE_PATH=/var/lib/nostr-relay-khatru29/db
 	err = exec.Command("chown", "-R", "nostr:nostr", dataDir).Run()
 	if err != nil {
 		log.Fatalf("Error setting ownership of the data directory: %v", err)
+	}
+
+	// Check if the environment file exists and remove it if it does
+	if _, err := os.Stat(envFilePath); err == nil {
+		err = os.Remove(envFilePath)
+		if err != nil {
+			log.Fatalf("Error removing environment file: %v", err)
+		}
+	}
+
+	// Check if the service file exists and remove it if it does
+	if _, err := os.Stat(serviceFilePath); err == nil {
+		err = os.Remove(serviceFilePath)
+		if err != nil {
+			log.Fatalf("Error removing service file: %v", err)
+		}
 	}
 
 	// Create the environment file
@@ -131,7 +131,7 @@ DATABASE_PATH=/var/lib/nostr-relay-khatru29/db
 		log.Fatalf("Error parsing service template: %v", err)
 	}
 
-	err = tmpl.Execute(serviceFile, struct{ Domain, PrivKey string }{Domain: domain, PrivKey: privKey})
+	err = tmpl.Execute(serviceFile, struct{}{})
 	if err != nil {
 		log.Fatalf("Error executing service template: %v", err)
 	}
@@ -143,16 +143,16 @@ DATABASE_PATH=/var/lib/nostr-relay-khatru29/db
 		log.Fatalf("Error reloading systemd daemon: %v", err)
 	}
 
-	// Enable and start the nostr relay service
+	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
 	err = exec.Command("systemctl", "enable", fmt.Sprintf("%s", relayService)).Run()
 	if err != nil {
-		log.Fatalf("Error enabling nostr relay service: %v", err)
+		log.Fatalf("Error enabling Nostr relay service: %v", err)
 	}
 
 	err = exec.Command("systemctl", "start", fmt.Sprintf("%s", relayService)).Run()
 	if err != nil {
-		log.Fatalf("Error starting nostr relay service: %v", err)
+		log.Fatalf("Error starting Nostr relay service: %v", err)
 	}
 
 	spinner.Success("Nostr relay service configured")

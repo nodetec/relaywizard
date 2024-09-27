@@ -12,7 +12,7 @@ import (
 func ConfigureNginxHttps(domainName string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 
-	const configFile = "nostr_relay_strfry.conf"
+	const configFile = "strfry.conf"
 
 	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
 	if err != nil && !os.IsNotExist(err) {
@@ -33,7 +33,7 @@ func ConfigureNginxHttps(domainName string) {
  	# as directory, then fall back to displaying 404.
   	try_files $uri $uri/ =404;
 		proxy_pass http://127.0.0.1:7777;
-        proxy_http_version 1.1;
+		     proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
 		    proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;

@@ -17,10 +17,10 @@ func InstallRelayBinary() {
 	const tempDir = "/tmp/strfry"
 
 	// URL of the binary to download
-	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.1.0/strfry-0.9.7-x86_64-linux-gnu.tar.gz"
+	const downloadURL = "https://github.com/nodetec/relays/releases/download/v0.2.0/strfry-1.0.1-x86_64-linux-gnu.tar.gz"
 
 	// Name of the binary after downloading
-	const binaryName = "nostr-relay-strfry"
+	const binaryName = "strfry"
 
 	// Destination directory for the binary
 	const destDir = "/usr/local/bin"
@@ -34,7 +34,7 @@ func InstallRelayBinary() {
 	}
 
 	// Download git repository
-	err = exec.Command("git", "clone", "-b", "0.9.7", "https://github.com/hoytech/strfry.git", fmt.Sprintf("%s", tempDir)).Run()
+	err = exec.Command("git", "clone", "-b", "1.0.1", "https://github.com/hoytech/strfry.git", fmt.Sprintf("%s", tempDir)).Run()
 	if err != nil {
 		log.Fatalf("Error downloading repository: %v", err)
 	}
