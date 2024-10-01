@@ -1,19 +1,13 @@
 package wot_relay
 
 import (
+	"github.com/nodetec/rwz/pkg/utils/directories"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/systemd"
+	"github.com/nodetec/rwz/pkg/utils/templates"
+	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
-	"log"
-	"os"
-	"os/exec"
-	"text/template"
 )
-
-// Function to check if a user exists
-func userExists(username string) bool {
-	cmd := exec.Command("id", "-u", username)
-	err := cmd.Run()
-	return err == nil
-}
 
 // Function to set up the relay service
 func SetupRelayService(domain, pubKey string) {
@@ -99,154 +93,71 @@ WantedBy=multi-user.target
 	// Path for the systemd service file
 	const serviceFilePath = "/etc/systemd/system/wot-relay.service"
 
+	// Relay service
+	const relayService = "wot-relay"
+
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Ensure the user for the relay service exists
-	if !userExists("nostr") {
+	if !users.UserExists("nostr") {
 		spinner.UpdateText("Creating user 'nostr'...")
-		err := exec.Command("adduser", "--disabled-login", "--gecos", "", "nostr").Run()
-		if err != nil {
-			log.Fatalf("Error creating user: %v", err)
-		}
+		users.CreateUser("nostr", true)
 	} else {
 		spinner.UpdateText("User 'nostr' already exists")
 	}
 
 	// Ensure the templates directory exists and set ownership
 	spinner.UpdateText("Creating templates directory...")
-	err := os.MkdirAll(templatesDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating templates directory: %v", err)
-	}
+	directories.CreateDirectory(templatesDir, 0755)
 
 	// Use chown command to set ownership of the templates directory to the nostr user
-	err = exec.Command("chown", "-R", "nostr:nostr", templatesDir).Run()
-	if err != nil {
-		log.Fatalf("Error setting ownership of the templates directory: %v", err)
-	}
+	directories.SetOwnerAndGroup("nostr", "nostr", templatesDir)
 
 	// Ensure the static directory exists and set ownership
 	spinner.UpdateText("Creating static directory...")
-	err = os.MkdirAll(staticDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating static directory: %v", err)
-	}
+	directories.CreateDirectory(staticDir, 0755)
 
 	// Use chown command to set ownership of the static directory to the nostr user
-	err = exec.Command("chown", "-R", "nostr:nostr", staticDir).Run()
-	if err != nil {
-		log.Fatalf("Error setting ownership of the static directory: %v", err)
-	}
+	directories.SetOwnerAndGroup("nostr", "nostr", staticDir)
 
 	// Ensure the data directory exists and set ownership
 	spinner.UpdateText("Creating data directory...")
-	err = os.MkdirAll(dataDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating data directory: %v", err)
-	}
+	directories.CreateDirectory(dataDir, 0755)
 
 	// Use chown command to set ownership of the data directory to the nostr user
-	err = exec.Command("chown", "-R", "nostr:nostr", dataDir).Run()
-	if err != nil {
-		log.Fatalf("Error setting ownership of the data directory: %v", err)
-	}
+	directories.SetOwnerAndGroup("nostr", "nostr", dataDir)
 
 	// Check if the index.html file exists and remove it if it does
-	if _, err := os.Stat(indexFilePath); err == nil {
-		err = os.Remove(indexFilePath)
-		if err != nil {
-			log.Fatalf("Error removing index.html file: %v", err)
-		}
-	}
+	files.RemoveFile(indexFilePath)
 
 	// Check if the environment file exists and remove it if it does
-	if _, err := os.Stat(envFilePath); err == nil {
-		err = os.Remove(envFilePath)
-		if err != nil {
-			log.Fatalf("Error removing environment file: %v", err)
-		}
-	}
+	files.RemoveFile(envFilePath)
 
 	// Check if the service file exists and remove it if it does
-	if _, err := os.Stat(serviceFilePath); err == nil {
-		err = os.Remove(serviceFilePath)
-		if err != nil {
-			log.Fatalf("Error removing service file: %v", err)
-		}
-	}
+	files.RemoveFile(serviceFilePath)
 
 	// Create the index.html file
 	spinner.UpdateText("Creating index.html file...")
-	indexFile, err := os.Create(indexFilePath)
-	if err != nil {
-		log.Fatalf("Error creating index.html file: %v", err)
-	}
-	defer indexFile.Close()
-
-	indexTmpl, err := template.New("index").Parse(indexTemplate)
-	if err != nil {
-		log.Fatalf("Error parsing index.html template: %v", err)
-	}
-
-	err = indexTmpl.Execute(indexFile, struct{ Domain, PubKey string }{Domain: domain, PubKey: pubKey})
-	if err != nil {
-		log.Fatalf("Error executing index.html template: %v", err)
-	}
+	indexFileParams := templates.IndexFileParams{Domain: domain, PubKey: pubKey}
+	templates.CreateIndexFile(indexFilePath, indexTemplate, &indexFileParams)
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
-	envFile, err := os.Create(envFilePath)
-	if err != nil {
-		log.Fatalf("Error creating environment file: %v", err)
-	}
-	defer envFile.Close()
-
-	envTmpl, err := template.New("env").Parse(envTemplate)
-	if err != nil {
-		log.Fatalf("Error parsing environment template: %v", err)
-	}
-
-	err = envTmpl.Execute(envFile, struct{ PubKey, Domain string }{PubKey: pubKey, Domain: domain})
-	if err != nil {
-		log.Fatalf("Error executing environment template: %v", err)
-	}
+	envFileParams := systemd.EnvFileParams{Domain: domain, PubKey: pubKey}
+	systemd.CreateEnvFile(envFilePath, envTemplate, &envFileParams)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	serviceFile, err := os.Create(serviceFilePath)
-	if err != nil {
-		log.Fatalf("Error creating service file: %v", err)
-	}
-	defer serviceFile.Close()
-
-	tmpl, err := template.New("service").Parse(serviceTemplate)
-	if err != nil {
-		log.Fatalf("Error parsing service template: %v", err)
-	}
-
-	err = tmpl.Execute(serviceFile, struct{ PubKey, Domain string }{PubKey: pubKey, Domain: domain})
-	if err != nil {
-		log.Fatalf("Error executing service template: %v", err)
-	}
+	systemd.CreateServiceFile(serviceFilePath, serviceTemplate)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")
-	err = exec.Command("systemctl", "daemon-reload").Run()
-	if err != nil {
-		log.Fatalf("Error reloading systemd daemon: %v", err)
-	}
+	systemd.Reload()
 
 	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	err = exec.Command("systemctl", "enable", "wot-relay").Run()
-	if err != nil {
-		log.Fatalf("Error enabling Nostr relay service: %v", err)
-	}
-
-	err = exec.Command("systemctl", "start", "wot-relay").Run()
-	if err != nil {
-		log.Fatalf("Error starting Nostr relay service: %v", err)
-	}
+	systemd.EnableService(relayService)
+	systemd.StartService(relayService)
 
 	spinner.Success("Nostr relay service configured")
 }
