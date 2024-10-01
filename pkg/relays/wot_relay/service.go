@@ -18,8 +18,8 @@ func SetupRelayService(domain, pubKey string) {
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<title>WoT Relay</title>
-		  <meta name="description" content="WoT Relay" />
-		  <link href="https://{{.Domain}}" rel="canonical" />
+			<meta name="description" content="WoT Relay" />
+			<link href="https://{{.Domain}}" rel="canonical" />
 	</head>
 	<body>
 		<main>

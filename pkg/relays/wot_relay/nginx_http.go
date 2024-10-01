@@ -22,7 +22,7 @@ func ConfigureNginxHttp(domainName string) {
 
 	configContent = fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
-		'' close;
+    '' close;
 }
 
 upstream websocket_wot_relay {
@@ -32,23 +32,23 @@ upstream websocket_wot_relay {
 # %s
 server {
     listen 80;
-		listen [::]:80;
-		server_name %s;
+    listen [::]:80;
+    server_name %s;
 
-		location /.well-known/acme-challenge/ {
-		    root /var/www/%s;
-		    allow all;
-		}
+    location /.well-known/acme-challenge/ {
+        root /var/www/%s;
+        allow all;
+    }
 
     location / {
-		    proxy_pass http://websocket_wot_relay;
+        proxy_pass http://websocket_wot_relay;
         proxy_set_header Host $host;
-		    proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-		    proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Connection $connection_upgrade;
     }
 }
 `, domainName, domainName, domainName)

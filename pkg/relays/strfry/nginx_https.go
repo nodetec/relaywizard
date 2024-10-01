@@ -25,15 +25,15 @@ func ConfigureNginxHttps(domainName string) {
     root /var/www/%s;
 
     location / {
-	# First attempt to serve request as file, then
- 	# as directory, then fall back to displaying 404.
-  	try_files $uri $uri/ =404;
-		proxy_pass http://127.0.0.1:7777;
-		     proxy_http_version 1.1;
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying 404.
+        try_files $uri $uri/ =404;
+        proxy_pass http://127.0.0.1:7777;
+        proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-		    proxy_set_header Connection "upgrade";
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
-		    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     #### SSL Configuration ####
@@ -59,7 +59,7 @@ func ConfigureNginxHttps(domainName string) {
     # Compilation of the top cipher suites 2024:
     # https://ssl-config.mozilla.org/#server=nginx
     ssl_ciphers "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305";
-    
+
     # Perfect Forward Secrecy (PFS) is frequently compromised without this
     ssl_prefer_server_ciphers on;
 

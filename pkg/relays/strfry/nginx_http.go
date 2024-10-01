@@ -24,9 +24,9 @@ func ConfigureNginxHttp(domainName string) {
 server {
     listen 80;
     listen [::]:80;
-		server_name %s;
+    server_name %s;
 
-		location /.well-known/acme-challenge/ {
+    location /.well-known/acme-challenge/ {
         root /var/www/%s;
         allow all;
     }

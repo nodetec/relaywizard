@@ -8,7 +8,7 @@ import (
 
 type FileMode = fs.FileMode
 
-// Function to remove directory
+// Function to clone a repository
 func Clone(branch, url, destDir string) {
 	err := exec.Command("git", "clone", "-b", branch, url, destDir).Run()
 	if err != nil {
