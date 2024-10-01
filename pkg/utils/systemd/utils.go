@@ -8,9 +8,10 @@ import (
 )
 
 type EnvFileParams struct {
-	Domain  string
-	PrivKey string
-	PubKey  string
+	Domain       string
+	HTTPSEnabled bool
+	PrivKey      string
+	PubKey       string
 }
 
 func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams) {
@@ -25,7 +26,14 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 		log.Fatalf("Error parsing environment template: %v", err)
 	}
 
-	err = envTmpl.Execute(envFile, struct{ Domain, PrivKey, PubKey string }{Domain: envFileParams.Domain, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey})
+	var WSProtocol string
+	if envFileParams.HTTPSEnabled {
+		WSProtocol = "wss"
+	} else {
+		WSProtocol = "ws"
+	}
+
+	err = envTmpl.Execute(envFile, struct{ Domain, WSProtocol, PrivKey, PubKey string }{Domain: envFileParams.Domain, WSProtocol: WSProtocol, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey})
 	if err != nil {
 		log.Fatalf("Error executing environment template: %v", err)
 	}

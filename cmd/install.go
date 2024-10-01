@@ -22,10 +22,6 @@ var installCmd = &cobra.Command{
 
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		pterm.Println()
-		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications from Let's Encrypt about your SSL cert."))
-		pterm.Println()
-		ssl_email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
-		pterm.Println()
 
 		// Supported relay options
 		options := []string{"Khatru Pyramid", "strfry", "Khatru29", "WoT Relay"}
@@ -62,13 +58,11 @@ var installCmd = &cobra.Command{
 			khatru_pyramid.ConfigureNginxHttp(relayDomain)
 
 			// Step 4: Get SSL certificates
-			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
-			if !shouldContinue {
-				return
+			var httpsEnabled = network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				khatru_pyramid.ConfigureNginxHttps(relayDomain)
 			}
-
-			// Step 5: Configure Nginx for HTTPS
-			khatru_pyramid.ConfigureNginxHttps(relayDomain)
 
 			// Step 6: Download and install the relay binary
 			khatru_pyramid.InstallRelayBinary()
@@ -77,7 +71,7 @@ var installCmd = &cobra.Command{
 			khatru_pyramid.SetupRelayService(relayDomain, pubkey)
 
 			// Step 8: Show success messages
-			khatru_pyramid.SuccessMessages(relayDomain)
+			khatru_pyramid.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == "strfry" {
 			// Step 2: Configure the firewall
 			network.ConfigureFirewall()
@@ -86,13 +80,11 @@ var installCmd = &cobra.Command{
 			strfry.ConfigureNginxHttp(relayDomain)
 
 			// Step 4: Get SSL certificates
-			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
-			if !shouldContinue {
-				return
+			var httpsEnabled = network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				strfry.ConfigureNginxHttps(relayDomain)
 			}
-
-			// Step 5: Configure Nginx for HTTPS
-			strfry.ConfigureNginxHttps(relayDomain)
 
 			// Step 6: Download and install the relay binary
 			strfry.InstallRelayBinary()
@@ -101,7 +93,7 @@ var installCmd = &cobra.Command{
 			strfry.SetupRelayService(relayDomain)
 
 			// Step 8: Show success messages
-			strfry.SuccessMessages(relayDomain)
+			strfry.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == "Khatru29" {
 			// Step 2: Configure the firewall
 			network.ConfigureFirewall()
@@ -110,13 +102,11 @@ var installCmd = &cobra.Command{
 			khatru29.ConfigureNginxHttp(relayDomain)
 
 			// Step 4: Get SSL certificates
-			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
-			if !shouldContinue {
-				return
+			var httpsEnabled = network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				khatru29.ConfigureNginxHttps(relayDomain)
 			}
-
-			// Step 5: Configure Nginx for HTTPS
-			khatru29.ConfigureNginxHttps(relayDomain)
 
 			// Step 6: Download and install the relay binary
 			khatru29.InstallRelayBinary()
@@ -125,7 +115,7 @@ var installCmd = &cobra.Command{
 			khatru29.SetupRelayService(relayDomain, privkey)
 
 			// Step 8: Show success messages
-			khatru29.SuccessMessages(relayDomain)
+			khatru29.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == "WoT Relay" {
 			// Step 2: Configure the firewall
 			network.ConfigureFirewall()
@@ -134,29 +124,27 @@ var installCmd = &cobra.Command{
 			wot_relay.ConfigureNginxHttp(relayDomain)
 
 			// Step 4: Get SSL certificates
-			var shouldContinue = network.GetCertificates(relayDomain, ssl_email)
-			if !shouldContinue {
-				return
+			var httpsEnabled = network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				wot_relay.ConfigureNginxHttps(relayDomain)
 			}
-
-			// Step 5: Configure Nginx for HTTPS
-			wot_relay.ConfigureNginxHttps(relayDomain)
 
 			// Step 6: Download and install the relay binary
 			wot_relay.InstallRelayBinary()
 
 			// Step 7: Set up the relay service
-			wot_relay.SetupRelayService(relayDomain, pubkey)
+			wot_relay.SetupRelayService(relayDomain, pubkey, httpsEnabled)
 
 			// Step 8: Show success messages
-			wot_relay.SuccessMessages(relayDomain)
+			wot_relay.SuccessMessages(relayDomain, httpsEnabled)
 		}
 
 		pterm.Println()
-		pterm.Println(pterm.Magenta("Join the NODE-TEC Discord to get support:"))
+		pterm.Println(pterm.Cyan("Join the NODE-TEC Discord to get support:"))
 		pterm.Println(pterm.Magenta("https://discord.gg/J9gRK5pbWb"))
 		pterm.Println()
-		pterm.Println(pterm.Magenta("We plan to use relay groups for support in the future..."))
+		pterm.Println(pterm.Cyan("We plan to use relay groups for support in the future..."))
 
 		pterm.Println()
 		pterm.Println(pterm.Magenta("You can re-run this installer with `rwz install`."))
