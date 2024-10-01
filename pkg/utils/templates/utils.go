@@ -7,8 +7,9 @@ import (
 )
 
 type IndexFileParams struct {
-	Domain string
-	PubKey string
+	Domain       string
+	HTTPSEnabled bool
+	PubKey       string
 }
 
 func CreateIndexFile(indexFilePath, indexTemplate string, indexFileParams *IndexFileParams) {
@@ -23,7 +24,14 @@ func CreateIndexFile(indexFilePath, indexTemplate string, indexFileParams *Index
 		log.Fatalf("Error parsing index.html template: %v", err)
 	}
 
-	err = indexTmpl.Execute(indexFile, struct{ Domain, PubKey string }{Domain: indexFileParams.Domain, PubKey: indexFileParams.PubKey})
+	var HTTPProtocol string
+	if indexFileParams.HTTPSEnabled {
+		HTTPProtocol = "https"
+	} else {
+		HTTPProtocol = "http"
+	}
+
+	err = indexTmpl.Execute(indexFile, struct{ Domain, HTTPProtocol, PubKey string }{Domain: indexFileParams.Domain, HTTPProtocol: HTTPProtocol, PubKey: indexFileParams.PubKey})
 	if err != nil {
 		log.Fatalf("Error executing index.html template: %v", err)
 	}

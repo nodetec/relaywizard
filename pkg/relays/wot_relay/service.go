@@ -10,7 +10,7 @@ import (
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, pubKey string) {
+func SetupRelayService(domain, pubKey string, httpsEnabled bool) {
 	// Template for index.html file
 	const indexTemplate = `<!doctype html>
 <html lang="en">
@@ -19,7 +19,7 @@ func SetupRelayService(domain, pubKey string) {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<title>WoT Relay</title>
 			<meta name="description" content="WoT Relay" />
-			<link href="https://{{.Domain}}" rel="canonical" />
+			<link href="{{.HTTPProtocol}}://{{.Domain}}" rel="canonical" />
 	</head>
 	<body>
 		<main>
@@ -43,7 +43,7 @@ func SetupRelayService(domain, pubKey string) {
 	const envTemplate = `RELAY_NAME="WoT Relay"
 RELAY_DESCRIPTION="WoT Nostr Relay"
 RELAY_ICON="https://pfp.nostr.build/56306a93a88d4c657d8a3dfa57b55a4ed65b709eee927b5dafaab4d5330db21f.png"
-RELAY_URL="wss://{{.Domain}}"
+RELAY_URL="{{.WSProtocol}}://{{.Domain}}"
 RELAY_PUBKEY="{{.PubKey}}"
 RELAY_CONTACT="{{.PubKey}}"
 INDEX_PATH="/etc/wot-relay/templates/index.html"
@@ -138,12 +138,12 @@ WantedBy=multi-user.target
 
 	// Create the index.html file
 	spinner.UpdateText("Creating index.html file...")
-	indexFileParams := templates.IndexFileParams{Domain: domain, PubKey: pubKey}
+	indexFileParams := templates.IndexFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey}
 	templates.CreateIndexFile(indexFilePath, indexTemplate, &indexFileParams)
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
-	envFileParams := systemd.EnvFileParams{Domain: domain, PubKey: pubKey}
+	envFileParams := systemd.EnvFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey}
 	systemd.CreateEnvFile(envFilePath, envTemplate, &envFileParams)
 
 	// Create the systemd service file

@@ -4,7 +4,7 @@ import (
 	"github.com/nodetec/rwz/pkg/utils/messages"
 )
 
-func SuccessMessages(domain string) {
+func SuccessMessages(domain string, httpsEnabled bool) {
 	const dataDir = "/var/lib/strfry"
 	const configFile = "/etc/strfry.conf"
 	const serviceFile = "/etc/systemd/system/strfry.service"
@@ -12,6 +12,6 @@ func SuccessMessages(domain string) {
 	const relayName = "strfry"
 	const githubLink = "https://github.com/hoytech/strfry"
 
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, DataDir: dataDir, ConfigFile: configFile, ServiceFile: serviceFile, Service: service, RelayName: relayName, GitHubLink: githubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDir: dataDir, ConfigFile: configFile, ServiceFile: serviceFile, Service: service, RelayName: relayName, GitHubLink: githubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

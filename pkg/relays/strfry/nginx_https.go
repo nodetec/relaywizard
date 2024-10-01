@@ -2,6 +2,7 @@ package strfry
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
@@ -16,6 +17,8 @@ func ConfigureNginxHttps(domainName string) {
 	var configContent string
 
 	files.RemoveFile(configFilePath)
+
+	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
 
 	configContent = fmt.Sprintf(`server {
     listen 443 ssl http2;
@@ -36,6 +39,9 @@ func ConfigureNginxHttps(domainName string) {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
+    # Only return Nginx in server header
+    server_tokens off;
+
     #### SSL Configuration ####
     # Test configuration:
     # https://www.ssllabs.com/ssltest/analyze.html
@@ -44,9 +50,6 @@ func ConfigureNginxHttps(domainName string) {
     ssl_certificate_key /etc/letsencrypt/live/%s/privkey.pem;
     # Verify chain of trust of OCSP response using Root CA and Intermediate certs
     ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
-
-    # Only return Nginx in server header
-    server_tokens off;
 
     # TODO
     # Add support to generate the file in the script
@@ -78,7 +81,7 @@ func ConfigureNginxHttps(domainName string) {
     ssl_stapling on;
     ssl_stapling_verify on;
 
-    # Security headers
+		#### Security Headers ####
     # Test configuration:
     # https://securityheaders.com/
     # https://observatory.mozilla.org/
@@ -95,7 +98,7 @@ func ConfigureNginxHttps(domainName string) {
 
     add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
 
-    # Content-Security-Policy (CSP)
+    #### Content-Security-Policy (CSP) ####
     add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests;" always;
 }
 

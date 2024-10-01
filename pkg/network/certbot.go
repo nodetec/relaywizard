@@ -10,15 +10,23 @@ import (
 )
 
 // Function to get SSL certificates using Certbot
-func GetCertificates(domainName, email string) bool {
+func GetCertificates(domainName string) bool {
 
-	options := []string{"yes", "no"}
+	var ThemeDefault = pterm.ThemeDefault
 
-	prompt := pterm.DefaultInteractiveContinue.WithOptions(options)
+	var prompt = pterm.InteractiveContinuePrinter{
+		DefaultValueIndex: 0,
+		DefaultText:       "Obtain SSL certificates?",
+		TextStyle:         &ThemeDefault.PrimaryStyle,
+		Options:           []string{"yes", "no"},
+		OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
+		SuffixStyle:       &ThemeDefault.SecondaryStyle,
+		Delimiter:         ": ",
+	}
 
 	pterm.Println()
 	pterm.Println(pterm.Cyan("Do you want to obtain SSL certificates using Certbot?"))
-	pterm.Println(pterm.Cyan("This step requires that you already have a configured domain name."))
+	pterm.Println(pterm.Cyan("If you select 'yes', then this step requires that you already have a configured domain name."))
 	pterm.Println(pterm.Cyan("You can always re-run this installer after you have configured your domain name."))
 	pterm.Println()
 
@@ -29,6 +37,11 @@ func GetCertificates(domainName, email string) bool {
 	}
 
 	pterm.Println()
+	pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications from Let's Encrypt about your SSL certificates."))
+
+	pterm.Println()
+	email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
+	pterm.Println()
 
 	spinner, _ := pterm.DefaultSpinner.Start("Checking SSL certificates...")
 
@@ -36,7 +49,8 @@ func GetCertificates(domainName, email string) bool {
 
 	// Check if certificates already exist
 	if files.FileExists(fmt.Sprintf("%s/fullchain.pem", certificatePath)) &&
-		files.FileExists(fmt.Sprintf("%s/privkey.pem", certificatePath)) {
+		files.FileExists(fmt.Sprintf("%s/privkey.pem", certificatePath)) &&
+		files.FileExists(fmt.Sprintf("%s/chain.pem", certificatePath)) {
 		spinner.Info("SSL certificates already exist.")
 		return true
 	}
