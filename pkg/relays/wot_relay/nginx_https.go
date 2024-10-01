@@ -2,24 +2,20 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
-	"log"
-	"os"
-	"os/exec"
 )
 
 // Function to configure nginx for HTTPS
 func ConfigureNginxHttps(domainName string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
 
-	const configFile = "wot_relay.conf"
-
-	err := os.Remove(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile))
-	if err != nil && !os.IsNotExist(err) {
-		log.Fatalf("Error removing existing nginx configuration: %v", err)
-	}
+	const configFilePath = "/etc/nginx/conf.d/wot_relay.conf"
 
 	var configContent string
+
+	files.RemoveFile(configFilePath)
 
 	configContent = fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
@@ -130,15 +126,9 @@ server {
 }
 `, domainName, domainName, domainName, domainName, domainName, domainName, domainName, domainName)
 
-	err = os.WriteFile(fmt.Sprintf("/etc/nginx/conf.d/%s", configFile), []byte(configContent), 0644)
-	if err != nil {
-		log.Fatalf("Error writing nginx configuration: %v", err)
-	}
+	files.WriteFile(configFilePath, configContent, 0644)
 
-	err = exec.Command("systemctl", "reload", "nginx").Run()
-	if err != nil {
-		log.Fatalf("Error reloading nginx: %v", err)
-	}
+	systemd.RestartService("nginx")
 
 	spinner.Success("Nginx configured for HTTPS")
 }

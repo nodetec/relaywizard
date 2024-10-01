@@ -2,10 +2,10 @@ package network
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/utils"
+	"github.com/nodetec/rwz/pkg/utils/directories"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
 	"log"
-	"os"
 	"os/exec"
 )
 
@@ -32,28 +32,27 @@ func GetCertificates(domainName, email string) bool {
 
 	spinner, _ := pterm.DefaultSpinner.Start("Checking SSL certificates...")
 
+	var certificatePath = fmt.Sprintf("/etc/letsencrypt/live/%s", domainName)
+
 	// Check if certificates already exist
-	if utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/fullchain.pem", domainName)) &&
-		utils.FileExists(fmt.Sprintf("/etc/letsencrypt/live/%s/privkey.pem", domainName)) {
+	if files.FileExists(fmt.Sprintf("%s/fullchain.pem", certificatePath)) &&
+		files.FileExists(fmt.Sprintf("%s/privkey.pem", certificatePath)) {
 		spinner.Info("SSL certificates already exist.")
 		return true
 	}
 
-	err := os.MkdirAll(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
-	if err != nil {
-		log.Fatalf("Error creating directories for Certbot: %v", err)
-	}
+	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
 
 	spinner.UpdateText("Obtaining SSL certificates...")
 	if email == "" {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
-		err = cmd.Run()
+		err := cmd.Run()
 		if err != nil {
 			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 		}
 	} else {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
-		err = cmd.Run()
+		err := cmd.Run()
 		if err != nil {
 			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 		}

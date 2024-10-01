@@ -2,12 +2,9 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/directories"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"io"
-	"log"
-	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 )
 
@@ -34,56 +31,28 @@ func InstallRelayBinary() {
 	spinner, _ := pterm.DefaultSpinner.Start("Installing WoT Relay...")
 
 	// Ensure the templates directory exists
-	err := os.MkdirAll(templatesDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating templates directory: %v", err)
-	}
+	directories.CreateDirectory(templatesDir, 0755)
 
 	// Ensure the static directory exists
-	err = os.MkdirAll(staticDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating static directory: %v", err)
-	}
+	directories.CreateDirectory(staticDir, 0755)
 
 	// Ensure the data directory exists
-	err = os.MkdirAll(dataDir, 0755)
-	if err != nil {
-		log.Fatalf("Error creating data directory: %v", err)
-	}
+	directories.CreateDirectory(dataDir, 0755)
 
 	// Determine the file name from the URL
-	tempFileName := filepath.Base(downloadURL)
+	tmpFileName := filepath.Base(downloadURL)
 
-	// Create the temporary file
-	out, err := os.Create(fmt.Sprintf("/tmp/%s", tempFileName))
-	if err != nil {
-		log.Fatalf("Error creating temporary file: %v", err)
-	}
-	defer out.Close()
+	// Temporary file path
+	tmpFilePath := fmt.Sprintf("/tmp/%s", tmpFileName)
 
-	// Download the file
-	resp, err := http.Get(downloadURL)
-	if err != nil {
-		log.Fatalf("Error downloading file: %v", err)
-	}
-	defer resp.Body.Close()
+	// Check if the temporary file exists and remove it if it does
+	files.RemoveFile(tmpFilePath)
 
-	// Check server response
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Bad status: %s", resp.Status)
-	}
-
-	// Write the body to the temporary file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Fatalf("Error writing to temporary file: %v", err)
-	}
+	// Download and copy the file
+	files.DownloadAndCopyFile(tmpFilePath, downloadURL)
 
 	// Extract binary
-	err = exec.Command("tar", "-xf", fmt.Sprintf("/tmp/%s", tempFileName), "-C", fmt.Sprintf("%s", destDir)).Run()
-	if err != nil {
-		log.Fatalf("Error extracting binary to /usr/local/bin: %v", err)
-	}
+	files.ExtractFile(tmpFilePath, destDir)
 
 	// TODO
 	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
@@ -93,10 +62,7 @@ func InstallRelayBinary() {
 	destPath := filepath.Join(destDir, binaryName)
 
 	// Make the file executable
-	err = os.Chmod(destPath, 0755)
-	if err != nil {
-		log.Fatalf("Error making file executable: %v", err)
-	}
+	files.SetPermissions(destPath, 0755)
 
 	spinner.Success("WoT Relay installed successfully.")
 }
