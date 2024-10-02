@@ -12,6 +12,7 @@ import (
 func SetupRelayService(domain, pubKey string) {
 	// Template for the environment file
 	const envTemplate = `DOMAIN="{{.Domain}}"
+PORT="3335"
 DATABASE_PATH="/var/lib/khatru-pyramid/db"
 USERDATA_PATH="/var/lib/khatru-pyramid/users.json"
 MAX_INVITES_PER_PERSON="3"

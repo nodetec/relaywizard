@@ -26,7 +26,7 @@ func ConfigureNginxHttps(domainName string) {
 }
 
 upstream websocket_khatru_pyramid {
-    server 0.0.0.0:3334;
+    server 0.0.0.0:3335;
 }
 
 server {
