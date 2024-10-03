@@ -2,25 +2,18 @@ package khatru29
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 )
 
-// Function to configure nginx for HTTPS
+// Function to configure Nginx for HTTPS
 func ConfigureNginxHttps(domainName string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
+	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTPS...")
 
-	const configFilePath = "/etc/nginx/conf.d/khatru29.conf"
+	files.RemoveFile(NginxConfigFilePath)
 
-	var configContent string
-
-	files.RemoveFile(configFilePath)
-
-	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
-
-	configContent = fmt.Sprintf(`map $http_upgrade $connection_upgrade {
+	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
 }
@@ -127,7 +120,7 @@ server {
 }
 `, domainName, domainName, domainName, domainName, domainName, domainName, domainName, domainName)
 
-	files.WriteFile(configFilePath, configContent, 0644)
+	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 
 	systemd.ReloadService("nginx")
 

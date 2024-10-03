@@ -9,48 +9,7 @@ import (
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, pubKey string) {
-	// Template for the environment file
-	const envTemplate = `DOMAIN="{{.Domain}}"
-PORT="3335"
-DATABASE_PATH="/var/lib/khatru-pyramid/db"
-USERDATA_PATH="/var/lib/khatru-pyramid/users.json"
-MAX_INVITES_PER_PERSON="3"
-RELAY_NAME="Khatru Pyramid"
-RELAY_PUBKEY="{{.PubKey}}"
-RELAY_DESCRIPTION="Khatru Pyramid Nostr Relay"
-RELAY_CONTACT="your-email@example.com"
-`
-	// Template for the systemd service file
-	const serviceTemplate = `[Unit]
-Description=Khatru Pyramid Nostr Relay Service
-After=network.target
-
-[Service]
-Type=simple
-User=nostr
-Group=nostr
-WorkingDirectory=/home/nostr
-EnvironmentFile=/etc/systemd/system/khatru-pyramid.env
-ExecStart=/usr/local/bin/khatru-pyramid
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-`
-
-	// Data directory
-	const dataDir = "/var/lib/khatru-pyramid"
-
-	// Path for the environment file
-	const envFilePath = "/etc/systemd/system/khatru-pyramid.env"
-
-	// Path for the systemd service file
-	const serviceFilePath = "/etc/systemd/system/khatru-pyramid.service"
-
-	// Relay service
-	const relayService = "khatru-pyramid"
-
+func SetupRelayService(domain, pubKey, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Ensure the user for the relay service exists
@@ -63,25 +22,25 @@ WantedBy=multi-user.target
 
 	// Ensure the data directory exists and set ownership
 	spinner.UpdateText("Creating data directory...")
-	directories.CreateDirectory(dataDir, 0755)
+	directories.CreateDirectory(DataDirPath, 0755)
 
 	// Use chown command to set ownership of the data directory to the nostr user
-	directories.SetOwnerAndGroup("nostr", "nostr", dataDir)
+	directories.SetOwnerAndGroup("nostr", "nostr", DataDirPath)
 
 	// Check if the environment file exists and remove it if it does
-	files.RemoveFile(envFilePath)
+	files.RemoveFile(EnvFilePath)
 
 	// Check if the service file exists and remove it if it does
-	files.RemoveFile(serviceFilePath)
+	files.RemoveFile(ServiceFilePath)
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
-	envFileParams := systemd.EnvFileParams{Domain: domain, PubKey: pubKey}
-	systemd.CreateEnvFile(envFilePath, envTemplate, &envFileParams)
+	envFileParams := systemd.EnvFileParams{Domain: domain, PubKey: pubKey, RelayContact: relayContact}
+	systemd.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	systemd.CreateServiceFile(serviceFilePath, serviceTemplate)
+	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")
@@ -89,8 +48,8 @@ WantedBy=multi-user.target
 
 	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	systemd.EnableService(relayService)
-	systemd.StartService(relayService)
+	systemd.EnableService(ServiceName)
+	systemd.StartService(ServiceName)
 
 	spinner.Success("Nostr relay service configured")
 }

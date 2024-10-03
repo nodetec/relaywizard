@@ -1,4 +1,4 @@
-package strfry
+package strfry29
 
 import (
 	"fmt"
@@ -12,13 +12,13 @@ import (
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	spinner, _ := pterm.DefaultSpinner.Start("Installing strfry relay...")
+	spinner, _ := pterm.DefaultSpinner.Start("Installing strfry29 relay...")
 
 	// Check for and remove existing git repository
-	directories.RemoveDirectory(GitRepoTmpDirPath)
+	directories.RemoveDirectory(GitRepoTmpDir)
 
 	// Download git repository
-	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
+	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDir)
 
 	// Install
 	// Determine the file name from the URL
@@ -36,6 +36,21 @@ func InstallRelayBinary() {
 	// Extract binary
 	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)
 
+	// Determine the file name from the URL
+	tmpFileName = filepath.Base(BinaryPluginDownloadURL)
+
+	// Temporary file path
+	tmpFilePath = fmt.Sprintf("/tmp/%s", tmpFileName)
+
+	// Check if the temporary file exists and remove it if it does
+	files.RemoveFile(tmpFilePath)
+
+	// Download and copy the file
+	files.DownloadAndCopyFile(tmpFilePath, BinaryPluginDownloadURL)
+
+	// Extract binary
+	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)
+
 	// TODO
 	// Currently, the downloaded binary is expected to have a name that matches the BinaryName variable
 	// Ideally, the extracted binary file should be renamed to match the BinaryName variable
@@ -46,5 +61,11 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success("strfry relay installed successfully.")
+	// Define the final destination path
+	destPath = filepath.Join(relays.BinaryDestDir, BinaryPluginName)
+
+	// Make the file executable
+	files.SetPermissions(destPath, 0755)
+
+	spinner.Success("strfry29 relay installed successfully.")
 }

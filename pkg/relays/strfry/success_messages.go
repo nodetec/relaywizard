@@ -5,13 +5,6 @@ import (
 )
 
 func SuccessMessages(domain string, httpsEnabled bool) {
-	const dataDir = "/var/lib/strfry"
-	const configFile = "/etc/strfry.conf"
-	const serviceFile = "/etc/systemd/system/strfry.service"
-	const service = "strfry"
-	const relayName = "strfry"
-	const githubLink = "https://github.com/hoytech/strfry"
-
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDir: dataDir, ConfigFile: configFile, ServiceFile: serviceFile, Service: service, RelayName: relayName, GitHubLink: githubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, ConfigFilePath: ConfigFilePath, NginxConfigFilePath: NginxConfigFilePath, BinaryFilePath: BinaryFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: RelayName, GitHubLink: GithubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

@@ -2,25 +2,18 @@ package strfry
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 )
 
-// Function to configure nginx for HTTPS
+// Function to configure Nginx for HTTPS
 func ConfigureNginxHttps(domainName string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring nginx for HTTPS...")
+	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTPS...")
 
-	const configFilePath = "/etc/nginx/conf.d/strfry.conf"
+	files.RemoveFile(NginxConfigFilePath)
 
-	var configContent string
-
-	files.RemoveFile(configFilePath)
-
-	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
-
-	configContent = fmt.Sprintf(`server {
+	configContent := fmt.Sprintf(`server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name %s;
@@ -118,7 +111,7 @@ server {
 }
 `, domainName, domainName, domainName, domainName, domainName, domainName, domainName, domainName)
 
-	files.WriteFile(configFilePath, configContent, 0644)
+	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 
 	systemd.RestartService("nginx")
 
