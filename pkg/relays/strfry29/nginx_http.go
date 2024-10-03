@@ -1,4 +1,4 @@
-package khatru29
+package strfry29
 
 import (
 	"fmt"
@@ -16,16 +16,7 @@ func ConfigureNginxHttp(domainName string) {
 
 	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
 
-	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
-    default upgrade;
-    '' close;
-}
-
-upstream websocket_khatru29 {
-    server 0.0.0.0:5577;
-}
-
-# %s
+	configContent := fmt.Sprintf(`# %s
 server {
     listen 80;
     listen [::]:80;
@@ -40,12 +31,12 @@ server {
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying 404.
         try_files $uri $uri/ =404;
-        proxy_pass http://websocket_khatru29;
+        proxy_pass http://127.0.0.1:52929;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     # Only return Nginx in server header

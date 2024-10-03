@@ -5,15 +5,6 @@ import (
 )
 
 func SuccessMessages(domain string, httpsEnabled bool) {
-	const dataDir = "/var/lib/wot-relay"
-	const indexFile = "/etc/wot-relay/templates/index.html"
-	const staticDir = "/etc/wot-relay/templates/static"
-	const envFile = "/etc/systemd/system/wot-relay.env"
-	const serviceFile = "/etc/systemd/system/wot-relay.service"
-	const service = "wot-relay"
-	const relayName = "WoT Relay"
-	const githubLink = "https://github.com/bitvora/wot-relay"
-
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDir: dataDir, IndexFile: indexFile, StaticDir: staticDir, EnvFile: envFile, ServiceFile: serviceFile, Service: service, RelayName: relayName, GitHubLink: githubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, IndexFilePath: IndexFilePath, StaticDirPath: StaticDirPath, NginxConfigFilePath: NginxConfigFilePath, BinaryFilePath: BinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: RelayName, GitHubLink: GithubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

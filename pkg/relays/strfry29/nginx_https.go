@@ -1,4 +1,4 @@
-package wot_relay
+package strfry29
 
 import (
 	"fmt"
@@ -13,16 +13,7 @@ func ConfigureNginxHttps(domainName string) {
 
 	files.RemoveFile(NginxConfigFilePath)
 
-	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
-    default upgrade;
-    '' close;
-}
-
-upstream websocket_wot_relay {
-    server localhost:3334;
-}
-
-server {
+	configContent := fmt.Sprintf(`server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name %s;
@@ -33,14 +24,12 @@ server {
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying 404.
         try_files $uri $uri/ =404;
-        proxy_pass http://websocket_wot_relay;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://127.0.0.1:52929;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     # Only return Nginx in server header
@@ -85,7 +74,7 @@ server {
     ssl_stapling on;
     ssl_stapling_verify on;
 
-    #### Security Headers ####
+		#### Security Headers ####
     # Test configuration:
     # https://securityheaders.com/
     # https://observatory.mozilla.org/

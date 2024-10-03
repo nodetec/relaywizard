@@ -5,13 +5,6 @@ import (
 )
 
 func SuccessMessages(domain string, httpsEnabled bool) {
-	const dataDir = "/var/lib/khatru-pyramid"
-	const envFile = "/etc/systemd/system/khatru-pyramid.env"
-	const serviceFile = "/etc/systemd/system/khatru-pyramid.service"
-	const service = "khatru-pyramid"
-	const relayName = "Khatru Pyramid"
-	const githubLink = "https://github.com/github-tijlxyz/khatru-pyramid"
-
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDir: dataDir, EnvFile: envFile, ServiceFile: serviceFile, Service: service, RelayName: relayName, GitHubLink: githubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, NginxConfigFilePath: NginxConfigFilePath, BinaryFilePath: BinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: RelayName, GitHubLink: GithubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

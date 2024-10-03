@@ -25,8 +25,8 @@ The program will automate the following steps:
 
 1. Install necessary dependencies
 2. Set up a firewall
-3. Configure nginx
-4. Obtain a TLS certificate for HTTPS
+3. Configure Nginx
+4. Obtain a SSL/TLS certificate for HTTPS
 5. Install the relay software
 6. Set up a systemd service for your relay
 
@@ -87,14 +87,14 @@ gpg --verify rwz-x.x.x-manifest.sha512sum.asc
 Here's the command to run for the latest version of `rwz`:
 
 ```sh
-gpg --verify rwz-0.3.0-alpha1-manifest.sha512sum.asc
+gpg --verify rwz-0.3.0-alpha2-manifest.sha512sum.asc
 ```
 
 You should see output similar to the following if the verification was successful:
 
 ```sh
-gpg: assuming signed data in 'rwz-0.3.0-alpha1-manifest.sha512sum'
-gpg: Signature made Thu Sep 26 21:04:47 2024 EDT
+gpg: assuming signed data in 'rwz-0.3.0-alpha2-manifest.sha512sum'
+gpg: Signature made Thu 03 Oct 2024 07:40:12 PM UTC
 gpg:                using RSA key 252F57B9DCD920EBF14E6151A8841CC4D10CC288
 gpg: Good signature from "NODE-TEC Devs <devs@node-tec.com>" [unknown]
 gpg:                 aka "[jpeg image of size 5143]" [unknown]
@@ -124,13 +124,13 @@ sha512sum --check rwz-x.x.x-manifest.sha512sum
 Here's the command to run for the latest version of `rwz`:
 
 ```sh
-sha512sum --check rwz-0.3.0-alpha1-manifest.sha512sum
+sha512sum --check rwz-0.3.0-alpha2-manifest.sha512sum
 ```
 
 If the verification was successful you should see the output similar to the following:
 
 ```sh
-rwz-0.3.0-alpha1-x86_64-linux-gnu.tar.gz: OK
+rwz-0.3.0-alpha2-x86_64-linux-gnu.tar.gz: OK
 ```
 
 By completing the above steps you will have successfully verified the integrity of the binary.

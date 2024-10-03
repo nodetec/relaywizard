@@ -12,6 +12,7 @@ type EnvFileParams struct {
 	HTTPSEnabled bool
 	PrivKey      string
 	PubKey       string
+	RelayContact string
 }
 
 func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams) {
@@ -33,7 +34,7 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 		WSProtocol = "ws"
 	}
 
-	err = envTmpl.Execute(envFile, struct{ Domain, WSProtocol, PrivKey, PubKey string }{Domain: envFileParams.Domain, WSProtocol: WSProtocol, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey})
+	err = envTmpl.Execute(envFile, struct{ Domain, WSProtocol, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, WSProtocol: WSProtocol, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 	if err != nil {
 		log.Fatalf("Error executing environment template: %v", err)
 	}
