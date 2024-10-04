@@ -3,7 +3,6 @@ package systemd
 import (
 	"fmt"
 	"github.com/pterm/pterm"
-	"log"
 	"os"
 	"os/exec"
 	"text/template"
@@ -75,9 +74,8 @@ func CreateServiceFile(serviceFilePath, serviceTemplate string) {
 func Reload() {
 	err := exec.Command("systemctl", "daemon-reload").Run()
 	if err != nil {
-		log.Fatalf("Error reloading systemd daemon: %v", err)
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to execute service template: %v", err))
+		pterm.Error.Println(fmt.Sprintf("Failed to reload systemd daemon: %v", err))
 		os.Exit(1)
 	}
 }

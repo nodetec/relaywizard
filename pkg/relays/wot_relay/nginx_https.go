@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
@@ -27,7 +28,7 @@ server {
     listen [::]:443 ssl http2;
     server_name %s;
 
-    root /var/www/%s;
+    root %s/%s;
 
     location / {
         # First attempt to serve request as file, then
@@ -50,10 +51,10 @@ server {
     # Test configuration:
     # https://www.ssllabs.com/ssltest/analyze.html
     # https://cryptcheck.fr/
-    ssl_certificate /etc/letsencrypt/live/%s/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/%s/privkey.pem;
+    ssl_certificate %s/%s/%s;
+    ssl_certificate_key %s/%s/%s;
     # Verify chain of trust of OCSP response using Root CA and Intermediate certs
-    ssl_trusted_certificate /etc/letsencrypt/live/%s/chain.pem;
+    ssl_trusted_certificate %s/%s/%s;
 
     # TODO
     # Add support to generate the file in the script
@@ -111,8 +112,8 @@ server {
     listen [::]:80;
     server_name %s;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/%s;
+    location /%s/ {
+        root %s/%s;
         allow all;
     }
 
@@ -120,7 +121,7 @@ server {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, domainName, domainName, domainName, domainName, domainName, domainName, domainName)
+`, domainName, network.WWWDirPath, domainName, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 

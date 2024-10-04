@@ -25,7 +25,7 @@ func InstallRelayBinary() {
 	tmpFileName := filepath.Base(DownloadURL)
 
 	// Temporary file path
-	tmpFilePath := fmt.Sprintf("/tmp/%s", tmpFileName)
+	tmpFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
 
 	// Check if the temporary file exists and remove it if it does
 	files.RemoveFile(tmpFilePath)
@@ -40,7 +40,7 @@ func InstallRelayBinary() {
 	tmpFileName = filepath.Base(BinaryPluginDownloadURL)
 
 	// Temporary file path
-	tmpFilePath = fmt.Sprintf("/tmp/%s", tmpFileName)
+	tmpFilePath = fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
 
 	// Check if the temporary file exists and remove it if it does
 	files.RemoveFile(tmpFilePath)
