@@ -25,7 +25,7 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		// Supported relay options
-		options := []string{"Khatru Pyramid", "strfry", "Khatru29", "strfry29", "WoT Relay"}
+		options := []string{khatru_pyramid.RelayName, strfry.RelayName, khatru29.RelayName, strfry29.RelayName, wot_relay.RelayName}
 
 		// Use PTerm's interactive select feature to present the options to the user and capture their selection
 		// The Show() method displays the options and waits for the user's input
@@ -36,23 +36,23 @@ var installCmd = &cobra.Command{
 
 		var privKey string
 		var pubKey string
-		if selectedRelayOption == "Khatru Pyramid" || selectedRelayOption == "WoT Relay" {
+		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == wot_relay.RelayName {
 			pterm.Println()
 			pubKey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
-		} else if selectedRelayOption == "Khatru29" || selectedRelayOption == "strfry29" {
+		} else if selectedRelayOption == khatru29.RelayName || selectedRelayOption == strfry29.RelayName {
 			pterm.Println()
 			privKeyInput := pterm.DefaultInteractiveTextInput.WithMask("*")
 			privKey, _ = privKeyInput.Show("Private key (hex not nsec)")
 		}
 
 		var relayContact string
-		if selectedRelayOption == "Khatru Pyramid" || selectedRelayOption == "Khatru29" {
+		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == khatru29.RelayName {
 			pterm.Println()
 			pterm.Println(pterm.Yellow("Leave email empty if you don't want to provide relay contact information."))
 
 			pterm.Println()
 			relayContact, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-		} else if selectedRelayOption == "WoT Relay" {
+		} else if selectedRelayOption == wot_relay.RelayName {
 			pterm.Println()
 			pterm.Println(pterm.Yellow("If you leave the relay contact information empty, then the relay's public key will be used."))
 
@@ -70,7 +70,7 @@ var installCmd = &cobra.Command{
 		// Step 2: Configure the firewall
 		network.ConfigureFirewall()
 
-		if selectedRelayOption == "Khatru Pyramid" {
+		if selectedRelayOption == khatru_pyramid.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			khatru_pyramid.ConfigureNginxHttp(relayDomain)
 
@@ -89,7 +89,7 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			khatru_pyramid.SuccessMessages(relayDomain, httpsEnabled)
-		} else if selectedRelayOption == "strfry" {
+		} else if selectedRelayOption == strfry.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			strfry.ConfigureNginxHttp(relayDomain)
 
@@ -108,7 +108,7 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
-		} else if selectedRelayOption == "Khatru29" {
+		} else if selectedRelayOption == khatru29.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			khatru29.ConfigureNginxHttp(relayDomain)
 
@@ -127,7 +127,7 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			khatru29.SuccessMessages(relayDomain, httpsEnabled)
-		} else if selectedRelayOption == "strfry29" {
+		} else if selectedRelayOption == strfry29.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			strfry29.ConfigureNginxHttp(relayDomain)
 
@@ -146,7 +146,7 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)
-		} else if selectedRelayOption == "WoT Relay" {
+		} else if selectedRelayOption == wot_relay.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			wot_relay.ConfigureNginxHttp(relayDomain)
 

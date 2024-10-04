@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
@@ -14,7 +15,7 @@ func ConfigureNginxHttp(domainName string) {
 
 	files.RemoveFile(NginxConfigFilePath)
 
-	directories.CreateDirectory(fmt.Sprintf("/var/www/%s/.well-known/acme-challenge/", domainName), 0755)
+	directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", network.WWWDirPath, domainName, network.AcmeChallengeDirPath), 0755)
 
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
@@ -25,14 +26,13 @@ upstream websocket_wot_relay {
     server localhost:3334;
 }
 
-# %s
 server {
     listen 80;
     listen [::]:80;
     server_name %s;
 
-    location /.well-known/acme-challenge/ {
-        root /var/www/%s;
+    location /%s/ {
+        root %s/%s;
         allow all;
     }
 
@@ -81,7 +81,7 @@ server {
         return 301 http://%s$request_uri;
     }
 }
-`, domainName, domainName, domainName, domainName, domainName)
+`, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 

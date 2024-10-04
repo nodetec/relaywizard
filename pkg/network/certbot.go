@@ -43,26 +43,24 @@ func GetCertificates(domainName string) bool {
 
 	spinner, _ := pterm.DefaultSpinner.Start("Checking SSL/TLS certificates...")
 
-	certificatePath := fmt.Sprintf("/etc/letsencrypt/live/%s", domainName)
-
 	// Check if certificates already exist
-	if files.FileExists(fmt.Sprintf("%s/fullchain.pem", certificatePath)) &&
-		files.FileExists(fmt.Sprintf("%s/privkey.pem", certificatePath)) &&
-		files.FileExists(fmt.Sprintf("%s/chain.pem", certificatePath)) {
+	if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
+		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
+		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
 		spinner.Info("SSL/TLS certificates already exist.")
 		return true
 	}
 
 	spinner.UpdateText("Obtaining SSL/TLS certificates...")
 	if email == "" {
-		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 		err := cmd.Run()
 		if err != nil {
 			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
 			os.Exit(1)
 		}
 	} else {
-		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
+		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 		err := cmd.Run()
 		if err != nil {
 			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
