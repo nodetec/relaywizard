@@ -1,7 +1,8 @@
 package templates
 
 import (
-	"log"
+	"fmt"
+	"github.com/pterm/pterm"
 	"os"
 	"text/template"
 )
@@ -15,13 +16,17 @@ type IndexFileParams struct {
 func CreateIndexFile(indexFilePath, indexTemplate string, indexFileParams *IndexFileParams) {
 	indexFile, err := os.Create(indexFilePath)
 	if err != nil {
-		log.Fatalf("Error creating index.html file: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to create index.html file: %v", err))
+		os.Exit(1)
 	}
 	defer indexFile.Close()
 
 	indexTmpl, err := template.New("index").Parse(indexTemplate)
 	if err != nil {
-		log.Fatalf("Error parsing index.html template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to parse index.html template: %v", err))
+		os.Exit(1)
 	}
 
 	var HTTPProtocol string
@@ -33,6 +38,8 @@ func CreateIndexFile(indexFilePath, indexTemplate string, indexFileParams *Index
 
 	err = indexTmpl.Execute(indexFile, struct{ Domain, HTTPProtocol, PubKey string }{Domain: indexFileParams.Domain, HTTPProtocol: HTTPProtocol, PubKey: indexFileParams.PubKey})
 	if err != nil {
-		log.Fatalf("Error executing index.html template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to execute index.html template: %v", err))
+		os.Exit(1)
 	}
 }
