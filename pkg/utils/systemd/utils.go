@@ -1,6 +1,8 @@
 package systemd
 
 import (
+	"fmt"
+	"github.com/pterm/pterm"
 	"log"
 	"os"
 	"os/exec"
@@ -18,13 +20,17 @@ type EnvFileParams struct {
 func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams) {
 	envFile, err := os.Create(envFilePath)
 	if err != nil {
-		log.Fatalf("Error creating environment file: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to create environment file: %v", err))
+		os.Exit(1)
 	}
 	defer envFile.Close()
 
 	envTmpl, err := template.New("env").Parse(envTemplate)
 	if err != nil {
-		log.Fatalf("Error parsing environment template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to parse environment template: %v", err))
+		os.Exit(1)
 	}
 
 	var WSProtocol string
@@ -36,25 +42,33 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 
 	err = envTmpl.Execute(envFile, struct{ Domain, WSProtocol, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, WSProtocol: WSProtocol, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 	if err != nil {
-		log.Fatalf("Error executing environment template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to execute environment template: %v", err))
+		os.Exit(1)
 	}
 }
 
 func CreateServiceFile(serviceFilePath, serviceTemplate string) {
 	serviceFile, err := os.Create(serviceFilePath)
 	if err != nil {
-		log.Fatalf("Error creating service file: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to create service file: %v", err))
+		os.Exit(1)
 	}
 	defer serviceFile.Close()
 
 	tmpl, err := template.New("service").Parse(serviceTemplate)
 	if err != nil {
-		log.Fatalf("Error parsing service template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to parse service template: %v", err))
+		os.Exit(1)
 	}
 
 	err = tmpl.Execute(serviceFile, struct{}{})
 	if err != nil {
-		log.Fatalf("Error executing service template: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to execute service template: %v", err))
+		os.Exit(1)
 	}
 }
 
@@ -62,33 +76,44 @@ func Reload() {
 	err := exec.Command("systemctl", "daemon-reload").Run()
 	if err != nil {
 		log.Fatalf("Error reloading systemd daemon: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to execute service template: %v", err))
+		os.Exit(1)
 	}
 }
 
 func EnableService(name string) {
 	err := exec.Command("systemctl", "enable", name).Run()
 	if err != nil {
-		log.Fatalf("Error enabling %s service: %v", name, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to enable %s service: %v", name, err))
+		os.Exit(1)
 	}
 }
 
 func StartService(name string) {
 	err := exec.Command("systemctl", "start", name).Run()
 	if err != nil {
-		log.Fatalf("Error starting %s service: %v", name, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to start %s service: %v", name, err))
+		os.Exit(1)
 	}
 }
 
 func ReloadService(name string) {
 	err := exec.Command("systemctl", "reload", name).Run()
 	if err != nil {
-		log.Fatalf("Error reloading %s service: %v", name, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to reload %s service: %v", name, err))
+		os.Exit(1)
 	}
 }
 
 func RestartService(name string) {
 	err := exec.Command("systemctl", "restart", name).Run()
 	if err != nil {
-		log.Fatalf("Error restarting %s service: %v", name, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to restart %s service: %v", name, err))
+		os.Exit(1)
 	}
 }

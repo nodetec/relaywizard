@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"log"
+	"os"
 	"os/exec"
 )
 
@@ -58,13 +58,15 @@ func GetCertificates(domainName string) bool {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 		err := cmd.Run()
 		if err != nil {
-			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
+			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
+			os.Exit(1)
 		}
 	} else {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("/var/www/%s", domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 		err := cmd.Run()
 		if err != nil {
-			log.Fatalf("Certbot failed to obtain the certificate for %s: %v", domainName, err)
+			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
+			os.Exit(1)
 		}
 	}
 

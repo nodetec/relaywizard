@@ -1,8 +1,10 @@
 package git
 
 import (
+	"fmt"
+	"github.com/pterm/pterm"
 	"io/fs"
-	"log"
+	"os"
 	"os/exec"
 )
 
@@ -12,6 +14,8 @@ type FileMode = fs.FileMode
 func Clone(branch, url, destDir string) {
 	err := exec.Command("git", "clone", "-b", branch, url, destDir).Run()
 	if err != nil {
-		log.Fatalf("Error downloading repository: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to download repository: %v", err))
+		os.Exit(1)
 	}
 }

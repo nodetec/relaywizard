@@ -2,8 +2,8 @@ package directories
 
 import (
 	"fmt"
+	"github.com/pterm/pterm"
 	"io/fs"
-	"log"
 	"os"
 	"os/exec"
 )
@@ -14,7 +14,9 @@ type FileMode = fs.FileMode
 func RemoveDirectory(path string) {
 	err := os.RemoveAll(path)
 	if err != nil && !os.IsNotExist(err) {
-		log.Fatalf("Error removing %s directory: %v", path, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to remove %s directory: %v", path, err))
+		os.Exit(1)
 	}
 }
 
@@ -22,7 +24,9 @@ func RemoveDirectory(path string) {
 func CreateDirectory(path string, permissions FileMode) {
 	err := os.MkdirAll(path, permissions)
 	if err != nil {
-		log.Fatalf("Error creating %s directory: %v", path, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to create %s directory: %v", path, err))
+		os.Exit(1)
 	}
 }
 
@@ -30,6 +34,8 @@ func CreateDirectory(path string, permissions FileMode) {
 func SetOwnerAndGroup(owner, group, dir string) {
 	err := exec.Command("chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
 	if err != nil {
-		log.Fatalf("Error setting ownership of the %s directory: %v", dir, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of the %s directory: %v", dir, err))
+		os.Exit(1)
 	}
 }

@@ -1,8 +1,9 @@
 package network
 
 import (
+	"fmt"
 	"github.com/pterm/pterm"
-	"log"
+	"os"
 	"os/exec"
 )
 
@@ -14,13 +15,17 @@ func ConfigureFirewall() {
 	// Allow HTTP and HTTPS traffic
 	err := exec.Command("ufw", "allow", "Nginx Full").Run()
 	if err != nil {
-		log.Fatalf("Error allowing Nginx Full: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to allow Nginx Full: %v", err))
+		os.Exit(1)
 	}
 
 	// Reload the firewall to apply the changes
 	err = exec.Command("ufw", "reload").Run()
 	if err != nil {
-		log.Fatalf("Error reloading firewall: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to reload firewall: %v", err))
+		os.Exit(1)
 	}
 
 	spinner.Success("Firewall configured successfully.")

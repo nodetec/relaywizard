@@ -2,9 +2,9 @@ package files
 
 import (
 	"fmt"
+	"github.com/pterm/pterm"
 	"io"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -23,7 +23,9 @@ func RemoveFile(path string) {
 	if _, err := os.Stat(path); err == nil {
 		err = os.Remove(path)
 		if err != nil {
-			log.Fatalf("Error removing %s file: %v", path, err)
+			pterm.Println()
+			pterm.Error.Println(fmt.Sprintf("Failed to remove %s file: %v", path, err))
+			os.Exit(1)
 		}
 	}
 }
@@ -32,7 +34,9 @@ func RemoveFile(path string) {
 func CopyFile(fileToCopy, destDir string) {
 	err := exec.Command("cp", fileToCopy, destDir).Run()
 	if err != nil {
-		log.Fatalf("Error copying %s file: %v", fileToCopy, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to copy %s file: %v", fileToCopy, err))
+		os.Exit(1)
 	}
 }
 
@@ -40,7 +44,9 @@ func CopyFile(fileToCopy, destDir string) {
 func SetOwnerAndGroup(owner, group, file string) {
 	err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
 	if err != nil {
-		log.Fatalf("Error setting ownership of %s file: %v", file, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of %s file: %v", file, err))
+		os.Exit(1)
 	}
 }
 
@@ -48,7 +54,9 @@ func SetOwnerAndGroup(owner, group, file string) {
 func SetPermissions(path string, mode FileMode) {
 	err := os.Chmod(path, mode)
 	if err != nil {
-		log.Fatalf("Error setting %s file permissions: %v", path, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to set %s file permissions: %v", path, err))
+		os.Exit(1)
 	}
 }
 
@@ -56,7 +64,9 @@ func SetPermissions(path string, mode FileMode) {
 func WriteFile(path, content string, permissions FileMode) {
 	err := os.WriteFile(path, []byte(content), permissions)
 	if err != nil {
-		log.Fatalf("Error writing content to %s file: %v", path, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to write content to %s file: %v", path, err))
+		os.Exit(1)
 	}
 }
 
@@ -66,7 +76,9 @@ func InPlaceEdit(command, path string) {
 
 	// Execute the command
 	if err := cmd.Run(); err != nil {
-		log.Fatalf("Error editing %s in-place: %v", path, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to edit %s file in-place: %v", path, err))
+		os.Exit(1)
 	}
 }
 
@@ -75,26 +87,34 @@ func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
 	// Create a temporary file
 	out, err := os.Create(tmpFilePath)
 	if err != nil {
-		log.Fatalf("Error creating %s file: %v", tmpFilePath, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to create %s file: %v", tmpFilePath, err))
+		os.Exit(1)
 	}
 	defer out.Close()
 
 	// Download the file
 	resp, err := http.Get(downloadURL)
 	if err != nil {
-		log.Fatalf("Error downloading file: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to download file: %v", err))
+		os.Exit(1)
 	}
 	defer resp.Body.Close()
 
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Bad status: %s", resp.Status)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Bad repsonse status code: %s", resp.Status))
+		os.Exit(1)
 	}
 
 	// Write the body to the temporary file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Fatalf("Error writing to temporary file: %v", err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to write to temporary file: %v", err))
+		os.Exit(1)
 	}
 }
 
@@ -102,6 +122,8 @@ func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
 func ExtractFile(tmpFilePath, destDir string) {
 	err := exec.Command("tar", "-xf", tmpFilePath, "-C", destDir).Run()
 	if err != nil {
-		log.Fatalf("Error extracting binary to %s: %v", destDir, err)
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to extract binary to %s: %v", destDir, err))
+		os.Exit(1)
 	}
 }
