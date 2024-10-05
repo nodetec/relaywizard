@@ -75,7 +75,7 @@ func ConfigureNginxHttps(domainName string) {
     ssl_stapling on;
     ssl_stapling_verify on;
 
-		#### Security Headers ####
+    #### Security Headers ####
     # Test configuration:
     # https://securityheaders.com/
     # https://observatory.mozilla.org/

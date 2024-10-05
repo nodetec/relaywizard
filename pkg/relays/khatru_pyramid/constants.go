@@ -27,8 +27,8 @@ Type=simple
 User=nostr
 Group=nostr
 WorkingDirectory=/home/nostr
-EnvironmentFile=/etc/systemd/system/khatru-pyramid.env
-ExecStart=/usr/local/bin/khatru-pyramid
+EnvironmentFile={{.EnvFilePath}}
+ExecStart={{.BinaryFilePath}}
 Restart=on-failure
 
 [Install]

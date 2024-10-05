@@ -57,19 +57,19 @@ server {
     # Test configuration:
     # https://securityheaders.com/
     # https://observatory.mozilla.org/
-		add_header X-Frame-Options DENY;
+    add_header X-Frame-Options DENY;
 
     # Avoid MIME type sniffing
-		add_header X-Content-Type-Options nosniff always;
+    add_header X-Content-Type-Options nosniff always;
 
-		add_header Referrer-Policy "no-referrer" always;
+    add_header Referrer-Policy "no-referrer" always;
 
-		add_header X-XSS-Protection 0 always;
+    add_header X-XSS-Protection 0 always;
 
-		add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
+    add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
 
     #### Content-Security-Policy (CSP) ####
-		add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none';" always;
+    add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none';" always;
 }
 
 server {
