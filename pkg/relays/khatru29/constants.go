@@ -1,6 +1,6 @@
 package khatru29
 
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.3.0/relay29-0.4.0-khatru29-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/relay29-0.4.0-khatru29-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru29"
 const BinaryFilePath = "/usr/local/bin/khatru29"
 const NginxConfigFilePath = "/etc/nginx/conf.d/khatru29.conf"

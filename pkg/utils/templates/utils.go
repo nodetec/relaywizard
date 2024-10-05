@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
 	"os"
 	"text/template"
@@ -29,14 +30,9 @@ func CreateIndexFile(indexFilePath, indexTemplate string, indexFileParams *Index
 		os.Exit(1)
 	}
 
-	var HTTPProtocol string
-	if indexFileParams.HTTPSEnabled {
-		HTTPProtocol = "https"
-	} else {
-		HTTPProtocol = "http"
-	}
+	HTTPScheme := network.HTTPEnabled(indexFileParams.HTTPSEnabled)
 
-	err = indexTmpl.Execute(indexFile, struct{ Domain, HTTPProtocol, PubKey string }{Domain: indexFileParams.Domain, HTTPProtocol: HTTPProtocol, PubKey: indexFileParams.PubKey})
+	err = indexTmpl.Execute(indexFile, struct{ Domain, HTTPScheme, PubKey string }{Domain: indexFileParams.Domain, HTTPScheme: HTTPScheme, PubKey: indexFileParams.PubKey})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to execute index.html template: %v", err))

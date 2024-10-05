@@ -10,7 +10,7 @@ import (
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	spinner, _ := pterm.DefaultSpinner.Start("Installing Khatru Pyramid relay...")
+	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay...", RelayName))
 
 	// Determine the file name from the URL
 	tmpFileName := filepath.Base(DownloadURL)
@@ -37,5 +37,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success("Khatru Pyramid relay installed successfully.")
+	spinner.Success(fmt.Sprintf("%s relay installed successfully.", RelayName))
 }

@@ -1,4 +1,4 @@
-package wot_relay
+package nostr_rs_relay
 
 import (
 	"fmt"
@@ -19,8 +19,8 @@ func ConfigureNginxHttps(domainName string) {
     '' close;
 }
 
-upstream websocket_wot_relay {
-    server localhost:3334;
+upstream websocket_nostr_rs_relay {
+    server 127.0.0.1:8080;
 }
 
 server {
@@ -34,14 +34,12 @@ server {
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying 404.
         try_files $uri $uri/ =404;
-        proxy_pass http://websocket_wot_relay;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://websocket_nostr_rs_relay;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
     }
 
     # Only return Nginx in server header
@@ -125,7 +123,7 @@ server {
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 
-	systemd.RestartService("nginx")
+	systemd.ReloadService("nginx")
 
 	spinner.Success("Nginx configured for HTTPS")
 }

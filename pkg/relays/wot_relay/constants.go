@@ -1,6 +1,6 @@
 package wot_relay
 
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.3.0/wot-relay-0.1.12-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/wot-relay-0.1.12-x86_64-linux-gnu.tar.gz"
 const BinaryName = "wot-relay"
 const BinaryFilePath = "/usr/local/bin/wot-relay"
 const NginxConfigFilePath = "/etc/nginx/conf.d/wot_relay.conf"
@@ -13,7 +13,7 @@ const IndexFileTemplate = `<!doctype html>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<title>WoT Relay</title>
 			<meta name="description" content="WoT Relay" />
-			<link href="{{.HTTPProtocol}}://{{.Domain}}" rel="canonical" />
+			<link href="{{.HTTPScheme}}://{{.Domain}}" rel="canonical" />
 	</head>
 	<body>
 		<main>
@@ -39,7 +39,7 @@ const EnvFilePath = "/etc/systemd/system/wot-relay.env"
 const EnvFileTemplate = `RELAY_NAME="WoT Relay"
 RELAY_DESCRIPTION="WoT Nostr Relay"
 RELAY_ICON="https://pfp.nostr.build/56306a93a88d4c657d8a3dfa57b55a4ed65b709eee927b5dafaab4d5330db21f.png"
-RELAY_URL="{{.WSProtocol}}://{{.Domain}}"
+RELAY_URL="{{.WSScheme}}://{{.Domain}}"
 RELAY_PUBKEY="{{.PubKey}}"
 RELAY_CONTACT="{{.RelayContact}}"
 INDEX_PATH="/etc/wot-relay/templates/index.html"

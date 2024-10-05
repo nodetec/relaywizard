@@ -2,6 +2,9 @@ package manager
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
+	"github.com/nodetec/rwz/pkg/relays/strfry"
+	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
@@ -36,12 +39,20 @@ func IsPackageInstalled(packageName string) bool {
 }
 
 // Function to install necessary packages
-func AptInstallPackages() {
+func AptInstallPackages(selectedRelayOption string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Updating and installing packages...")
 
 	exec.Command("apt", "update", "-qq").Run()
 
-	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban"}
+	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban", "git"}
+
+	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
+		packages = append(packages, "git")
+	}
+
+	if selectedRelayOption == nostr_rs_relay.RelayName {
+		packages = append(packages, "sqlite3", "libsqlite3-dev")
+	}
 
 	// Check if package is installed, install if not
 	for _, p := range packages {

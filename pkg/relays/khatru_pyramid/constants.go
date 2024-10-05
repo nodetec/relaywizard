@@ -1,6 +1,6 @@
 package khatru_pyramid
 
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.3.0/khatru-pyramid-0.1.0-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/khatru-pyramid-0.1.0-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru-pyramid"
 const BinaryFilePath = "/usr/local/bin/khatru-pyramid"
 const NginxConfigFilePath = "/etc/nginx/conf.d/khatru_pyramid.conf"
