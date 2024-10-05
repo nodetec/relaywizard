@@ -58,7 +58,7 @@ server {
     # Add support to generate the file in the script
     #ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
-    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_protocols TLSv1.3 TLSv1.2;
 
     # For more information on the security of different cipher suites, you can refer to the following link:
     # https://ciphersuite.info/

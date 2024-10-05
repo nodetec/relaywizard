@@ -3,7 +3,7 @@ package strfry29
 const GitRepoBranch = "v0.4.0"
 const GitRepoURL = "https://github.com/fiatjaf/relay29.git"
 const GitRepoTmpDir = "/tmp/relay29"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.3.0/strfry-1.0.1-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/strfry-1.0.1-x86_64-linux-gnu.tar.gz"
 const BinaryName = "strfry"
 const BinaryFilePath = "/usr/local/bin/strfry"
 const BinaryPluginDownloadURL = "https://github.com/nodetec/relays/releases/download/v0.3.0/relay29-0.4.0-strfry29-x86_64-linux-gnu.tar.gz"

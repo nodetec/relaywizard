@@ -12,7 +12,7 @@ import (
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	spinner, _ := pterm.DefaultSpinner.Start("Installing strfry relay...")
+	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay...", RelayName))
 
 	// Check for and remove existing git repository
 	directories.RemoveDirectory(GitRepoTmpDirPath)
@@ -46,5 +46,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success("strfry relay installed successfully.")
+	spinner.Success(fmt.Sprintf("%s relay installed successfully.", RelayName))
 }

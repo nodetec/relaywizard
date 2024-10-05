@@ -2,6 +2,7 @@ package systemd
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
@@ -38,14 +39,9 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 		os.Exit(1)
 	}
 
-	var WSProtocol string
-	if envFileParams.HTTPSEnabled {
-		WSProtocol = "wss"
-	} else {
-		WSProtocol = "ws"
-	}
+	WSScheme := network.WSEnabled(envFileParams.HTTPSEnabled)
 
-	err = envTmpl.Execute(envFile, struct{ Domain, WSProtocol, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, WSProtocol: WSProtocol, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
+	err = envTmpl.Execute(envFile, struct{ Domain, WSScheme, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, WSScheme: WSScheme, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to execute environment template: %v", err))

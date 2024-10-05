@@ -5,6 +5,7 @@ import (
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays/khatru29"
 	"github.com/nodetec/rwz/pkg/relays/khatru_pyramid"
+	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
 	"github.com/nodetec/rwz/pkg/relays/strfry"
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
@@ -18,6 +19,7 @@ var installCmd = &cobra.Command{
 	Short: "Install and configure your Nostr relay",
 	Long:  `Install and configure your Nostr relay, including package installation, firewall setup, Nginx configuration, SSL/TLS certificates, and starting the relay service.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		ThemeDefault := pterm.ThemeDefault
 
 		ui.Greet()
 
@@ -25,18 +27,30 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		// Supported relay options
-		options := []string{khatru_pyramid.RelayName, strfry.RelayName, khatru29.RelayName, strfry29.RelayName, wot_relay.RelayName}
+		options := []string{khatru_pyramid.RelayName, nostr_rs_relay.RelayName, strfry.RelayName, wot_relay.RelayName, khatru29.RelayName, strfry29.RelayName}
 
 		// Use PTerm's interactive select feature to present the options to the user and capture their selection
 		// The Show() method displays the options and waits for the user's input
-		selectedRelayOption, _ := pterm.DefaultInteractiveSelect.WithOptions(options).Show()
+		relaySelector := pterm.InteractiveSelectPrinter{
+			TextStyle:     &ThemeDefault.PrimaryStyle,
+			DefaultText:   "Please select an option",
+			Options:       []string{},
+			OptionStyle:   &ThemeDefault.DefaultText,
+			DefaultOption: "",
+			MaxHeight:     6,
+			Selector:      ">",
+			SelectorStyle: &ThemeDefault.SecondaryStyle,
+			Filter:        true,
+		}
+
+		selectedRelayOption, _ := relaySelector.WithOptions(options).Show()
 
 		// Display the selected option to the user with a green color for emphasis
 		pterm.Info.Printfln("Selected option: %s", pterm.Green(selectedRelayOption))
 
 		var privKey string
 		var pubKey string
-		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == wot_relay.RelayName {
+		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == wot_relay.RelayName {
 			pterm.Println()
 			pubKey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
 		} else if selectedRelayOption == khatru29.RelayName || selectedRelayOption == strfry29.RelayName {
@@ -46,7 +60,7 @@ var installCmd = &cobra.Command{
 		}
 
 		var relayContact string
-		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == khatru29.RelayName {
+		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == khatru29.RelayName {
 			pterm.Println()
 			pterm.Println(pterm.Yellow("Leave email empty if you don't want to provide relay contact information."))
 
@@ -65,7 +79,7 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		// Step 1: Install necessary packages using APT
-		manager.AptInstallPackages()
+		manager.AptInstallPackages(selectedRelayOption)
 
 		// Step 2: Configure the firewall
 		network.ConfigureFirewall()
@@ -89,6 +103,25 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			khatru_pyramid.SuccessMessages(relayDomain, httpsEnabled)
+		} else if selectedRelayOption == nostr_rs_relay.RelayName {
+			// Step 3: Configure Nginx for HTTP
+			nostr_rs_relay.ConfigureNginxHttp(relayDomain)
+
+			// Step 4: Get SSL/TLS certificates
+			httpsEnabled := network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				nostr_rs_relay.ConfigureNginxHttps(relayDomain)
+			}
+
+			// Step 6: Download and install the relay binary
+			nostr_rs_relay.InstallRelayBinary()
+
+			// Step 7: Set up the relay service
+			nostr_rs_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
+
+			// Step 8: Show success messages
+			nostr_rs_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == strfry.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			strfry.ConfigureNginxHttp(relayDomain)
@@ -108,6 +141,25 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
+		} else if selectedRelayOption == wot_relay.RelayName {
+			// Step 3: Configure Nginx for HTTP
+			wot_relay.ConfigureNginxHttp(relayDomain)
+
+			// Step 4: Get SSL/TLS certificates
+			httpsEnabled := network.GetCertificates(relayDomain)
+			if httpsEnabled {
+				// Step 5: Configure Nginx for HTTPS
+				wot_relay.ConfigureNginxHttps(relayDomain)
+			}
+
+			// Step 6: Download and install the relay binary
+			wot_relay.InstallRelayBinary()
+
+			// Step 7: Set up the relay service
+			wot_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
+
+			// Step 8: Show success messages
+			wot_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == khatru29.RelayName {
 			// Step 3: Configure Nginx for HTTP
 			khatru29.ConfigureNginxHttp(relayDomain)
@@ -146,25 +198,6 @@ var installCmd = &cobra.Command{
 
 			// Step 8: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)
-		} else if selectedRelayOption == wot_relay.RelayName {
-			// Step 3: Configure Nginx for HTTP
-			wot_relay.ConfigureNginxHttp(relayDomain)
-
-			// Step 4: Get SSL/TLS certificates
-			httpsEnabled := network.GetCertificates(relayDomain)
-			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
-				wot_relay.ConfigureNginxHttps(relayDomain)
-			}
-
-			// Step 6: Download and install the relay binary
-			wot_relay.InstallRelayBinary()
-
-			// Step 7: Set up the relay service
-			wot_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
-
-			// Step 8: Show success messages
-			wot_relay.SuccessMessages(relayDomain, httpsEnabled)
 		}
 
 		pterm.Println()

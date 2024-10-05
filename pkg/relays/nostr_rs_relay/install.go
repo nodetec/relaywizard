@@ -1,16 +1,24 @@
-package wot_relay
+package nostr_rs_relay
 
 import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/pterm/pterm"
 	"path/filepath"
 )
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s...", RelayName))
+	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay...", RelayName))
+
+	// Check for and remove existing git repository
+	directories.RemoveDirectory(GitRepoTmpDirPath)
+
+	// Download git repository
+	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
 
 	// Determine the file name from the URL
 	tmpFileName := filepath.Base(DownloadURL)
@@ -37,5 +45,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success(fmt.Sprintf("%s installed successfully.", RelayName))
+	spinner.Success(fmt.Sprintf("%s relay installed successfully.", RelayName))
 }

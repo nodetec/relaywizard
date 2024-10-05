@@ -46,13 +46,13 @@ If you prefer to manually verify the authenticity of the Relay Wizard binary bef
 
 #### Arch
 
-```sh
+```bash
 sudo pacman -S gnupg
 ```
 
 #### Debian/Ubuntu
 
-```sh
+```bash
 sudo apt install -y gnupg
 ```
 
@@ -60,19 +60,19 @@ sudo apt install -y gnupg
 
 #### Arch
 
-```sh
+```bash
 sudo pacman -S curl
 ```
 
 #### Debian/Ubuntu
 
-```sh
+```bash
 sudo apt install -y curl
 ```
 
 Now you need to import the public key that signed the manifest file which you can do by running the following command:
 
-```sh
+```bash
 curl https://keybase.io/nodetec/pgp_keys.asc | gpg --import
 ```
 
@@ -80,21 +80,21 @@ You're now ready to verify the manifest file. You will need to have the `rwz-x.x
 
 To verify the manifest file run the following command:
 
-```sh
+```bash
 gpg --verify rwz-x.x.x-manifest.sha512sum.asc
 ```
 
 Here's the command to run for the latest version of `rwz`:
 
-```sh
-gpg --verify rwz-0.3.0-alpha2-manifest.sha512sum.asc
+```bash
+gpg --verify rwz-0.3.0-alpha3-manifest.sha512sum.asc
 ```
 
 You should see output similar to the following if the verification was successful:
 
-```sh
-gpg: assuming signed data in 'rwz-0.3.0-alpha2-manifest.sha512sum'
-gpg: Signature made Thu 03 Oct 2024 07:40:12 PM UTC
+```bash
+gpg: assuming signed data in 'rwz-0.3.0-alpha3-manifest.sha512sum'
+gpg: Signature made Sat 05 Oct 2024 10:05:41 AM UTC
 gpg:                using RSA key 252F57B9DCD920EBF14E6151A8841CC4D10CC288
 gpg: Good signature from "NODE-TEC Devs <devs@node-tec.com>" [unknown]
 gpg:                 aka "[jpeg image of size 5143]" [unknown]
@@ -104,7 +104,7 @@ Primary key fingerprint: 04BD 8C20 598F A5FD DE19  BECD 8F24 69F7 1314 FAD7
 
 > Unless you tell GnuPG to trust the key, you'll see a warning similar to the following:
 
-```sh
+```bash
 gpg: WARNING: This key is not certified with a trusted signature!
 gpg:          There is no indication that the signature belongs to the owner.
 ```
@@ -117,20 +117,20 @@ You have now verified the signature of the manifest file which ensures the integ
 
 To verify the binary you'll need to recompute the SHA512 hash of the file, compare it with the corresponding hash in the manifest file, and ensure they match exactly which you can do by running the following command:
 
-```sh
+```bash
 sha512sum --check rwz-x.x.x-manifest.sha512sum
 ```
 
 Here's the command to run for the latest version of `rwz`:
 
-```sh
-sha512sum --check rwz-0.3.0-alpha2-manifest.sha512sum
+```bash
+sha512sum --check rwz-0.3.0-alpha3-manifest.sha512sum
 ```
 
 If the verification was successful you should see the output similar to the following:
 
-```sh
-rwz-0.3.0-alpha2-x86_64-linux-gnu.tar.gz: OK
+```bash
+rwz-0.3.0-alpha3-x86_64-linux-gnu.tar.gz: OK
 ```
 
 By completing the above steps you will have successfully verified the integrity of the binary.
