@@ -13,7 +13,7 @@ RELAY_NAME="Khatru29"
 RELAY_PRIVKEY="{{.PrivKey}}"
 RELAY_DESCRIPTION="Khatru29 Nostr Relay"
 RELAY_CONTACT="{{.RelayContact}}"
-DATABASE_PATH=/var/lib/khatru29/db
+DATABASE_PATH="/var/lib/khatru29/db"
 `
 const ServiceFilePath = "/etc/systemd/system/khatru29.service"
 const ServiceFileTemplate = `[Unit]
@@ -25,8 +25,8 @@ Type=simple
 User=nostr
 Group=nostr
 WorkingDirectory=/home/nostr
-EnvironmentFile=/etc/systemd/system/khatru29.env
-ExecStart=/usr/local/bin/khatru29
+EnvironmentFile={{.EnvFilePath}}
+ExecStart={{.BinaryFilePath}}
 Restart=on-failure
 
 [Install]

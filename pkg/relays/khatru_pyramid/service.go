@@ -40,7 +40,8 @@ func SetupRelayService(domain, pubKey, relayContact string) {
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate)
+	serviceFileParams := systemd.ServiceFileParams{EnvFilePath: EnvFilePath, BinaryFilePath: BinaryFilePath}
+	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")

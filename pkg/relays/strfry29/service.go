@@ -67,7 +67,7 @@ func SetupRelayService(domain, relaySecretKey string) {
 
 	// Create the strfry29.json file
 	spinner.UpdateText("Creating plugin file...")
-	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey}
+	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey, ConfigFilePath: ConfigFilePath, BinaryFilePath: BinaryFilePath}
 	plugins.CreatePluginFile(PluginFilePath, PluginFileTemplate, &pluginFileParams)
 
 	// Use chown command to set ownership of the strfry29.json file to the nostr user
@@ -75,7 +75,8 @@ func SetupRelayService(domain, relaySecretKey string) {
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate)
+	serviceFileParams := systemd.ServiceFileParams{BinaryFilePath: BinaryFilePath, ConfigFilePath: ConfigFilePath}
+	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")

@@ -23,8 +23,8 @@ const PluginFilePath = "/usr/local/bin/strfry29.json"
 const PluginFileTemplate = `{
   "domain": "{{.Domain}}",
   "relay_secret_key": "{{.RelaySecretKey}}",
-  "strfry_config_path": "/etc/strfry29/strfry.conf",
-  "strfry_executable_path": "/usr/local/bin/strfry"
+  "strfry_config_path": "{{.ConfigFilePath}}",
+  "strfry_executable_path": "{{.BinaryFilePath}}"
 }
 `
 const ServiceName = "strfry29"
@@ -41,7 +41,7 @@ After=network.target
 Type=simple
 User=nostr
 Group=nostr
-ExecStart=/usr/local/bin/strfry --config=/etc/strfry29/strfry.conf relay
+ExecStart={{.BinaryFilePath}} --config={{.ConfigFilePath}} relay
 Restart=on-failure
 RestartSec=5
 ProtectHome=yes

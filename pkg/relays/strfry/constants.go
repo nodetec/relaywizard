@@ -25,7 +25,7 @@ After=network.target
 Type=simple
 User=nostr
 Group=nostr
-ExecStart=/usr/local/bin/strfry --config=/etc/strfry/strfry.conf relay
+ExecStart={{.BinaryFilePath}} --config={{.ConfigFilePath}} relay
 Restart=on-failure
 RestartSec=5
 ProtectHome=yes

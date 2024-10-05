@@ -101,7 +101,7 @@ server {
 
     add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
 
-		#### Content-Security-Policy (CSP) ####
+    #### Content-Security-Policy (CSP) ####
     add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests;" always;
 }
 

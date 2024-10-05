@@ -10,6 +10,8 @@ import (
 type PluginFileParams struct {
 	Domain         string
 	RelaySecretKey string
+	ConfigFilePath string
+	BinaryFilePath string
 }
 
 func CreatePluginFile(pluginFilePath, pluginTemplate string, pluginFileParams *PluginFileParams) {
@@ -28,7 +30,7 @@ func CreatePluginFile(pluginFilePath, pluginTemplate string, pluginFileParams *P
 		os.Exit(1)
 	}
 
-	err = pluginTmpl.Execute(pluginFile, struct{ Domain, RelaySecretKey string }{Domain: pluginFileParams.Domain, RelaySecretKey: pluginFileParams.RelaySecretKey})
+	err = pluginTmpl.Execute(pluginFile, struct{ Domain, RelaySecretKey, ConfigFilePath, BinaryFilePath string }{Domain: pluginFileParams.Domain, RelaySecretKey: pluginFileParams.RelaySecretKey, ConfigFilePath: pluginFileParams.ConfigFilePath, BinaryFilePath: pluginFileParams.BinaryFilePath})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to execute plugin template: %v", err))

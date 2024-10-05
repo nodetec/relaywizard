@@ -16,6 +16,12 @@ type EnvFileParams struct {
 	RelayContact string
 }
 
+type ServiceFileParams struct {
+	EnvFilePath    string
+	BinaryFilePath string
+	ConfigFilePath string
+}
+
 func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams) {
 	envFile, err := os.Create(envFilePath)
 	if err != nil {
@@ -47,7 +53,7 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 	}
 }
 
-func CreateServiceFile(serviceFilePath, serviceTemplate string) {
+func CreateServiceFile(serviceFilePath, serviceTemplate string, serviceFileParams *ServiceFileParams) {
 	serviceFile, err := os.Create(serviceFilePath)
 	if err != nil {
 		pterm.Println()
@@ -56,14 +62,14 @@ func CreateServiceFile(serviceFilePath, serviceTemplate string) {
 	}
 	defer serviceFile.Close()
 
-	tmpl, err := template.New("service").Parse(serviceTemplate)
+	serviceTmpl, err := template.New("service").Parse(serviceTemplate)
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to parse service template: %v", err))
 		os.Exit(1)
 	}
 
-	err = tmpl.Execute(serviceFile, struct{}{})
+	err = serviceTmpl.Execute(serviceFile, struct{ EnvFilePath, BinaryFilePath, ConfigFilePath string }{EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to execute service template: %v", err))
