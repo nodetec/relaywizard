@@ -17,7 +17,16 @@ func ConfigureNginxHttp(domainName string) {
 
 	directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", network.WWWDirPath, domainName, network.AcmeChallengeDirPath), 0755)
 
-	configContent := fmt.Sprintf(`server {
+	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+upstream strfry_websocket {
+    server 127.0.0.1:7777;
+}
+
+server {
     listen 80;
     listen [::]:80;
     server_name %s;
@@ -28,15 +37,17 @@ func ConfigureNginxHttp(domainName string) {
     }
 
     location / {
+        proxy_pass http://strfry_websocket;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying 404.
         try_files $uri $uri/ =404;
-        proxy_pass http://127.0.0.1:7777;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     # Only return Nginx in server header
@@ -49,11 +60,11 @@ func ConfigureNginxHttp(domainName string) {
 		add_header X-Frame-Options DENY;
 
     # Avoid MIME type sniffing
-    add_header X-Content-Type-Options nosniff always;
+    add_header X-Content-Type-Options "nosniff" always;
 
     add_header Referrer-Policy "no-referrer" always;
 
-    add_header X-XSS-Protection 0 always;
+    add_header X-XSS-Protection "1; mode=block" always;
 
     add_header Permissions-Policy "geolocation=(), midi=(), sync-xhr=(), microphone=(), camera=(), magnetometer=(), gyroscope=(), fullscreen=(self), payment=()" always;
 
