@@ -11,7 +11,7 @@ import (
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, relaySecretKey string) {
+func SetupRelayService(domain, relaySecretKey, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Ensure the data directory exists and set ownership
@@ -47,6 +47,9 @@ func SetupRelayService(domain, relaySecretKey string) {
 
 	// Construct the sed command to change the info description
 	files.InPlaceEdit(fmt.Sprintf(`s|description = ".*"|description = "%s"|`, ConfigFileInfoDescription), TmpConfigFilePath)
+
+	// Construct the sed command to change the contact
+	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
 
 	// Construct the sed command to change the plugin path
 	files.InPlaceEdit(fmt.Sprintf(`s|plugin = ".*"|plugin = "%s"|`, BinaryPluginFilePath), TmpConfigFilePath)

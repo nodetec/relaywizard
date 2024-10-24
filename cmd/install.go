@@ -64,18 +64,21 @@ var installCmd = &cobra.Command{
 		}
 
 		var relayContact string
-		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == khatru29.RelayName {
-			pterm.Println()
-			pterm.Println(pterm.Yellow("Leave email empty if you don't want to provide relay contact information."))
-
-			pterm.Println()
-			relayContact, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-		} else if selectedRelayOption == wot_relay.RelayName {
+		if selectedRelayOption == wot_relay.RelayName {
 			pterm.Println()
 			pterm.Println(pterm.Yellow("If you leave the relay contact information empty, then the relay's public key will be used."))
 
 			pterm.Println()
 			relayContact, _ = pterm.DefaultInteractiveTextInput.Show("Email address/Public key (hex not npub)")
+		} else {
+			pterm.Println()
+			pterm.Println(pterm.Yellow("Leave email empty if you don't want to provide relay contact information."))
+
+			pterm.Println()
+			relayContact, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+			if relayContact != "" {
+				relayContact = fmt.Sprintf("mailto:%s", relayContact)
+			}
 		}
 
 		pterm.Println()
@@ -151,7 +154,7 @@ var installCmd = &cobra.Command{
 			strfry.InstallRelayBinary()
 
 			// Step 8: Set up the relay service
-			strfry.SetupRelayService(relayDomain)
+			strfry.SetupRelayService(relayDomain, relayContact)
 
 			// Step 9: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
@@ -208,7 +211,7 @@ var installCmd = &cobra.Command{
 			strfry29.InstallRelayBinary()
 
 			// Step 8: Set up the relay service
-			strfry29.SetupRelayService(relayDomain, privKey)
+			strfry29.SetupRelayService(relayDomain, privKey, relayContact)
 
 			// Step 9: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)
