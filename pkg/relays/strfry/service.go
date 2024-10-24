@@ -10,7 +10,7 @@ import (
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain string) {
+func SetupRelayService(domain, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Ensure the data directory exists and set ownership
@@ -41,6 +41,9 @@ func SetupRelayService(domain string) {
 	// Determine system hard limit
 	// Determine preferred nofiles value
 	files.InPlaceEdit(`s|nofiles = .*|nofiles = 0|`, TmpConfigFilePath)
+
+	// Construct the sed command to change the contact
+	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
 
 	// Copy config file to config directory
 	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
