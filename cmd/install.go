@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/nodetec/rwz/pkg/manager"
 	"github.com/nodetec/rwz/pkg/network"
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/relays/khatru29"
 	"github.com/nodetec/rwz/pkg/relays/khatru_pyramid"
 	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
@@ -10,6 +13,7 @@ import (
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/nodetec/rwz/pkg/ui"
+	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -84,119 +88,129 @@ var installCmd = &cobra.Command{
 		// Step 2: Configure the firewall
 		network.ConfigureFirewall()
 
+		// Setp 3: Create relay user
+		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relays.User))
+		if !users.UserExists(relays.User) {
+			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relays.User))
+			users.CreateUser(relays.User, true)
+			spinner.Success(fmt.Sprintf("Created '%s' user.", relays.User))
+		} else {
+			spinner.Success(fmt.Sprintf("'%s' user already exists.", relays.User))
+		}
+
 		if selectedRelayOption == khatru_pyramid.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			khatru_pyramid.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				khatru_pyramid.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			khatru_pyramid.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			khatru_pyramid.SetupRelayService(relayDomain, pubKey, relayContact)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			khatru_pyramid.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == nostr_rs_relay.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			nostr_rs_relay.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				nostr_rs_relay.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			nostr_rs_relay.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			nostr_rs_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			nostr_rs_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == strfry.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			strfry.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				strfry.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			strfry.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			strfry.SetupRelayService(relayDomain)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == wot_relay.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			wot_relay.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				wot_relay.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			wot_relay.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			wot_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			wot_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == khatru29.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			khatru29.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				khatru29.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			khatru29.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			khatru29.SetupRelayService(relayDomain, privKey, relayContact)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			khatru29.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == strfry29.RelayName {
-			// Step 3: Configure Nginx for HTTP
+			// Step 4: Configure Nginx for HTTP
 			strfry29.ConfigureNginxHttp(relayDomain)
 
-			// Step 4: Get SSL/TLS certificates
+			// Step 5: Get SSL/TLS certificates
 			httpsEnabled := network.GetCertificates(relayDomain)
 			if httpsEnabled {
-				// Step 5: Configure Nginx for HTTPS
+				// Step 6: Configure Nginx for HTTPS
 				strfry29.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 6: Download and install the relay binary
+			// Step 7: Download and install the relay binary
 			strfry29.InstallRelayBinary()
 
-			// Step 7: Set up the relay service
+			// Step 8: Set up the relay service
 			strfry29.SetupRelayService(relayDomain, privKey)
 
-			// Step 8: Show success messages
+			// Step 9: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)
 		}
 

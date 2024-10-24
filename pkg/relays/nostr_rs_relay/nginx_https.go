@@ -28,8 +28,6 @@ server {
     listen [::]:443 ssl http2;
     server_name %s;
 
-    root %s/%s;
-
     location / {
         proxy_pass http://nostr_rs_relay_websocket;
         proxy_http_version 1.1;
@@ -120,7 +118,7 @@ server {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, network.WWWDirPath, domainName, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName)
+`, domainName, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 

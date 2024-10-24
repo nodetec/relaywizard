@@ -44,7 +44,7 @@ func AptInstallPackages(selectedRelayOption string) {
 
 	exec.Command("apt", "update", "-qq").Run()
 
-	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban", "git"}
+	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban"}
 
 	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
 		packages = append(packages, "git")
