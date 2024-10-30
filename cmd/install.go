@@ -113,7 +113,7 @@ var installCmd = &cobra.Command{
 			}
 
 			// Step 7: Download and install the relay binary
-			khatru_pyramid.InstallRelayBinary()
+			khatru_pyramid.InstallRelayBinary(pubKey)
 
 			// Step 8: Set up the relay service
 			khatru_pyramid.SetupRelayService(relayDomain, pubKey, relayContact)
