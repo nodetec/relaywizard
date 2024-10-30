@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 	"path/filepath"
 )
@@ -23,6 +24,16 @@ func InstallRelayBinary() {
 
 	// Download and copy the file
 	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
+
+	// Check if the service file exists and disable and stop the service if it does
+	if files.FileExists(ServiceFilePath) {
+		// Disable and stop the Nostr relay service
+		spinner.UpdateText("Disabling and stopping service...")
+		systemd.DisableService(ServiceName)
+		systemd.StopService(ServiceName)
+	} else {
+		spinner.UpdateText("Service file not found...")
+	}
 
 	// Extract binary
 	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)

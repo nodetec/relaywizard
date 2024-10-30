@@ -82,6 +82,26 @@ func InPlaceEdit(command, path string) {
 	}
 }
 
+// Function to check if a line exists
+func LineExists(pattern, path string) bool {
+	cmd := exec.Command("grep", "-q", pattern, path)
+	err := cmd.Run()
+
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			exitCode := exitError.ExitCode()
+			if exitCode == 1 {
+				return false
+			} else {
+				pterm.Println()
+				pterm.Error.Println(fmt.Sprintf("Failed to search %s for %s: %v", path, pattern, err))
+				os.Exit(1)
+			}
+		}
+	}
+	return true
+}
+
 // Function to download and copy a file
 func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
 	// Create a temporary file

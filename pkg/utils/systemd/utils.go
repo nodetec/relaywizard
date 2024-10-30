@@ -100,6 +100,24 @@ func StartService(name string) {
 	}
 }
 
+func DisableService(name string) {
+	err := exec.Command("systemctl", "disable", name).Run()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to disable %s service: %v", name, err))
+		os.Exit(1)
+	}
+}
+
+func StopService(name string) {
+	err := exec.Command("systemctl", "stop", name).Run()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to stop %s service: %v", name, err))
+		os.Exit(1)
+	}
+}
+
 func ReloadService(name string) {
 	err := exec.Command("systemctl", "reload", name).Run()
 	if err != nil {
