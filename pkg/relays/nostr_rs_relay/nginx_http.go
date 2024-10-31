@@ -23,7 +23,7 @@ func ConfigureNginxHttp(domainName string) {
 }
 
 upstream nostr_rs_relay_websocket {
-    server 127.0.0.1:8080;
+    server 0.0.0.0:8080;
 }
 
 server {
