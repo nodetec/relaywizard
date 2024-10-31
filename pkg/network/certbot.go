@@ -6,6 +6,7 @@ import (
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // Function to get SSL/TLS certificates using Certbot
@@ -31,27 +32,92 @@ func GetCertificates(domainName string) bool {
 	result, _ := prompt.Show()
 
 	if result == "no" {
+		pterm.Println()
 		return false
 	}
 
 	pterm.Println()
-	pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+	certbotSpinner, _ := pterm.DefaultSpinner.Start("Checking for Certbot email...")
+
+	out, err := exec.Command("certbot", "show_account").Output()
+
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
+		os.Exit(1)
+	}
+
+	certbotAccountData := string(out)
+	var email string
+
+	if strings.Contains(certbotAccountData, "Email contact: none") {
+		pterm.Println()
+		certbotSpinner.Info("Certbot email currently set to none.")
+
+		pterm.Println()
+		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+
+		pterm.Println()
+		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+
+		pterm.Println()
+		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+
+		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
+			os.Exit(1)
+		}
+	} else {
+		_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
+		pterm.Println()
+		certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
+
+		prompt := pterm.InteractiveContinuePrinter{
+			DefaultValueIndex: 0,
+			DefaultText:       "Do you want to remove or update your Certbot email?",
+			TextStyle:         &ThemeDefault.PrimaryStyle,
+			Options:           []string{"yes", "no"},
+			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
+			SuffixStyle:       &ThemeDefault.SecondaryStyle,
+			Delimiter:         ": ",
+		}
+
+		result, _ := prompt.Show()
+
+		if result == "yes" {
+			pterm.Println()
+			pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+
+			pterm.Println()
+			pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+
+			pterm.Println()
+			email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+
+			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+			if err != nil {
+				pterm.Println()
+				pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
+				os.Exit(1)
+			}
+		}
+	}
 
 	pterm.Println()
-	email, _ := pterm.DefaultInteractiveTextInput.Show("Email address")
-	pterm.Println()
-
-	spinner, _ := pterm.DefaultSpinner.Start("Checking SSL/TLS certificates...")
+	certificateSpinner, _ := pterm.DefaultSpinner.Start("Checking SSL/TLS certificates...")
 
 	// Check if certificates already exist
 	if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
 		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
 		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
-		spinner.Info("SSL/TLS certificates already exist.")
+		certificateSpinner.Info("SSL/TLS certificates already exist.")
+		pterm.Println()
 		return true
 	}
 
-	spinner.UpdateText("Obtaining SSL/TLS certificates...")
+	certificateSpinner.UpdateText("Obtaining SSL/TLS certificates...")
 	if email == "" {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 		err := cmd.Run()
@@ -68,6 +134,6 @@ func GetCertificates(domainName string) bool {
 		}
 	}
 
-	spinner.Success("SSL/TLS certificates obtained successfully.")
+	certificateSpinner.Success("SSL/TLS certificates obtained successfully.")
 	return true
 }
