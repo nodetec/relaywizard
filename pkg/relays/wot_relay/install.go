@@ -3,15 +3,23 @@ package wot_relay
 import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 	"path/filepath"
 )
 
 // Function to download and make the binary executable
-func InstallRelayBinary() {
+func InstallRelayBinary(pubKey string) {
 	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s...", RelayName))
+
+	// Check for and remove existing git repository
+	directories.RemoveDirectory(GitRepoTmpDirPath)
+
+	// Download git repository
+	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
 
 	// Determine the file name from the URL
 	tmpFileName := filepath.Base(DownloadURL)
@@ -33,6 +41,21 @@ func InstallRelayBinary() {
 		systemd.StopService(ServiceName)
 	} else {
 		spinner.UpdateText("Service file not found...")
+	}
+
+	// Check if environment file exists
+	if files.FileExists(EnvFilePath) {
+		// Check if the pubKey exists in the environment file
+		spinner.UpdateText(fmt.Sprintf("Checking for public key in the %s file...", EnvFilePath))
+		lineExists := files.LineExists(fmt.Sprintf(`RELAY_PUBKEY="%s"`, pubKey), EnvFilePath)
+
+		// If false remove data directory
+		if !lineExists {
+			spinner.UpdateText("Public key not found, removing data directory...")
+			directories.RemoveDirectory(DataDirPath)
+		} else {
+			spinner.UpdateText("Public key found, keeping data directory.")
+		}
 	}
 
 	// Extract binary

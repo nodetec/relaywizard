@@ -173,7 +173,7 @@ var installCmd = &cobra.Command{
 			}
 
 			// Step 8: Download and install the relay binary
-			wot_relay.InstallRelayBinary()
+			wot_relay.InstallRelayBinary(pubKey)
 
 			// Step 9: Set up the relay service
 			wot_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
