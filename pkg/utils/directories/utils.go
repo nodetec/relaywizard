@@ -30,6 +30,16 @@ func CreateDirectory(path string, permissions FileMode) {
 	}
 }
 
+// Function to copy a directory and all of its content
+func CopyDirectory(dirToCopyPath, destDirPath string) {
+	err := exec.Command("cp", "-R", dirToCopyPath, destDirPath).Run()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to copy the %s directory to the %s directory: %v", dirToCopyPath, destDirPath, err))
+		os.Exit(1)
+	}
+}
+
 // Function to set owner and group of a directory
 func SetOwnerAndGroup(owner, group, dir string) {
 	err := exec.Command("chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
