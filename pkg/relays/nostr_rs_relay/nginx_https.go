@@ -3,6 +3,7 @@ package nostr_rs_relay
 import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/network"
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
@@ -121,6 +122,7 @@ server {
 `, domainName, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
+	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
 
 	systemd.ReloadService("nginx")
 

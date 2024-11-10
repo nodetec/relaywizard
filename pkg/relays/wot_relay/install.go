@@ -21,6 +21,8 @@ func InstallRelayBinary(pubKey string) {
 	// Download git repository
 	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
 
+	directories.SetPermissions(GitRepoTmpDirPath, 0755)
+
 	// Determine the file name from the URL
 	tmpFileName := filepath.Base(DownloadURL)
 

@@ -14,7 +14,7 @@ import (
 func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
-	// Ensure the data directory exists and set ownership
+	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
 	directories.CreateDirectory(fmt.Sprintf("%s/db", DataDirPath), 0755)
@@ -22,7 +22,7 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	// Use chown command to set ownership of the data directory to the nostr user
 	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
 
-	// Ensure the config directory exists and set ownership
+	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
 	directories.CreateDirectory(ConfigDirPath, 0755)
 
@@ -52,6 +52,9 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 
 	// Copy config file to config directory
 	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
+
+	// Set permissions for the config file
+	files.SetPermissions(ConfigFilePath, 0644)
 
 	// Use chown command to set ownership of the config file to the nostr user
 	files.SetOwnerAndGroup(relays.User, relays.User, ConfigFilePath)

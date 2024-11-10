@@ -5,9 +5,10 @@ const BinaryName = "khatru-pyramid"
 const BinaryFilePath = "/usr/local/bin/khatru-pyramid"
 const NginxConfigFilePath = "/etc/nginx/conf.d/khatru_pyramid.conf"
 const DataDirPath = "/var/lib/khatru-pyramid"
+const ConfigDirPath = "/etc/khatru-pyramid"
 const UsersFilePath = "/var/lib/khatru-pyramid/users.json"
 const ServiceName = "khatru-pyramid"
-const EnvFilePath = "/etc/systemd/system/khatru-pyramid.env"
+const EnvFilePath = "/etc/khatru-pyramid/khatru-pyramid.env"
 const EnvFileTemplate = `DOMAIN="{{.Domain}}"
 PORT="3335"
 DATABASE_PATH="/var/lib/khatru-pyramid/db"
@@ -15,12 +16,12 @@ USERDATA_PATH="/var/lib/khatru-pyramid/users.json"
 MAX_INVITES_PER_PERSON="3"
 RELAY_NAME="Khatru Pyramid"
 RELAY_PUBKEY="{{.PubKey}}"
-RELAY_DESCRIPTION="Khatru Pyramid Nostr Relay"
+RELAY_DESCRIPTION="Khatru Pyramid Relay"
 RELAY_CONTACT="{{.RelayContact}}"
 `
 const ServiceFilePath = "/etc/systemd/system/khatru-pyramid.service"
 const ServiceFileTemplate = `[Unit]
-Description=Khatru Pyramid Nostr Relay Service
+Description=Khatru Pyramid Relay Service
 After=network.target
 
 [Service]
