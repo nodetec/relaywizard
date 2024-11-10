@@ -2,12 +2,53 @@ package network
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/nodetec/rwz/pkg/utils/directories"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/pterm/pterm"
 )
+
+func setDomainCertDirPerms(domainName string) {
+	DomainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
+
+	if directories.DirExists(DomainCertificateDirPath) {
+		directories.SetPermissions(DomainCertificateDirPath, 0700)
+	}
+}
+
+func setDomainCertArchiveDirPerms(domainName string) {
+	DomainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
+
+	if directories.DirExists(DomainCertificateArchiveDirPath) {
+		directories.SetPermissions(DomainCertificateArchiveDirPath, 0700)
+	}
+}
+
+func setDomainCertArchiveFilePerms(domainName string) {
+	FullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
+	PrivkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
+	ChainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
+	CertArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
+
+	if files.FileExists(FullchainArchiveFilePath) {
+		files.SetPermissions(FullchainArchiveFilePath, 0600)
+	}
+
+	if files.FileExists(PrivkeyArchiveFilePath) {
+		files.SetPermissions(PrivkeyArchiveFilePath, 0600)
+	}
+
+	if files.FileExists(ChainArchiveFilePath) {
+		files.SetPermissions(ChainArchiveFilePath, 0600)
+	}
+
+	if files.FileExists(CertArchiveFilePath) {
+		files.SetPermissions(CertArchiveFilePath, 0600)
+	}
+}
 
 // Function to get SSL/TLS certificates using Certbot
 func GetCertificates(domainName string) bool {
@@ -112,6 +153,10 @@ func GetCertificates(domainName string) bool {
 	if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
 		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
 		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
+		setDomainCertDirPerms(domainName)
+		setDomainCertArchiveDirPerms(domainName)
+		setDomainCertArchiveFilePerms(domainName)
+
 		certificateSpinner.Info("SSL/TLS certificates already exist.")
 		pterm.Println()
 		return true
@@ -133,6 +178,10 @@ func GetCertificates(domainName string) bool {
 			os.Exit(1)
 		}
 	}
+
+	setDomainCertDirPerms(domainName)
+	setDomainCertArchiveDirPerms(domainName)
+	setDomainCertArchiveFilePerms(domainName)
 
 	certificateSpinner.Success("SSL/TLS certificates obtained successfully.")
 	return true

@@ -18,7 +18,7 @@ const ServiceFilePath = "/etc/systemd/system/strfry.service"
 // Check working directory
 // WorkingDirectory=/home/nostr
 const ServiceFileTemplate = `[Unit]
-Description=strfry Nostr Relay Service
+Description=strfry Relay Service
 After=network.target
 
 [Service]

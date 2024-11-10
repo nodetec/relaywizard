@@ -14,14 +14,14 @@ import (
 func SetupRelayService(domain, relaySecretKey, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
-	// Ensure the data directory exists and set ownership
+	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
 
 	// Use chown command to set ownership of the data directory to the nostr user
 	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
 
-	// Ensure the config directory exists and set ownership
+	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
 	directories.CreateDirectory(ConfigDirPath, 0755)
 
@@ -57,6 +57,9 @@ func SetupRelayService(domain, relaySecretKey, relayContact string) {
 	// Copy config file to /etc/strfry29
 	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
 
+	// Set permissions for the config file
+	files.SetPermissions(ConfigFilePath, 0644)
+
 	// Use chown command to set ownership of the config file to the nostr user
 	files.SetOwnerAndGroup(relays.User, relays.User, ConfigFilePath)
 
@@ -65,8 +68,8 @@ func SetupRelayService(domain, relaySecretKey, relayContact string) {
 	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey, ConfigFilePath: ConfigFilePath, BinaryFilePath: BinaryFilePath}
 	plugins.CreatePluginFile(PluginFilePath, PluginFileTemplate, &pluginFileParams)
 
-	// Use chown command to set ownership of the strfry29.json file to the nostr user
-	files.SetOwnerAndGroup(relays.User, relays.User, PluginFilePath)
+	// Set permissions for the strfry29.json file
+	files.SetPermissions(PluginFilePath, 0600)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")

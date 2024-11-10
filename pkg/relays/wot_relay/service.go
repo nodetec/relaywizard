@@ -3,6 +3,7 @@ package wot_relay
 import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/configuration"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
@@ -13,7 +14,7 @@ import (
 func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
-	// Ensure the data directory exists and set ownership
+	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
 	directories.CreateDirectory(fmt.Sprintf("%s/db", DataDirPath), 0755)
@@ -38,6 +39,9 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	// Copy the index.html file to templates directory
 	files.CopyFile(TmpIndexFilePath, TemplatesDirPath)
 
+	// Set permissions for the index.html file
+	files.SetPermissions(IndexFilePath, 0644)
+
 	// Use chown command to set ownership of the index.html file to the nostr user
 	files.SetOwnerAndGroup(relays.User, relays.User, IndexFilePath)
 
@@ -47,6 +51,9 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 
 	// Copy the static directory and all of its content to the templates directory
 	directories.CopyDirectory(TmpStaticDirPath, TemplatesDirPath)
+
+	// Set permissions for the static directory
+	directories.SetPermissions(StaticDirPath, 0755)
 
 	// Use chown command to set ownership of the static directory and its content to the nostr user
 	directories.SetOwnerAndGroup(relays.User, relays.User, StaticDirPath)
@@ -59,8 +66,14 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
-	envFileParams := systemd.EnvFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey, RelayContact: relayContact}
-	systemd.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
+	envFileParams := configuration.EnvFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey, RelayContact: relayContact}
+	configuration.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
+
+	// Set permissions for the environment file
+	files.SetPermissions(EnvFilePath, 0644)
+
+	// Use chown command to set ownership of the environment file to the nostr user
+	files.SetOwnerAndGroup(relays.User, relays.User, EnvFilePath)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")

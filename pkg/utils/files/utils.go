@@ -40,22 +40,22 @@ func CopyFile(fileToCopy, destDir string) {
 	}
 }
 
-// Function to set owner and group of a file
-func SetOwnerAndGroup(owner, group, file string) {
-	err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of %s file: %v", file, err))
-		os.Exit(1)
-	}
-}
-
 // Function to set permissions of a file
 func SetPermissions(path string, mode FileMode) {
 	err := os.Chmod(path, mode)
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to set %s file permissions: %v", path, err))
+		os.Exit(1)
+	}
+}
+
+// Function to set owner and group of a file
+func SetOwnerAndGroup(owner, group, file string) {
+	err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of %s file: %v", file, err))
 		os.Exit(1)
 	}
 }
@@ -112,6 +112,8 @@ func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
 		os.Exit(1)
 	}
 	defer out.Close()
+
+	SetPermissions(tmpFilePath, 0644)
 
 	// Download the file
 	resp, err := http.Get(downloadURL)

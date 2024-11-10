@@ -3,6 +3,7 @@ package wot_relay
 import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/network"
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
@@ -15,7 +16,9 @@ func ConfigureNginxHttp(domainName string) {
 
 	files.RemoveFile(NginxConfigFilePath)
 
+	directories.CreateDirectory(fmt.Sprintf("%s/%s", network.WWWDirPath, domainName), 0755)
 	directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", network.WWWDirPath, domainName, network.AcmeChallengeDirPath), 0755)
+	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s", network.WWWDirPath, domainName))
 
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
@@ -84,6 +87,7 @@ server {
 `, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
+	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
 
 	systemd.RestartService("nginx")
 

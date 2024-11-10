@@ -2,12 +2,14 @@ package manager
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+
 	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
 	"github.com/nodetec/rwz/pkg/relays/strfry"
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
+	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/pterm/pterm"
-	"os"
-	"os/exec"
 )
 
 // Function to check if a package is installed
@@ -46,7 +48,7 @@ func AptInstallPackages(selectedRelayOption string) {
 
 	packages := []string{"nginx", "certbot", "python3-certbot-nginx", "ufw", "fail2ban"}
 
-	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
+	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == wot_relay.RelayName || selectedRelayOption == strfry29.RelayName {
 		packages = append(packages, "git")
 	}
 

@@ -16,10 +16,12 @@ func InstallRelayBinary() {
 	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay...", RelayName))
 
 	// Check for and remove existing git repository
-	directories.RemoveDirectory(GitRepoTmpDir)
+	directories.RemoveDirectory(GitRepoTmpDirPath)
 
 	// Download git repository
-	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDir)
+	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
+
+	directories.SetPermissions(GitRepoTmpDirPath, 0755)
 
 	// Install
 	// Determine the file name from the URL
