@@ -54,10 +54,12 @@ var installCmd = &cobra.Command{
 
 		var privKey string
 		var pubKey string
-		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == wot_relay.RelayName {
+		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == wot_relay.RelayName || selectedRelayOption == strfry29.RelayName {
 			pterm.Println()
 			pubKey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
-		} else if selectedRelayOption == khatru29.RelayName || selectedRelayOption == strfry29.RelayName {
+		}
+
+		if selectedRelayOption == khatru29.RelayName || selectedRelayOption == strfry29.RelayName {
 			pterm.Println()
 			privKeyInput := pterm.DefaultInteractiveTextInput.WithMask("*")
 			privKey, _ = privKeyInput.Show("Private key (hex not nsec)")
@@ -160,7 +162,7 @@ var installCmd = &cobra.Command{
 			strfry.InstallRelayBinary()
 
 			// Step 10: Set up the relay service
-			strfry.SetupRelayService(relayDomain, relayContact)
+			strfry.SetupRelayService(relayDomain, pubKey, relayContact)
 
 			// Step 11: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
@@ -217,7 +219,7 @@ var installCmd = &cobra.Command{
 			strfry29.InstallRelayBinary()
 
 			// Step 10: Set up the relay service
-			strfry29.SetupRelayService(relayDomain, privKey, relayContact)
+			strfry29.SetupRelayService(relayDomain, pubKey, privKey, relayContact)
 
 			// Step 11: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)

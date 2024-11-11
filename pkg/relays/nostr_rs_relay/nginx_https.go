@@ -37,6 +37,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
         # First attempt to serve request as file, then
         # as directory, then fall back to displaying 404.
         try_files $uri $uri/ =404;

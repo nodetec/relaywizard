@@ -17,7 +17,7 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/db", DataDirPath), 0755)
+	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
 
 	// Use chown command to set ownership of the data directory to the nostr user
 	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
@@ -45,7 +45,7 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	files.InPlaceEdit(fmt.Sprintf(`s|#contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
 
 	// Construct the sed command to change the data directory
-	files.InPlaceEdit(fmt.Sprintf(`s|#data_directory = ".*"|data_directory = "%s"|`, DataDirPath), TmpConfigFilePath)
+	files.InPlaceEdit(fmt.Sprintf(`s|#data_directory = ".*"|data_directory = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
 
 	// Construct the sed command to change the remote ip header
 	files.InPlaceEdit(fmt.Sprintf(`s|#remote_ip_header = "x-forwarded-for"|remote_ip_header = "x-forwarded-for"|`), TmpConfigFilePath)

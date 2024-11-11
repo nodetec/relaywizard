@@ -10,12 +10,13 @@ import (
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, relayContact string) {
+func SetupRelayService(domain, pubKey, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
+	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
 
 	// Use chown command to set ownership of the data directory to the nostr user
 	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
@@ -34,13 +35,19 @@ func SetupRelayService(domain, relayContact string) {
 	files.RemoveFile(ServiceFilePath)
 
 	// Construct the sed command to change the db path
-	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s"|`, DataDirPath), TmpConfigFilePath)
+	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
 
 	// Construct the sed command to change the nofiles limit
 	// TODO
 	// Determine system hard limit
 	// Determine preferred nofiles value
 	files.InPlaceEdit(`s|nofiles = .*|nofiles = 0|`, TmpConfigFilePath)
+
+	// Construct the sed command to change the realIpHeader
+	files.InPlaceEdit(`s|realIpHeader = .*|realIpHeader = "x-forwarded-for"|`, TmpConfigFilePath)
+
+	// Construct the sed command to change the pubkey
+	files.InPlaceEdit(fmt.Sprintf(`s|pubkey = .*|pubkey = "%s"|`, pubKey), TmpConfigFilePath)
 
 	// Construct the sed command to change the contact
 	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
