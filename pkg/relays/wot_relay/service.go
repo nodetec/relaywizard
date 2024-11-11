@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/configuration"
 	"github.com/nodetec/rwz/pkg/utils/directories"
@@ -26,37 +27,39 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	spinner.UpdateText("Creating config directory...")
 	directories.CreateDirectory(ConfigDirPath, 0755)
 
-	// Ensure the templates directory exists and set permissions
-	spinner.UpdateText("Creating templates directory...")
-	directories.CreateDirectory(TemplatesDirPath, 0755)
+	// Path to the /var/www/domain directory
+	WWWDomainDirPath := fmt.Sprintf("%s/%s", network.WWWDirPath, domain)
 
-	// Use chown command to set ownership of the config directory and its content to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, ConfigDirPath)
+	// Path to the index.html file
+	IndexFilePath := fmt.Sprintf("%s/%s", WWWDomainDirPath, IndexFile)
 
 	// Check if the index.html file exists and remove it if it does
 	files.RemoveFile(IndexFilePath)
 
-	// Copy the index.html file to templates directory
-	files.CopyFile(TmpIndexFilePath, TemplatesDirPath)
+	// Copy the index.html file to the /var/www/domain directory
+	files.CopyFile(TmpIndexFilePath, WWWDomainDirPath)
 
 	// Set permissions for the index.html file
 	files.SetPermissions(IndexFilePath, 0644)
 
-	// Use chown command to set ownership of the index.html file to the nostr user
-	files.SetOwnerAndGroup(relays.User, relays.User, IndexFilePath)
+	// Use chown command to set ownership of the index.html file to the www-data user
+	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, IndexFilePath)
+
+	// Path to the static directory
+	StaticDirPath := fmt.Sprintf("%s/%s", WWWDomainDirPath, StaticDir)
 
 	// Remove the static directory and all of its content if it exists
 	spinner.UpdateText("Removing static directory...")
 	directories.RemoveDirectory(StaticDirPath)
 
-	// Copy the static directory and all of its content to the templates directory
-	directories.CopyDirectory(TmpStaticDirPath, TemplatesDirPath)
+	// Copy the static directory and all of its content to the /var/www/domain directory
+	directories.CopyDirectory(TmpStaticDirPath, WWWDomainDirPath)
 
 	// Set permissions for the static directory
 	directories.SetPermissions(StaticDirPath, 0755)
 
-	// Use chown command to set ownership of the static directory and its content to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, StaticDirPath)
+	// Use chown command to set ownership of the static directory and its content to the www-data user
+	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, StaticDirPath)
 
 	// Check if the environment file exists and remove it if it does
 	files.RemoveFile(EnvFilePath)
@@ -71,9 +74,6 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 
 	// Set permissions for the environment file
 	files.SetPermissions(EnvFilePath, 0644)
-
-	// Use chown command to set ownership of the environment file to the nostr user
-	files.SetOwnerAndGroup(relays.User, relays.User, EnvFilePath)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")

@@ -26,9 +26,6 @@ func SetupRelayService(domain, pubKey, relaySecretKey, relayContact string) {
 	spinner.UpdateText("Creating config directory...")
 	directories.CreateDirectory(ConfigDirPath, 0755)
 
-	// Use chown command to set ownership of the config directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, ConfigDirPath)
-
 	// Check if the config file exists and remove it if it does
 	files.RemoveFile(ConfigFilePath)
 
@@ -66,9 +63,6 @@ func SetupRelayService(domain, pubKey, relaySecretKey, relayContact string) {
 
 	// Set permissions for the config file
 	files.SetPermissions(ConfigFilePath, 0644)
-
-	// Use chown command to set ownership of the config file to the nostr user
-	files.SetOwnerAndGroup(relays.User, relays.User, ConfigFilePath)
 
 	// Create the strfry29.json file
 	spinner.UpdateText("Creating plugin file...")

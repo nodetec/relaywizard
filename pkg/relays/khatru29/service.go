@@ -24,9 +24,6 @@ func SetupRelayService(domain, privKey, relayContact string) {
 	spinner.UpdateText("Creating config directory...")
 	directories.CreateDirectory(ConfigDirPath, 0755)
 
-	// Use chown command to set ownership of the config directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, ConfigDirPath)
-
 	// Check if the environment file exists and remove it if it does
 	files.RemoveFile(EnvFilePath)
 
@@ -40,9 +37,6 @@ func SetupRelayService(domain, privKey, relayContact string) {
 
 	// Set permissions for the environment file
 	files.SetPermissions(EnvFilePath, 0600)
-
-	// Use chown command to set ownership of the environment file to the nostr user
-	files.SetOwnerAndGroup(relays.User, relays.User, EnvFilePath)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
