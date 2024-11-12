@@ -58,5 +58,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success(fmt.Sprintf("%s relay installed successfully.", RelayName))
+	spinner.Success(fmt.Sprintf("%s relay binary downloaded and installed", RelayName))
 }

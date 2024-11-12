@@ -28,5 +28,5 @@ func ConfigureIntrusionDetection() {
 		os.Exit(1)
 	}
 
-	spinner.Success("Intrusion detection system configured successfully.")
+	spinner.Success("Intrusion detection system configured")
 }

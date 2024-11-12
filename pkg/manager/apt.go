@@ -66,5 +66,5 @@ func AptInstallPackages(selectedRelayOption string) {
 		}
 	}
 
-	spinner.Success("Packages updated and installed successfully.")
+	spinner.Success("Packages updated and installed")
 }
