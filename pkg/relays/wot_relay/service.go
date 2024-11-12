@@ -1,79 +1,17 @@
 package wot_relay
 
 import (
-	"fmt"
-	"github.com/nodetec/rwz/pkg/network"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/configuration"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
+func SetUpRelayService() {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
-
-	// Ensure the data directory exists and set permissions
-	spinner.UpdateText("Creating data directory...")
-	directories.CreateDirectory(DataDirPath, 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
-
-	// Use chown command to set ownership of the data directory and its content to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
-
-	// Ensure the config directory exists and set permissions
-	spinner.UpdateText("Creating config directory...")
-	directories.CreateDirectory(ConfigDirPath, 0755)
-
-	// Path to the /var/www/domain directory
-	WWWDomainDirPath := fmt.Sprintf("%s/%s", network.WWWDirPath, domain)
-
-	// Path to the index.html file
-	IndexFilePath := fmt.Sprintf("%s/%s", WWWDomainDirPath, IndexFile)
-
-	// Check if the index.html file exists and remove it if it does
-	files.RemoveFile(IndexFilePath)
-
-	// Copy the index.html file to the /var/www/domain directory
-	files.CopyFile(TmpIndexFilePath, WWWDomainDirPath)
-
-	// Set permissions for the index.html file
-	files.SetPermissions(IndexFilePath, 0644)
-
-	// Use chown command to set ownership of the index.html file to the www-data user
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, IndexFilePath)
-
-	// Path to the static directory
-	StaticDirPath := fmt.Sprintf("%s/%s", WWWDomainDirPath, StaticDir)
-
-	// Remove the static directory and all of its content if it exists
-	spinner.UpdateText("Removing static directory...")
-	directories.RemoveDirectory(StaticDirPath)
-
-	// Copy the static directory and all of its content to the /var/www/domain directory
-	directories.CopyDirectory(TmpStaticDirPath, WWWDomainDirPath)
-
-	// Set permissions for the static directory
-	directories.SetPermissions(StaticDirPath, 0755)
-
-	// Use chown command to set ownership of the static directory and its content to the www-data user
-	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, StaticDirPath)
-
-	// Check if the environment file exists and remove it if it does
-	files.RemoveFile(EnvFilePath)
 
 	// Check if the service file exists and remove it if it does
 	files.RemoveFile(ServiceFilePath)
-
-	// Create the environment file
-	spinner.UpdateText("Creating environment file...")
-	envFileParams := configuration.EnvFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey, RelayContact: relayContact}
-	configuration.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
-
-	// Set permissions for the environment file
-	files.SetPermissions(EnvFilePath, 0644)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
@@ -89,5 +27,5 @@ func SetupRelayService(domain, pubKey, relayContact string, httpsEnabled bool) {
 	systemd.EnableService(ServiceName)
 	systemd.StartService(ServiceName)
 
-	spinner.Success("Nostr relay service configured")
+	spinner.Success("Relay service enabled and started")
 }

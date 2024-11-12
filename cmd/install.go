@@ -99,14 +99,14 @@ var installCmd = &cobra.Command{
 		// Step 4: Configure Nginx
 		network.ConfigureNginx()
 
-		// Setp 5: Create relay user
+		// Step 5: Create relay user
 		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relays.User))
 		if !users.UserExists(relays.User) {
 			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relays.User))
 			users.CreateUser(relays.User, true)
-			spinner.Success(fmt.Sprintf("Created '%s' user.", relays.User))
+			spinner.Success(fmt.Sprintf("Created '%s' user", relays.User))
 		} else {
-			spinner.Success(fmt.Sprintf("'%s' user already exists.", relays.User))
+			spinner.Success(fmt.Sprintf("'%s' user already exists", relays.User))
 		}
 
 		if selectedRelayOption == khatru_pyramid.RelayName {
@@ -123,10 +123,16 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			khatru_pyramid.InstallRelayBinary(pubKey)
 
-			// Step 10: Set up the relay service
-			khatru_pyramid.SetupRelayService(relayDomain, pubKey, relayContact)
+			// Step 10: Set up the relay data directory
+			khatru_pyramid.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			khatru_pyramid.ConfigureRelay(relayDomain, pubKey, relayContact)
+
+			// Step 12: Set up the relay service
+			khatru_pyramid.SetUpRelayService()
+
+			// Step 13: Show success messages
 			khatru_pyramid.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == nostr_rs_relay.RelayName {
 			// Step 6: Configure Nginx for HTTP
@@ -142,10 +148,16 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			nostr_rs_relay.InstallRelayBinary()
 
-			// Step 10: Set up the relay service
-			nostr_rs_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
+			// Step 10: Set up the relay data directory
+			nostr_rs_relay.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			nostr_rs_relay.ConfigureRelay(relayDomain, pubKey, relayContact, httpsEnabled)
+
+			// Step 12: Set up the relay service
+			nostr_rs_relay.SetUpRelayService()
+
+			// Step 13: Show success messages
 			nostr_rs_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == strfry.RelayName {
 			// Step 6: Configure Nginx for HTTP
@@ -161,10 +173,16 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			strfry.InstallRelayBinary()
 
-			// Step 10: Set up the relay service
-			strfry.SetupRelayService(relayDomain, pubKey, relayContact)
+			// Step 10: Set up the relay data directory
+			strfry.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			strfry.ConfigureRelay(pubKey, relayContact)
+
+			// Step 12: Set up the relay service
+			strfry.SetUpRelayService()
+
+			// Step 13: Show success messages
 			strfry.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == wot_relay.RelayName {
 			// Step 6: Configure Nginx for HTTP
@@ -180,10 +198,19 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			wot_relay.InstallRelayBinary(pubKey)
 
-			// Step 10: Set up the relay service
-			wot_relay.SetupRelayService(relayDomain, pubKey, relayContact, httpsEnabled)
+			// Step 10: Set up the relay data directory
+			wot_relay.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			wot_relay.ConfigureRelay(relayDomain, pubKey, relayContact, httpsEnabled)
+
+			// Step 12: Set up the relay site
+			wot_relay.SetUpRelaySite(relayDomain)
+
+			// Step 13: Set up the relay service
+			wot_relay.SetUpRelayService()
+
+			// Step 14: Show success messages
 			wot_relay.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == khatru29.RelayName {
 			// Step 6: Configure Nginx for HTTP
@@ -199,10 +226,16 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			khatru29.InstallRelayBinary()
 
-			// Step 10: Set up the relay service
-			khatru29.SetupRelayService(relayDomain, privKey, relayContact)
+			// Step 10: Set up the relay data directory
+			khatru29.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			khatru29.ConfigureRelay(relayDomain, privKey, relayContact)
+
+			// Step 12: Set up the relay service
+			khatru29.SetUpRelayService()
+
+			// Step 13: Show success messages
 			khatru29.SuccessMessages(relayDomain, httpsEnabled)
 		} else if selectedRelayOption == strfry29.RelayName {
 			// Step 6: Configure Nginx for HTTP
@@ -218,10 +251,16 @@ var installCmd = &cobra.Command{
 			// Step 9: Download and install the relay binary
 			strfry29.InstallRelayBinary()
 
-			// Step 10: Set up the relay service
-			strfry29.SetupRelayService(relayDomain, pubKey, privKey, relayContact)
+			// Step 10: Set up the relay data directory
+			strfry29.SetUpRelayDataDir()
 
-			// Step 11: Show success messages
+			// Step 11: Configure the relay
+			strfry29.ConfigureRelay(relayDomain, pubKey, privKey, relayContact)
+
+			// Step 12: Set up the relay service
+			strfry29.SetUpRelayService()
+
+			// Step 13: Show success messages
 			strfry29.SuccessMessages(relayDomain, httpsEnabled)
 		}
 

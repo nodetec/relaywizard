@@ -42,5 +42,5 @@ func ConfigureFirewall() {
 		os.Exit(1)
 	}
 
-	spinner.Success("Firewall configured successfully.")
+	spinner.Success("Firewall configured")
 }

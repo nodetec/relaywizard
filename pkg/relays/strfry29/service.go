@@ -1,76 +1,17 @@
 package strfry29
 
 import (
-	"fmt"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/nodetec/rwz/pkg/utils/plugins"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 )
 
 // Function to set up the relay service
-func SetupRelayService(domain, pubKey, relaySecretKey, relayContact string) {
+func SetUpRelayService() {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
-
-	// Ensure the data directory exists and set permissions
-	spinner.UpdateText("Creating data directory...")
-	directories.CreateDirectory(DataDirPath, 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
-
-	// Use chown command to set ownership of the data directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
-
-	// Ensure the config directory exists and set permissions
-	spinner.UpdateText("Creating config directory...")
-	directories.CreateDirectory(ConfigDirPath, 0755)
-
-	// Check if the config file exists and remove it if it does
-	files.RemoveFile(ConfigFilePath)
-
-	// Check if the strfry29.json file exists and remove it if it does
-	files.RemoveFile(PluginFilePath)
 
 	// Check if the service file exists and remove it if it does
 	files.RemoveFile(ServiceFilePath)
-
-	// Construct the sed command to change the db path
-	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
-
-	// TODO
-	// Determine system hard limit
-	// Determine preferred nofiles value
-	// Construct the sed command to change the nofiles limit
-
-	// Construct the sed command to change the realIpHeader
-	files.InPlaceEdit(`s|realIpHeader = .*|realIpHeader = "x-forwarded-for"|`, TmpConfigFilePath)
-
-	// Construct the sed command to change the info description
-	files.InPlaceEdit(fmt.Sprintf(`s|description = ".*"|description = "%s"|`, ConfigFileInfoDescription), TmpConfigFilePath)
-
-	// Construct the sed command to change the pubkey
-	files.InPlaceEdit(fmt.Sprintf(`s|pubkey = .*|pubkey = "%s"|`, pubKey), TmpConfigFilePath)
-
-	// Construct the sed command to change the contact
-	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
-
-	// Construct the sed command to change the plugin path
-	files.InPlaceEdit(fmt.Sprintf(`s|plugin = ".*"|plugin = "%s"|`, BinaryPluginFilePath), TmpConfigFilePath)
-
-	// Copy config file to /etc/strfry29
-	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
-
-	// Set permissions for the config file
-	files.SetPermissions(ConfigFilePath, 0644)
-
-	// Create the strfry29.json file
-	spinner.UpdateText("Creating plugin file...")
-	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey, ConfigFilePath: ConfigFilePath, BinaryFilePath: BinaryFilePath}
-	plugins.CreatePluginFile(PluginFilePath, PluginFileTemplate, &pluginFileParams)
-
-	// Set permissions for the strfry29.json file
-	files.SetPermissions(PluginFilePath, 0600)
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
@@ -86,5 +27,5 @@ func SetupRelayService(domain, pubKey, relaySecretKey, relayContact string) {
 	systemd.EnableService(ServiceName)
 	systemd.StartService(ServiceName)
 
-	spinner.Success("Nostr relay service configured")
+	spinner.Success("Relay service enabled and started")
 }
