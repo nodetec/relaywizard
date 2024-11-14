@@ -7,13 +7,14 @@ import (
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
+	"github.com/nodetec/rwz/pkg/verification"
 	"github.com/pterm/pterm"
 	"path/filepath"
 )
 
 // Function to download and make the binary executable
 func InstallRelayBinary(pubKey string) {
-	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s relay binary...", RelayName))
 
 	// Check for and remove existing git repository
 	directories.RemoveDirectory(GitRepoTmpDirPath)
@@ -35,28 +36,35 @@ func InstallRelayBinary(pubKey string) {
 	// Download and copy the file
 	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
 
+	downloadSpinner.Success(fmt.Sprintf("%s relay binary downloaded", RelayName))
+
+	// Verify relay binary
+	verification.VerifyRelayBinary(tmpFilePath)
+
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay binary...", RelayName))
+
 	// Check if the service file exists and disable and stop the service if it does
 	if files.FileExists(ServiceFilePath) {
 		// Disable and stop the Nostr relay service
-		spinner.UpdateText("Disabling and stopping service...")
+		installSpinner.UpdateText("Disabling and stopping service...")
 		systemd.DisableService(ServiceName)
 		systemd.StopService(ServiceName)
 	} else {
-		spinner.UpdateText("Service file not found...")
+		installSpinner.UpdateText("Service file not found...")
 	}
 
 	// Check if environment file exists
 	if files.FileExists(EnvFilePath) {
 		// Check if the pubKey exists in the environment file
-		spinner.UpdateText(fmt.Sprintf("Checking for public key in the %s file...", EnvFilePath))
+		installSpinner.UpdateText(fmt.Sprintf("Checking for public key in the %s file...", EnvFilePath))
 		lineExists := files.LineExists(fmt.Sprintf(`RELAY_PUBKEY="%s"`, pubKey), EnvFilePath)
 
 		// If false remove data directory
 		if !lineExists {
-			spinner.UpdateText("Public key not found, removing data directory...")
+			installSpinner.UpdateText("Public key not found, removing data directory...")
 			directories.RemoveDirectory(DataDirPath)
 		} else {
-			spinner.UpdateText("Public key found, keeping data directory.")
+			installSpinner.UpdateText("Public key found, keeping data directory.")
 		}
 	}
 
@@ -73,5 +81,5 @@ func InstallRelayBinary(pubKey string) {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success(fmt.Sprintf("%s relay binary downloaded and installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s relay binary installed", RelayName))
 }
