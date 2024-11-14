@@ -2,13 +2,12 @@ package network
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-	"strings"
-
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
+	"os"
+	"os/exec"
+	"strings"
 )
 
 func setDomainCertDirPerms(domainName string) {

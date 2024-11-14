@@ -5,13 +5,14 @@ import (
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
+	"github.com/nodetec/rwz/pkg/verification"
 	"github.com/pterm/pterm"
 	"path/filepath"
 )
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s relay binary...", RelayName))
 
 	// Determine the file name from the URL
 	tmpFileName := filepath.Base(DownloadURL)
@@ -25,14 +26,21 @@ func InstallRelayBinary() {
 	// Download and copy the file
 	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
 
+	downloadSpinner.Success(fmt.Sprintf("%s relay binary downloaded", RelayName))
+
+	// Verify relay binary
+	verification.VerifyRelayBinary(tmpFilePath)
+
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay binary...", RelayName))
+
 	// Check if the service file exists and disable and stop the service if it does
 	if files.FileExists(ServiceFilePath) {
 		// Disable and stop the Nostr relay service
-		spinner.UpdateText("Disabling and stopping service...")
+		installSpinner.UpdateText("Disabling and stopping service...")
 		systemd.DisableService(ServiceName)
 		systemd.StopService(ServiceName)
 	} else {
-		spinner.UpdateText("Service file not found...")
+		installSpinner.UpdateText("Service file not found...")
 	}
 
 	// Extract binary
@@ -48,5 +56,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	spinner.Success(fmt.Sprintf("%s relay binary downloaded and installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s relay binary installed", RelayName))
 }
