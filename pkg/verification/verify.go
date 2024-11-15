@@ -14,18 +14,6 @@ import (
 
 // Function to verify relay binaries
 func VerifyRelayBinary(path string) {
-	ThemeDefault := pterm.ThemeDefault
-
-	prompt := pterm.InteractiveContinuePrinter{
-		DefaultValueIndex: 0,
-		DefaultText:       "Do you want to continue with the installation?",
-		TextStyle:         &ThemeDefault.PrimaryStyle,
-		Options:           []string{"no", "yes"},
-		OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
-		SuffixStyle:       &ThemeDefault.SecondaryStyle,
-		Delimiter:         ": ",
-	}
-
 	spinner, _ := pterm.DefaultSpinner.Start("Verifying relay binary...")
 	pterm.Println()
 
@@ -58,7 +46,8 @@ func VerifyRelayBinary(path string) {
 	// Download and copy the file
 	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL)
 
-	cmd := exec.Command("gpg", "--verify", relaysManifestSigFilePath)
+	// Use GPG to verify the manifest signature file and output the primary key and signature subkey fingerprints
+	cmd := exec.Command("gpg", "--verify", "--with-fingerprint", "--with-subkey-fingerprints", relaysManifestSigFilePath)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -71,33 +60,24 @@ func VerifyRelayBinary(path string) {
 
 	goodSig := strings.Contains(gpgVerifyOutput, NodeTecGoodSigMsg)
 
-	// Extract the formatted primary key and subkey fingerprints from the output
-	_, formattedPrimaryAndSubKeyFingerprints, foundPrimaryKeyText := strings.Cut(gpgVerifyOutput, "Primary key fingerprint: ")
+	// Extract the formatted primary key and formatted signature subkey fingerprints from the output
+	_, formattedPrimaryAndSubKeyFingerprints, _ := strings.Cut(gpgVerifyOutput, "Primary key fingerprint: ")
 
-	formattedPrimaryKeyFingerprint, formattedSubkeyFingerprint, foundSubkeyText := strings.Cut(formattedPrimaryAndSubKeyFingerprints, "Subkey fingerprint: ")
+	formattedPrimaryKeyFingerprint, formattedSubkeyFingerprint, _ := strings.Cut(formattedPrimaryAndSubKeyFingerprints, "Subkey fingerprint: ")
 
-	if foundPrimaryKeyText && foundSubkeyText {
-		formattedPrimaryKeyFingerprint = strings.ReplaceAll(formattedPrimaryKeyFingerprint, " ", "")
-		formattedSubkeyFingerprint = strings.ReplaceAll(formattedSubkeyFingerprint, " ", "")
+	// Remove the spaces and new line characters from the formatted primary key and formatted signature subkey fingerprints
+	formattedPrimaryKeyFingerprint = strings.ReplaceAll(formattedPrimaryKeyFingerprint, " ", "")
+	formattedSubkeyFingerprint = strings.ReplaceAll(formattedSubkeyFingerprint, " ", "")
 
-		primaryKeyFingerprint := strings.ReplaceAll(formattedPrimaryKeyFingerprint, "\n", "")
-		subkeyFingerprint := strings.ReplaceAll(formattedSubkeyFingerprint, "\n", "")
+	primaryKeyFingerprint := strings.ReplaceAll(formattedPrimaryKeyFingerprint, "\n", "")
+	subkeyFingerprint := strings.ReplaceAll(formattedSubkeyFingerprint, "\n", "")
 
-		if goodSig && primaryKeyFingerprint == NodeTecPrimaryKeyFingerprint && subkeyFingerprint == NodeTecSigningSubkeyFingerprint {
-			spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file and the fingerprints", relaysManifestFilePath))
-		} else {
-			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file", relaysManifestFilePath))
-			os.Exit(1)
-		}
+	if goodSig && primaryKeyFingerprint == NodeTecPrimaryKeyFingerprint && subkeyFingerprint == NodeTecSigningSubkeyFingerprint {
+		spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file and the fingerprints", relaysManifestFilePath))
 	} else {
-		if goodSig {
-			spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file", relaysManifestFilePath))
-		} else {
-			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file", relaysManifestFilePath))
-			os.Exit(1)
-		}
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file and/or the fingerprints", relaysManifestFilePath))
+		os.Exit(1)
 	}
 
 	// Compute the SHA512 hash of the compressed relay binary file
@@ -123,23 +103,6 @@ func VerifyRelayBinary(path string) {
 	// Search the manifest file for the hash
 	if strings.Contains(string(data), sha512Hash) {
 		spinner.UpdateText(fmt.Sprintf("Verified the SHA512 hash of the %s file", path))
-		pterm.Println()
-
-		// Prompt user if they want to continue with installation without verifying fingerprints
-		if !foundPrimaryKeyText || !foundSubkeyText {
-			pterm.Println()
-			spinner.Warning(fmt.Sprintf("Warning: The signature of the %s file was valid but the fingerprints were not checked.", relaysManifestFilePath))
-
-			pterm.Println()
-
-			result, _ := prompt.Show()
-
-			if result == "no" {
-				os.Exit(1)
-			}
-		}
-
-		pterm.Println()
 		spinner.Success("Relay binary verified")
 	} else {
 		pterm.Println()

@@ -91,7 +91,6 @@ func GetCertificates(domainName string) bool {
 	var email string
 
 	if strings.Contains(certbotAccountData, "Email contact: none") {
-		pterm.Println()
 		certbotSpinner.Info("Certbot email currently set to none.")
 
 		pterm.Println()
@@ -111,7 +110,6 @@ func GetCertificates(domainName string) bool {
 		}
 	} else {
 		_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
-		pterm.Println()
 		certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
 
 		prompt := pterm.InteractiveContinuePrinter{
