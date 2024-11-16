@@ -46,37 +46,22 @@ func VerifyRelayBinary(path string) {
 	// Download and copy the file
 	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL)
 
-	// Use GPG to verify the manifest signature file and output the primary key and signature subkey fingerprints
-	cmd := exec.Command("gpg", "--verify", "--with-fingerprint", "--with-subkey-fingerprints", relaysManifestSigFilePath)
+	// Use GPG to verify the manifest signature file
+	out, err := exec.Command("gpg", "--status-fd", "1", "--verify", relaysManifestSigFilePath).Output()
 
-	out, err := cmd.CombinedOutput()
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err))
 		os.Exit(1)
 	}
 
-	gpgVerifyOutput := string(out)
+	validSig := strings.Contains(string(out), fmt.Sprintf("[GNUPG:] VALIDSIG %s", NodeTecSigningSubkeyFingerprint))
 
-	goodSig := strings.Contains(gpgVerifyOutput, NodeTecGoodSigMsg)
-
-	// Extract the formatted primary key and formatted signature subkey fingerprints from the output
-	_, formattedPrimaryAndSubKeyFingerprints, _ := strings.Cut(gpgVerifyOutput, "Primary key fingerprint: ")
-
-	formattedPrimaryKeyFingerprint, formattedSubkeyFingerprint, _ := strings.Cut(formattedPrimaryAndSubKeyFingerprints, "Subkey fingerprint: ")
-
-	// Remove the spaces and new line characters from the formatted primary key and formatted signature subkey fingerprints
-	formattedPrimaryKeyFingerprint = strings.ReplaceAll(formattedPrimaryKeyFingerprint, " ", "")
-	formattedSubkeyFingerprint = strings.ReplaceAll(formattedSubkeyFingerprint, " ", "")
-
-	primaryKeyFingerprint := strings.ReplaceAll(formattedPrimaryKeyFingerprint, "\n", "")
-	subkeyFingerprint := strings.ReplaceAll(formattedSubkeyFingerprint, "\n", "")
-
-	if goodSig && primaryKeyFingerprint == NodeTecPrimaryKeyFingerprint && subkeyFingerprint == NodeTecSigningSubkeyFingerprint {
-		spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file and the fingerprints", relaysManifestFilePath))
+	if validSig {
+		spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file", relaysManifestFilePath))
 	} else {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file and/or the fingerprints", relaysManifestFilePath))
+		pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file", relaysManifestFilePath))
 		os.Exit(1)
 	}
 
