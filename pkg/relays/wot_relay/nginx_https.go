@@ -29,6 +29,12 @@ server {
     listen [::]:443 ssl http2;
     server_name %s;
 
+    root %s/%s;
+
+    location /%s/ {
+        default_type "text/plain";
+    }
+
     location / {
         proxy_pass http://wot_relay_websocket;
         proxy_http_version 1.1;
@@ -111,16 +117,13 @@ server {
     listen [::]:80;
     server_name %s;
 
-    location /%s/ {
-        root %s/%s;
-        allow all;
-    }
+    root %s/%s;
 
     location / {
         return 301 https://%s$request_uri;
     }
 }
-`, domainName, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName)
+`, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.WWWDirPath, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)

@@ -34,9 +34,10 @@ server {
     listen [::]:80;
     server_name %s;
 
+    root %s/%s;
+
     location /%s/ {
-        root %s/%s;
-        allow all;
+        default_type "text/plain";
     }
 
     location / {
@@ -80,11 +81,13 @@ server {
     listen [::]:443 ssl http2;
     server_name %s;
 
+    root %s/%s;
+
     location / {
         return 301 http://%s$request_uri;
     }
 }
-`, domainName, network.AcmeChallengeDirPath, network.WWWDirPath, domainName, domainName, domainName)
+`, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, domainName, network.WWWDirPath, domainName, domainName)
 
 	files.WriteFile(NginxConfigFilePath, configContent, 0644)
 	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
