@@ -13,9 +13,8 @@ import (
 )
 
 // Function to verify relay binaries
-func VerifyRelayBinary(path string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Verifying relay binary...")
-	pterm.Println()
+func VerifyRelayBinary(relayName, path string) {
+	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Verifying %s binary...", relayName))
 
 	// Import NODE-TEC PGP key
 	commands.PipeTwoCommands(exec.Command("curl", NodeTecKeybasePGPKeyURL), exec.Command("gpg", "--import"), "Failed to import NODE-TEC PGP key:")
@@ -88,7 +87,7 @@ func VerifyRelayBinary(path string) {
 	// Search the manifest file for the hash
 	if strings.Contains(string(data), sha512Hash) {
 		spinner.UpdateText(fmt.Sprintf("Verified the SHA512 hash of the %s file", path))
-		spinner.Success("Relay binary verified")
+		spinner.Success(fmt.Sprintf("%s binary verified", relayName))
 	} else {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to verify the %s file, the SHA512 hash doesn't match the SHA512 hash in the %s file", path, relaysManifestFilePath))

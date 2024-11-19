@@ -122,6 +122,9 @@ server {
     location / {
         return 301 https://%s$request_uri;
     }
+
+    # Only return Nginx in server header
+    server_tokens off;
 }
 `, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.WWWDirPath, domainName, domainName)
 

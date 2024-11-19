@@ -14,7 +14,7 @@ import (
 
 // Function to download and make the binary executable
 func InstallRelayBinary() {
-	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s relay binary...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", RelayName))
 
 	// Check for and remove existing git repository
 	directories.RemoveDirectory(GitRepoTmpDirPath)
@@ -36,12 +36,12 @@ func InstallRelayBinary() {
 	// Download and copy the file
 	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
 
-	downloadSpinner.Success(fmt.Sprintf("%s relay binary downloaded", RelayName))
+	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", RelayName))
 
 	// Verify relay binary
-	verification.VerifyRelayBinary(tmpFilePath)
+	verification.VerifyRelayBinary(RelayName, tmpFilePath)
 
-	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay binary...", RelayName))
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", RelayName))
 
 	// Check if the service file exists and disable and stop the service if it does
 	if files.FileExists(ServiceFilePath) {
@@ -66,5 +66,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	installSpinner.Success(fmt.Sprintf("%s relay binary installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
 }

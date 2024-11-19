@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 )
 
-// Function to download and make the binary executable
+// Function to download and make the binary and plugin binary executable
 func InstallRelayBinary() {
-	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s relay binary...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binaries...", RelayName))
 
 	// Check for and remove existing git repository
 	directories.RemoveDirectory(GitRepoTmpDirPath)
@@ -26,38 +26,38 @@ func InstallRelayBinary() {
 
 	// Install
 	// Determine the file name from the URL
-	tmpFileName := filepath.Base(DownloadURL)
+	tmpBinaryFileName := filepath.Base(DownloadURL)
 
 	// Temporary file path
-	tmpFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
+	tmpBinaryFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpBinaryFileName)
 
 	// Check if the temporary file exists and remove it if it does
-	files.RemoveFile(tmpFilePath)
+	files.RemoveFile(tmpBinaryFilePath)
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
-
-	// Extract binary
-	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)
+	files.DownloadAndCopyFile(tmpBinaryFilePath, DownloadURL)
 
 	// Determine the file name from the URL
-	tmpFileName = filepath.Base(BinaryPluginDownloadURL)
+	tmpBinaryPluginFileName := filepath.Base(BinaryPluginDownloadURL)
 
 	// Temporary file path
-	tmpFilePath = fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
+	tmpBinaryPluginFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpBinaryPluginFileName)
 
 	// Check if the temporary file exists and remove it if it does
-	files.RemoveFile(tmpFilePath)
+	files.RemoveFile(tmpBinaryPluginFilePath)
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(tmpFilePath, BinaryPluginDownloadURL)
+	files.DownloadAndCopyFile(tmpBinaryPluginFilePath, BinaryPluginDownloadURL)
 
-	downloadSpinner.Success(fmt.Sprintf("%s relay binary downloaded", RelayName))
+	downloadSpinner.Success(fmt.Sprintf("%s binaries downloaded", RelayName))
 
 	// Verify relay binary
-	verification.VerifyRelayBinary(tmpFilePath)
+	verification.VerifyRelayBinary(BinaryName, tmpBinaryFilePath)
 
-	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s relay binary...", RelayName))
+	// Verify relay binary plugin
+	verification.VerifyRelayBinary(fmt.Sprintf("%s plugin", RelayName), tmpBinaryPluginFilePath)
+
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binaries...", RelayName))
 
 	// Check if the service file exists and disable and stop the service if it does
 	if files.FileExists(ServiceFilePath) {
@@ -69,8 +69,11 @@ func InstallRelayBinary() {
 		installSpinner.UpdateText("Service file not found...")
 	}
 
-	// Extract binary
-	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)
+	// Extract relay binary
+	files.ExtractFile(tmpBinaryFilePath, relays.BinaryDestDir)
+
+	// Extract relay binary plugin
+	files.ExtractFile(tmpBinaryPluginFilePath, relays.BinaryDestDir)
 
 	// TODO
 	// Currently, the downloaded binary is expected to have a name that matches the BinaryName variable
@@ -88,5 +91,5 @@ func InstallRelayBinary() {
 	// Make the file executable
 	files.SetPermissions(destPath, 0755)
 
-	installSpinner.Success(fmt.Sprintf("%s relay binary installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s binaries installed", RelayName))
 }
