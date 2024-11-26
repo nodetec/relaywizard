@@ -248,8 +248,8 @@ var installCmd = &cobra.Command{
 				strfry29.ConfigureNginxHttps(relayDomain)
 			}
 
-			// Step 9: Download and install the relay binary
-			strfry29.InstallRelayBinary()
+			// Step 9: Download and install the relay binaries
+			strfry29.InstallRelayBinaries()
 
 			// Step 10: Set up the relay data directory
 			strfry29.SetUpRelayDataDir()

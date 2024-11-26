@@ -2,6 +2,7 @@ package systemd
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
@@ -98,5 +99,12 @@ func RestartService(name string) {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to restart %s service: %v", name, err))
 		os.Exit(1)
+	}
+}
+
+func DisableAndStopService(path, name string) {
+	if files.FileExists(path) {
+		DisableService(name)
+		StopService(name)
 	}
 }
