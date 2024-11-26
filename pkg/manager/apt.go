@@ -56,6 +56,10 @@ func AptInstallPackages(selectedRelayOption string) {
 		packages = append(packages, "sqlite3", "libsqlite3-dev")
 	}
 
+	if selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
+		packages = append(packages, "libsecp256k1-dev")
+	}
+
 	// Check if package is installed, install if not
 	for _, p := range packages {
 		if IsPackageInstalled(p) {
