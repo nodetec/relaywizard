@@ -31,7 +31,7 @@ func VerifyRelayBinary(relayName, path string) {
 	files.RemoveFile(relaysManifestSigFilePath)
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(relaysManifestSigFilePath, RelaysManifestSigFileURL)
+	files.DownloadAndCopyFile(relaysManifestSigFilePath, RelaysManifestSigFileURL, 0644)
 
 	// Determine the file name from the URL
 	relaysManifestFile := filepath.Base(RelaysManifestFileURL)
@@ -43,7 +43,7 @@ func VerifyRelayBinary(relayName, path string) {
 	files.RemoveFile(relaysManifestFilePath)
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL)
+	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL, 0644)
 
 	// Use GPG to verify the manifest signature file
 	out, err := exec.Command("gpg", "--status-fd", "1", "--verify", relaysManifestSigFilePath).Output()

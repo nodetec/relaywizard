@@ -2,62 +2,35 @@ package strfry29
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/nodetec/rwz/pkg/verification"
 	"github.com/pterm/pterm"
-	"path/filepath"
 )
 
-// TODO
-// Abstract this even more
+// Install the relay
+func Install(relayDomain, pubKey, privKey, relayContact string) {
+	// Configure Nginx for HTTP
+	ConfigureNginxHttp(relayDomain)
 
-func cloneTmpGitRepo() {
-	// Check for and remove existing git repository
-	directories.RemoveDirectory(GitRepoTmpDirPath)
+	// Get SSL/TLS certificates
+	httpsEnabled := network.GetCertificates(relayDomain)
+	if httpsEnabled {
+		// Configure Nginx for HTTPS
+		ConfigureNginxHttps(relayDomain)
+	}
 
-	// Download git repository
-	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
-
-	directories.SetPermissions(GitRepoTmpDirPath, 0755)
-}
-
-// Determine the temporary file name from the provided path
-func tmpFilePathFromFilePath(path string) string {
-	tmpFileName := filepath.Base(path)
-
-	tmpFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
-
-	return tmpFilePath
-}
-
-func installRelayBinary(compressedBinaryFilePath, binaryName string) {
-	// Extract relay binary
-	files.ExtractFile(compressedBinaryFilePath, relays.BinaryDestDir)
-
-	// TODO
-	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
-	// Ideally, the extracted binary file should be renamed to match the binaryName variable
-
-	// Define the final destination path
-	destPath := filepath.Join(relays.BinaryDestDir, binaryName)
-
-	// Make the file executable
-	files.SetPermissions(destPath, 0755)
-}
-
-// Function to download and make the binary and plugin binary executable
-func InstallRelayBinaries() {
-	pterm.Println()
-	relayBinaryCheckSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking for existing %s binary...", BinaryName))
-
-	cloneTmpGitRepo()
+	// Download the config file from the git repository
+	git.RemoveThenClone(GitRepoTmpDirPath, GitRepoBranch, GitRepoURL, relays.GitRepoDirPerms)
 
 	// Check if the service file exists and disable and stop the service if it does
 	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
+
+	pterm.Println()
+	relayBinaryCheckSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking for existing %s binary...", BinaryName))
 
 	// Check if relay binary exists
 	if !files.FileExists(BinaryFilePath) {
@@ -65,21 +38,22 @@ func InstallRelayBinaries() {
 		pterm.Println()
 
 		// Determine the temporary file path
-		tmpCompressedBinaryFilePath := tmpFilePathFromFilePath(DownloadURL)
+		tmpCompressedBinaryFilePath := files.FilePathFromFilePathBase(DownloadURL, relays.TmpDirPath)
 
 		// Check if the temporary file exists and remove it if it does
 		files.RemoveFile(tmpCompressedBinaryFilePath)
 
 		// Download and copy the file
 		downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", BinaryName))
-		files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL)
+		files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
 		downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", BinaryName))
 
 		// Verify relay binary
 		verification.VerifyRelayBinary(BinaryName, tmpCompressedBinaryFilePath)
 
+		// Install the compressed relay binary and make it executable
 		installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", BinaryName))
-		installRelayBinary(tmpCompressedBinaryFilePath, BinaryName)
+		files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
 		installSpinner.Success(fmt.Sprintf("%s binary installed", BinaryName))
 	} else {
 		relayBinaryCheckSpinner.Info(fmt.Sprintf("%s binary found", BinaryName))
@@ -87,20 +61,33 @@ func InstallRelayBinaries() {
 	}
 
 	// Determine the temporary file path
-	tmpCompressedBinaryPluginFilePath := tmpFilePathFromFilePath(BinaryPluginDownloadURL)
+	tmpCompressedBinaryPluginFilePath := files.FilePathFromFilePathBase(BinaryPluginDownloadURL, relays.TmpDirPath)
 
 	// Check if the temporary file exists and remove it if it does
 	files.RemoveFile(tmpCompressedBinaryPluginFilePath)
 
 	// Download and copy the file
 	binaryPluginDownloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s plugin binary...", BinaryPluginName))
-	files.DownloadAndCopyFile(tmpCompressedBinaryPluginFilePath, BinaryPluginDownloadURL)
+	files.DownloadAndCopyFile(tmpCompressedBinaryPluginFilePath, BinaryPluginDownloadURL, 0644)
 	binaryPluginDownloadSpinner.Success(fmt.Sprintf("%s plugin binary downloaded", BinaryPluginName))
 
 	// Verify relay binary plugin
 	verification.VerifyRelayBinary(fmt.Sprintf("%s plugin", BinaryPluginName), tmpCompressedBinaryPluginFilePath)
 
+	// Install the compressed relay binary plugin and make it executable
 	binaryPluginInstallSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s plugin binary...", BinaryPluginName))
-	installRelayBinary(tmpCompressedBinaryPluginFilePath, BinaryPluginName)
+	files.InstallCompressedBinary(tmpCompressedBinaryPluginFilePath, relays.BinaryDestDir, BinaryPluginName, relays.BinaryFilePerms)
 	binaryPluginInstallSpinner.Success(fmt.Sprintf("%s plugin binary installed", BinaryPluginName))
+
+	// Set up the relay data directory
+	SetUpRelayDataDir()
+
+	// Configure the relay
+	ConfigureRelay(relayDomain, pubKey, privKey, relayContact)
+
+	// Set up the relay service
+	SetUpRelayService()
+
+	// Show success messages
+	SuccessMessages(relayDomain, httpsEnabled)
 }

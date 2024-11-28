@@ -2,70 +2,61 @@ package strfry
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/nodetec/rwz/pkg/verification"
 	"github.com/pterm/pterm"
-	"path/filepath"
 )
 
-// Function to download and make the binary executable
-func InstallRelayBinary() {
-	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", RelayName))
+// Install the relay
+func Install(relayDomain, pubKey, relayContact string) {
+	// Configure Nginx for HTTP
+	ConfigureNginxHttp(relayDomain)
 
-	// Check for and remove existing git repository
-	directories.RemoveDirectory(GitRepoTmpDirPath)
+	// Get SSL/TLS certificates
+	httpsEnabled := network.GetCertificates(relayDomain)
+	if httpsEnabled {
+		// Configure Nginx for HTTPS
+		ConfigureNginxHttps(relayDomain)
+	}
 
-	// Download git repository
-	git.Clone(GitRepoBranch, GitRepoURL, GitRepoTmpDirPath)
+	// Download the config file from the git repository
+	git.RemoveThenClone(GitRepoTmpDirPath, GitRepoBranch, GitRepoURL, relays.GitRepoDirPerms)
 
-	directories.SetPermissions(GitRepoTmpDirPath, 0755)
-
-	// Install
-	// Determine the file name from the URL
-	tmpFileName := filepath.Base(DownloadURL)
-
-	// Temporary file path
-	tmpFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, tmpFileName)
+	// Determine the temporary file path
+	tmpCompressedBinaryFilePath := files.FilePathFromFilePathBase(DownloadURL, relays.TmpDirPath)
 
 	// Check if the temporary file exists and remove it if it does
-	files.RemoveFile(tmpFilePath)
+	files.RemoveFile(tmpCompressedBinaryFilePath)
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(tmpFilePath, DownloadURL)
-
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", RelayName))
+	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
 	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", RelayName))
 
 	// Verify relay binary
-	verification.VerifyRelayBinary(RelayName, tmpFilePath)
-
-	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", RelayName))
+	verification.VerifyRelayBinary(RelayName, tmpCompressedBinaryFilePath)
 
 	// Check if the service file exists and disable and stop the service if it does
-	if files.FileExists(ServiceFilePath) {
-		// Disable and stop the Nostr relay service
-		installSpinner.UpdateText("Disabling and stopping service...")
-		systemd.DisableService(ServiceName)
-		systemd.StopService(ServiceName)
-	} else {
-		installSpinner.UpdateText("Service file not found...")
-	}
+	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
 
-	// Extract binary
-	files.ExtractFile(tmpFilePath, relays.BinaryDestDir)
-
-	// TODO
-	// Currently, the downloaded binary is expected to have a name that matches the BinaryName variable
-	// Ideally, the extracted binary file should be renamed to match the BinaryName variable
-
-	// Define the final destination path
-	destPath := filepath.Join(relays.BinaryDestDir, BinaryName)
-
-	// Make the file executable
-	files.SetPermissions(destPath, 0755)
-
+	// Install the compressed relay binary and make it executable
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", RelayName))
+	files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
 	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
+
+	// Set up the relay data directory
+	SetUpRelayDataDir()
+
+	// Configure the relay
+	ConfigureRelay(pubKey, relayContact)
+
+	// Set up the relay service
+	SetUpRelayService()
+
+	// Show success messages
+	SuccessMessages(relayDomain, httpsEnabled)
 }

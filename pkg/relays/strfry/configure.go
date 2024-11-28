@@ -23,9 +23,6 @@ func ConfigureRelay(pubKey, relayContact string) {
 	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
 
 	// Construct the sed command to change the nofiles limit
-	// TODO
-	// Determine system hard limit
-	// Determine preferred nofiles value
 	files.InPlaceEdit(`s|nofiles = .*|nofiles = 0|`, TmpConfigFilePath)
 
 	// Construct the sed command to change the realIpHeader

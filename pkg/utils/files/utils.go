@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 type FileMode = fs.FileMode
@@ -103,19 +104,20 @@ func LineExists(pattern, path string) bool {
 }
 
 // Function to download and copy a file
-func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
-	// Create a temporary file
-	out, err := os.Create(tmpFilePath)
+func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
+	// Create the file from the provided file path
+	out, err := os.Create(filePath)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to create %s file: %v", tmpFilePath, err))
+		pterm.Error.Println(fmt.Sprintf("Failed to create %s file: %v", filePath, err))
 		os.Exit(1)
 	}
 	defer out.Close()
 
-	SetPermissions(tmpFilePath, 0644)
+	// Set the permissions for the created file
+	SetPermissions(filePath, permissions)
 
-	// Download the file
+	// Download the file to copy
 	resp, err := http.Get(downloadURL)
 	if err != nil {
 		pterm.Println()
@@ -131,7 +133,7 @@ func DownloadAndCopyFile(tmpFilePath, downloadURL string) {
 		os.Exit(1)
 	}
 
-	// Write the body to the temporary file
+	// Write the response body to the created file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		pterm.Println()
@@ -148,4 +150,29 @@ func ExtractFile(tmpFilePath, destDir string) {
 		pterm.Error.Println(fmt.Sprintf("Failed to extract binary to %s: %v", destDir, err))
 		os.Exit(1)
 	}
+}
+
+// Determine a file path from the base of another file path
+func FilePathFromFilePathBase(filePath, newFileDirPath string) string {
+	newFileName := filepath.Base(filePath)
+
+	newFilePath := filepath.Join(newFileDirPath, newFileName)
+
+	return newFilePath
+}
+
+// Install a compressed binary
+func InstallCompressedBinary(compressedBinaryFilePath, binaryDestDir, binaryName string, permissions FileMode) {
+	// Extract binary
+	ExtractFile(compressedBinaryFilePath, binaryDestDir)
+
+	// TODO
+	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
+	// Ideally, the extracted binary file should be renamed to match the binaryName variable
+
+	// Define the final destination path
+	destPath := filepath.Join(binaryDestDir, binaryName)
+
+	// Make the file executable
+	SetPermissions(destPath, permissions)
 }

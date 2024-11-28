@@ -26,11 +26,6 @@ func ConfigureRelay(domain, pubKey, relaySecretKey, relayContact string) {
 	// Construct the sed command to change the db path
 	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
 
-	// TODO
-	// Determine system hard limit
-	// Determine preferred nofiles value
-	// Construct the sed command to change the nofiles limit
-
 	// Construct the sed command to change the realIpHeader
 	files.InPlaceEdit(`s|realIpHeader = .*|realIpHeader = "x-forwarded-for"|`, TmpConfigFilePath)
 
