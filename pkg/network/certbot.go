@@ -7,7 +7,7 @@ import (
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
-	// "strings"
+	"strings"
 )
 
 func setDomainCertDirPerms(domainName string) {
@@ -96,72 +96,88 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 		return false
 	}
 
-	// pterm.Println()
-	// certbotSpinner, _ := pterm.DefaultSpinner.Start("Checking for Certbot email...")
-	//
-	// out, err := exec.Command("certbot", "show_account").Output()
-	//
-	// if err != nil {
-	// 	pterm.Println()
-	// 	pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
-	// 	os.Exit(1)
-	// }
-	//
-	// certbotAccountData := string(out)
+	pterm.Println()
+	certbotSpinner, _ := pterm.DefaultSpinner.Start("Checking for Certbot email...")
+
+	out, err := exec.Command("certbot", "show_account").CombinedOutput()
+
+	certbotAccountData := string(out)
+
+	unableToFindExistingCertbotAccount := strings.Contains(certbotAccountData, "Could not find an existing account for server")
+
+	if err != nil {
+		if !unableToFindExistingCertbotAccount {
+			pterm.Println()
+			pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
+			os.Exit(1)
+		}
+	}
+
 	var email string
-	//
-	// if strings.Contains(certbotAccountData, "Email contact: none") {
-	// 	certbotSpinner.Info("Certbot email currently set to none.")
-	//
-	// 	pterm.Println()
-	// 	pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
-	//
-	// 	pterm.Println()
-	// 	pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
-	//
-	// 	pterm.Println()
-	// 	email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-	//
-	// 	err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
-	// 	if err != nil {
-	// 		pterm.Println()
-	// 		pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
-	// 		os.Exit(1)
-	// 	}
-	// } else {
-	// 	_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
-	// 	certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
-	//
-	// 	prompt := pterm.InteractiveContinuePrinter{
-	// 		DefaultValueIndex: 0,
-	// 		DefaultText:       "Do you want to remove or update your Certbot email?",
-	// 		TextStyle:         &ThemeDefault.PrimaryStyle,
-	// 		Options:           []string{"yes", "no"},
-	// 		OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
-	// 		SuffixStyle:       &ThemeDefault.SecondaryStyle,
-	// 		Delimiter:         ": ",
-	// 	}
-	//
-	// 	result, _ := prompt.Show()
-	//
-	// 	if result == "yes" {
-	// 		pterm.Println()
-	// 		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
-	//
-	// 		pterm.Println()
-	// 		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
-	//
-	// 		pterm.Println()
-	// 		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-	//
-	// 		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
-	// 		if err != nil {
-	// 			pterm.Println()
-	// 			pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
-	// 			os.Exit(1)
-	// 		}
-	// 	}
-	// }
+
+	if unableToFindExistingCertbotAccount {
+		certbotSpinner.Info("Certbot account not found.")
+
+		pterm.Println()
+		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+
+		pterm.Println()
+		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+
+		pterm.Println()
+		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+	} else if strings.Contains(certbotAccountData, "Email contact: none") {
+		certbotSpinner.Info("Certbot email currently set to none.")
+
+		pterm.Println()
+		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+
+		pterm.Println()
+		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+
+		pterm.Println()
+		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+
+		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
+			os.Exit(1)
+		}
+	} else {
+		_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
+		certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
+
+		prompt := pterm.InteractiveContinuePrinter{
+			DefaultValueIndex: 0,
+			DefaultText:       "Do you want to remove or update your Certbot email?",
+			TextStyle:         &ThemeDefault.PrimaryStyle,
+			Options:           []string{"yes", "no"},
+			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
+			SuffixStyle:       &ThemeDefault.SecondaryStyle,
+			Delimiter:         ": ",
+		}
+
+		result, _ := prompt.Show()
+
+		if result == "yes" {
+			pterm.Println()
+			pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+
+			pterm.Println()
+			pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+
+			pterm.Println()
+			email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+
+			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+			if err != nil {
+				pterm.Println()
+				pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
+				os.Exit(1)
+			}
+		}
+	}
 
 	pterm.Println()
 	certificateSpinner, _ := pterm.DefaultSpinner.Start("Checking SSL/TLS certificates...")
