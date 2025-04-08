@@ -13,13 +13,13 @@ import (
 // Install the relay
 func Install(relayDomain, pubKey, relayContact string) {
 	// Configure Nginx for HTTP
-	ConfigureNginxHttp(relayDomain)
+	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
 
 	// Get SSL/TLS certificates
-	httpsEnabled := network.GetCertificates(relayDomain)
+	httpsEnabled := network.GetCertificates(relayDomain, NginxConfigFilePath)
 	if httpsEnabled {
 		// Configure Nginx for HTTPS
-		ConfigureNginxHttps(relayDomain)
+		network.ConfigureNginxHttps(relayDomain, NginxConfigFilePath)
 	}
 
 	// Determine the temporary file path

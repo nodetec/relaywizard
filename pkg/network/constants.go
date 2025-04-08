@@ -1,5 +1,9 @@
 package network
 
+const HTTPScheme = "http"
+const HTTPSScheme = "https"
+const HTTPSNginxRedirect = "httpsNginxRedirect"
+
 const SSHJailFilePath = "/etc/fail2ban/jail.d/sshd.local"
 const SSHJailFileTemplate = `[sshd]
 enabled = true
@@ -10,6 +14,7 @@ maxentry = 3
 ignoreip = 127.0.0.1/8 ::1
 backend = systemd
 `
+
 const CertificateDirPath = "/etc/letsencrypt/live"
 const FullchainFile = "fullchain.pem"
 const PrivkeyFile = "privkey.pem"
@@ -22,3 +27,10 @@ const CertArchiveFile = "cert1.pem"
 const NginxConfDirPath = "/etc/nginx/conf.d"
 const WWWDirPath = "/var/www"
 const AcmeChallengeDirPath = ".well-known/acme-challenge"
+
+const KhatruPyramidNginxConfigFilePath = "/etc/nginx/conf.d/khatru_pyramid.conf"
+const NostrRsRelayNginxConfigFilePath = "/etc/nginx/conf.d/nostr_rs_relay.conf"
+const StrfryNginxConfigFilePath = "/etc/nginx/conf.d/strfry.conf"
+const WotRelayNginxConfigFilePath = "/etc/nginx/conf.d/wot_relay.conf"
+const Khatru29NginxConfigFilePath = "/etc/nginx/conf.d/khatru29.conf"
+const Strfry29NginxConfigFilePath = "/etc/nginx/conf.d/strfry29.conf"

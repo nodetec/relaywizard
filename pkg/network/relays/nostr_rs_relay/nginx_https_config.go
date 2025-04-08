@@ -1,27 +1,17 @@
-package strfry29
+package nostr_rs_relay
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/network"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/nodetec/rwz/pkg/utils/systemd"
-	"github.com/pterm/pterm"
 )
 
-// Function to configure Nginx for HTTPS
-func ConfigureNginxHttps(domainName string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTPS...")
-
-	files.RemoveFile(NginxConfigFilePath)
-
+func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
 }
 
-upstream strfry29_websocket {
-    server 127.0.0.1:52929;
+upstream nostr_rs_relay_websocket {
+    server 0.0.0.0:8080;
 }
 
 server {
@@ -36,7 +26,7 @@ server {
     }
 
     location / {
-        proxy_pass http://strfry29_websocket;
+        proxy_pass http://nostr_rs_relay_websocket;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -100,7 +90,7 @@ server {
     add_header X-Frame-Options DENY;
 
     # Avoid MIME type sniffing
-    add_header X-Content-Type-Options "nosniff" always;
+		add_header X-Content-Type-Options "nosniff" always;
 
     add_header Referrer-Policy "no-referrer" always;
 
@@ -126,12 +116,7 @@ server {
     # Only return Nginx in server header
     server_tokens off;
 }
-`, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.WWWDirPath, domainName, domainName)
+`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
 
-	files.WriteFile(NginxConfigFilePath, configContent, 0644)
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
-
-	systemd.RestartService("nginx")
-
-	spinner.Success("Nginx configured for HTTPS")
+	return configContent
 }

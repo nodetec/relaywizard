@@ -2,19 +2,9 @@ package khatru29
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/network"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/nodetec/rwz/pkg/utils/systemd"
-	"github.com/pterm/pterm"
 )
 
-// Function to configure Nginx for HTTPS
-func ConfigureNginxHttps(domainName string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTPS...")
-
-	files.RemoveFile(NginxConfigFilePath)
-
+func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
@@ -126,12 +116,7 @@ server {
     # Only return Nginx in server header
     server_tokens off;
 }
-`, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, network.CertificateDirPath, domainName, network.FullchainFile, network.CertificateDirPath, domainName, network.PrivkeyFile, network.CertificateDirPath, domainName, network.ChainFile, domainName, network.WWWDirPath, domainName, domainName)
+`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
 
-	files.WriteFile(NginxConfigFilePath, configContent, 0644)
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
-
-	systemd.ReloadService("nginx")
-
-	spinner.Success("Nginx configured for HTTPS")
+	return configContent
 }

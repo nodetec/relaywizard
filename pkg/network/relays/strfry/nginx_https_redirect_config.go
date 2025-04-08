@@ -1,32 +1,17 @@
-package strfry29
+package strfry
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/network"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/directories"
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/nodetec/rwz/pkg/utils/systemd"
-	"github.com/pterm/pterm"
 )
 
-// Function to configure Nginx for HTTP
-func ConfigureNginxHttp(domainName string) {
-	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTP...")
-
-	files.RemoveFile(NginxConfigFilePath)
-
-	directories.CreateDirectory(fmt.Sprintf("%s/%s", network.WWWDirPath, domainName), 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", network.WWWDirPath, domainName, network.AcmeChallengeDirPath), 0755)
-	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s", network.WWWDirPath, domainName))
-
+func NginxHttpsRedirectConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
 	configContent := fmt.Sprintf(`map $http_upgrade $connection_upgrade {
     default upgrade;
     '' close;
 }
 
-upstream strfry29_websocket {
-    server 127.0.0.1:52929;
+upstream strfry_websocket {
+    server 127.0.0.1:7777;
 }
 
 server {
@@ -41,7 +26,7 @@ server {
     }
 
     location / {
-        proxy_pass http://strfry29_websocket;
+        proxy_pass http://strfry_websocket;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -61,7 +46,7 @@ server {
     # Test configuration:
     # https://securityheaders.com/
     # https://observatory.mozilla.org/
-    add_header X-Frame-Options DENY;
+		add_header X-Frame-Options DENY;
 
     # Avoid MIME type sniffing
     add_header X-Content-Type-Options "nosniff" always;
@@ -84,15 +69,24 @@ server {
     root %s/%s;
 
     location / {
-        return 301 http://%s$request_uri;
+				if ($host = %s) {
+        	return 301 http://%s$request_uri;
+				}
     }
+
+    # Only return Nginx in server header
+    server_tokens off;
+
+    #### SSL Configuration ####
+    # Test configuration:
+    # https://www.ssllabs.com/ssltest/analyze.html
+    # https://cryptcheck.fr/
+    ssl_certificate %s/%s/%s;
+    ssl_certificate_key %s/%s/%s;
+    # Verify chain of trust of OCSP response using Root CA and Intermediate certs
+    ssl_trusted_certificate %s/%s/%s;
 }
-`, domainName, network.WWWDirPath, domainName, network.AcmeChallengeDirPath, domainName, network.WWWDirPath, domainName, domainName)
+`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, domainName, wwwDirPath, domainName, domainName, domainName, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile)
 
-	files.WriteFile(NginxConfigFilePath, configContent, 0644)
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, NginxConfigFilePath)
-
-	systemd.RestartService("nginx")
-
-	spinner.Success("Nginx configured for HTTP")
+	return configContent
 }

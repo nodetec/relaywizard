@@ -7,7 +7,7 @@ import (
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
-	"strings"
+	// "strings"
 )
 
 func setDomainCertDirPerms(domainName string) {
@@ -49,8 +49,22 @@ func setDomainCertArchiveFilePerms(domainName string) {
 	}
 }
 
+// Check if certificates already exist
+func checkForCertificates(domainName string) bool {
+	if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
+		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
+		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
+		setDomainCertDirPerms(domainName)
+		setDomainCertArchiveDirPerms(domainName)
+		setDomainCertArchiveFilePerms(domainName)
+
+		return true
+	}
+	return false
+}
+
 // Function to get SSL/TLS certificates using Certbot
-func GetCertificates(domainName string) bool {
+func GetCertificates(domainName, nginxConfigFilePath string) bool {
 	ThemeDefault := pterm.ThemeDefault
 
 	prompt := pterm.InteractiveContinuePrinter{
@@ -72,88 +86,89 @@ func GetCertificates(domainName string) bool {
 	result, _ := prompt.Show()
 
 	if result == "no" {
+		var certificatesExist = checkForCertificates(domainName)
+
+		if certificatesExist {
+			ConfigureNginxHttpsRedirect(domainName, nginxConfigFilePath)
+		}
+
 		pterm.Println()
 		return false
 	}
 
-	pterm.Println()
-	certbotSpinner, _ := pterm.DefaultSpinner.Start("Checking for Certbot email...")
-
-	out, err := exec.Command("certbot", "show_account").Output()
-
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
-		os.Exit(1)
-	}
-
-	certbotAccountData := string(out)
+	// pterm.Println()
+	// certbotSpinner, _ := pterm.DefaultSpinner.Start("Checking for Certbot email...")
+	//
+	// out, err := exec.Command("certbot", "show_account").Output()
+	//
+	// if err != nil {
+	// 	pterm.Println()
+	// 	pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
+	// 	os.Exit(1)
+	// }
+	//
+	// certbotAccountData := string(out)
 	var email string
-
-	if strings.Contains(certbotAccountData, "Email contact: none") {
-		certbotSpinner.Info("Certbot email currently set to none.")
-
-		pterm.Println()
-		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
-
-		pterm.Println()
-		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
-
-		pterm.Println()
-		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-
-		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
-			os.Exit(1)
-		}
-	} else {
-		_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
-		certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
-
-		prompt := pterm.InteractiveContinuePrinter{
-			DefaultValueIndex: 0,
-			DefaultText:       "Do you want to remove or update your Certbot email?",
-			TextStyle:         &ThemeDefault.PrimaryStyle,
-			Options:           []string{"yes", "no"},
-			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
-			SuffixStyle:       &ThemeDefault.SecondaryStyle,
-			Delimiter:         ": ",
-		}
-
-		result, _ := prompt.Show()
-
-		if result == "yes" {
-			pterm.Println()
-			pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
-
-			pterm.Println()
-			pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
-
-			pterm.Println()
-			email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-
-			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
-				os.Exit(1)
-			}
-		}
-	}
+	//
+	// if strings.Contains(certbotAccountData, "Email contact: none") {
+	// 	certbotSpinner.Info("Certbot email currently set to none.")
+	//
+	// 	pterm.Println()
+	// 	pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+	//
+	// 	pterm.Println()
+	// 	pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+	//
+	// 	pterm.Println()
+	// 	email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+	//
+	// 	err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+	// 	if err != nil {
+	// 		pterm.Println()
+	// 		pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
+	// 		os.Exit(1)
+	// 	}
+	// } else {
+	// 	_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
+	// 	certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
+	//
+	// 	prompt := pterm.InteractiveContinuePrinter{
+	// 		DefaultValueIndex: 0,
+	// 		DefaultText:       "Do you want to remove or update your Certbot email?",
+	// 		TextStyle:         &ThemeDefault.PrimaryStyle,
+	// 		Options:           []string{"yes", "no"},
+	// 		OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
+	// 		SuffixStyle:       &ThemeDefault.SecondaryStyle,
+	// 		Delimiter:         ": ",
+	// 	}
+	//
+	// 	result, _ := prompt.Show()
+	//
+	// 	if result == "yes" {
+	// 		pterm.Println()
+	// 		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+	//
+	// 		pterm.Println()
+	// 		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
+	//
+	// 		pterm.Println()
+	// 		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
+	//
+	// 		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
+	// 		if err != nil {
+	// 			pterm.Println()
+	// 			pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
+	// 			os.Exit(1)
+	// 		}
+	// 	}
+	// }
 
 	pterm.Println()
 	certificateSpinner, _ := pterm.DefaultSpinner.Start("Checking SSL/TLS certificates...")
 
-	// Check if certificates already exist
-	if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
-		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
-		files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
-		setDomainCertDirPerms(domainName)
-		setDomainCertArchiveDirPerms(domainName)
-		setDomainCertArchiveFilePerms(domainName)
+	var certificatesExist = checkForCertificates(domainName)
 
+	if certificatesExist {
 		certificateSpinner.Info("SSL/TLS certificates already exist.")
 		pterm.Println()
 		return true
@@ -181,5 +196,6 @@ func GetCertificates(domainName string) bool {
 	setDomainCertArchiveFilePerms(domainName)
 
 	certificateSpinner.Success("SSL/TLS certificates obtained successfully.")
+
 	return true
 }
