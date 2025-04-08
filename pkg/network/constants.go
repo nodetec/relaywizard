@@ -1,9 +1,5 @@
 package network
 
-const HTTPScheme = "http"
-const HTTPSScheme = "https"
-const HTTPSNginxRedirect = "httpsNginxRedirect"
-
 const SSHJailFilePath = "/etc/fail2ban/jail.d/sshd.local"
 const SSHJailFileTemplate = `[sshd]
 enabled = true
