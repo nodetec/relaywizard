@@ -13,6 +13,9 @@ import (
 
 // Install the relay
 func Install(relayDomain, pubKey, relayContact string) {
+	// Determine how to handle existing database during install
+	var howToHandleExistingDatabase = HandleExistingDatabase()
+
 	// Configure Nginx for HTTP
 	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
 
@@ -49,13 +52,21 @@ func Install(relayDomain, pubKey, relayContact string) {
 	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
 
 	// Set up the relay data directory
-	SetUpRelayDataDir()
+	SetUpRelayDataDir(howToHandleExistingDatabase)
 
 	// Configure the relay
 	ConfigureRelay(pubKey, relayContact)
 
 	// Set up the relay service
 	SetUpRelayService()
+
+	// TODO
+	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the strfry config file to use the database backup to check if the version is compatible with the installed strfry binary, and then use the installed strfry binary to create a fried export if compatibile
+
+	// Check if installed strfry binary and existing database version are compatible
+	if howToHandleExistingDatabase == UseExistingDatabaseFileOption {
+		CheckBinaryAndDatabaseCompatibility()
+	}
 
 	// Show success messages
 	SuccessMessages(relayDomain, httpsEnabled)

@@ -11,6 +11,9 @@ import (
 	"path/filepath"
 )
 
+// TODO
+// Use Go os library instead of Linux commands
+
 type FileMode = fs.FileMode
 
 // Function to check if a file exists
@@ -37,6 +40,16 @@ func CopyFile(fileToCopy, destDir string) {
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to copy %s file: %v", fileToCopy, err))
+		os.Exit(1)
+	}
+}
+
+// Function to move a file to a new location
+func MoveFile(pathToFileBeingMoved, destFilePath string) {
+	err := exec.Command("mv", pathToFileBeingMoved, destFilePath).Run()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Println(fmt.Sprintf("Failed to move %s file: %v", pathToFileBeingMoved, err))
 		os.Exit(1)
 	}
 }
