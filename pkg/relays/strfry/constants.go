@@ -10,25 +10,16 @@ const BinaryVersion = "1.0.1"
 const NginxConfigFilePath = "/etc/nginx/conf.d/strfry.conf"
 const DataDirPath = "/var/lib/strfry"
 const DatabaseFilePath = "/var/lib/strfry/db/data.mdb"
-const DatabaseFilePerms = 0644
 const SupportedDatabaseVersionOutput = "DB version: 3"
 const SupportedDatabaseVersion = "3"
 const DatabaseLockFilePath = "/var/lib/strfry/db/lock.mdb"
-const DatabaseLockFilePerms = 0644
 const DatabaseBackupsDirPath = "/var/lib/strfry/db/backups"
-const DatabaseBackupsDirPerms = 0755
+const BackupFileNameBase = "data.mdb-bak"
 const TmpConfigFilePath = "/tmp/strfry/strfry.conf"
 const ConfigDirPath = "/etc/strfry"
 const ConfigFilePath = "/etc/strfry/strfry.conf"
 const ServiceName = "strfry"
 const ServiceFilePath = "/etc/systemd/system/strfry.service"
-
-// TODO
-// Look into using an enum
-const ExistingDatabaseNotFound = "Existing database not found"
-const BackupDatabaseFileOption = "Backup database"
-const UseExistingDatabaseFileOption = "Use existing database"
-const OverwriteDatabaseFileOption = "Overwrite database"
 
 // TODO
 // Check working directory

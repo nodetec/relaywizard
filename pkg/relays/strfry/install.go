@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/relays/utils/databases"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/git"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
@@ -14,7 +15,7 @@ import (
 // Install the relay
 func Install(relayDomain, pubKey, relayContact string) {
 	// Determine how to handle existing database during install
-	var howToHandleExistingDatabase = HandleExistingDatabase()
+	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, DatabaseLockFilePath)
 
 	// Configure Nginx for HTTP
 	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
@@ -52,7 +53,7 @@ func Install(relayDomain, pubKey, relayContact string) {
 	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
 
 	// Set up the relay data directory
-	SetUpRelayDataDir(howToHandleExistingDatabase)
+	databases.SetUpRelayDataDir(howToHandleExistingDatabase, DataDirPath, DatabaseFilePath, DatabaseLockFilePath)
 
 	// Configure the relay
 	ConfigureRelay(pubKey, relayContact)
@@ -64,8 +65,8 @@ func Install(relayDomain, pubKey, relayContact string) {
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the strfry config file to use the database backup to check if the version is compatible with the installed strfry binary, and then use the installed strfry binary to create a fried export if compatibile
 
 	// Check if installed strfry binary and existing database version are compatible
-	if howToHandleExistingDatabase == UseExistingDatabaseFileOption {
-		CheckBinaryAndDatabaseCompatibility()
+	if howToHandleExistingDatabase == databases.UseExistingDatabaseFileOption {
+		databases.CheckStrfryBinaryAndDatabaseCompatibility(BinaryName, ConfigFilePath, SupportedDatabaseVersionOutput, BinaryVersion, SupportedDatabaseVersion)
 	}
 
 	// Show success messages

@@ -1,4 +1,4 @@
-package strfry
+package databases
 
 import (
 	"fmt"
@@ -8,11 +8,11 @@ import (
 )
 
 // Function to handle existing database during install
-func HandleExistingDatabase() string {
+func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, databaseLockFilePath string) string {
 	pterm.Println()
 	spinner, _ := pterm.DefaultSpinner.Start("Checking for existing database...")
 
-	if files.FileExists(DatabaseFilePath) {
+	if files.FileExists(databaseFilePath) {
 		spinner.Info("Database found...")
 
 		ThemeDefault := pterm.ThemeDefault
@@ -42,7 +42,9 @@ func HandleExistingDatabase() string {
 		if selectedDatabaseActionOption == BackupDatabaseFileOption {
 			pterm.Println(pterm.Cyan("Creating database backup..."))
 			pterm.Println()
-			BackupDatabase()
+			// TODO
+			// Refactor
+			BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, databaseLockFilePath)
 			return BackupDatabaseFileOption
 		} else if selectedDatabaseActionOption == UseExistingDatabaseFileOption {
 			pterm.Println(pterm.Cyan("Using existing database..."))
@@ -60,7 +62,7 @@ func HandleExistingDatabase() string {
 			}
 
 			pterm.Println(pterm.Yellow("Warning: Are you sure you want to overwrite your existing database?"))
-			pterm.Println(pterm.Yellow(fmt.Sprintf("If you select 'yes', then the following database will be overwritten: %s", DatabaseFilePath)))
+			pterm.Println(pterm.Yellow(fmt.Sprintf("If you select 'yes', then the following database will be overwritten: %s", databaseFilePath)))
 			pterm.Println()
 
 			result, _ := prompt.Show()
@@ -68,9 +70,11 @@ func HandleExistingDatabase() string {
 			if result == "no" {
 				// TODO
 				// Display options again
+				pterm.Println()
 				pterm.Println(pterm.Cyan("Exiting wizard..."))
 				os.Exit(1)
 			} else if result == "yes" {
+				pterm.Println()
 				pterm.Println(pterm.Cyan("Database will be overwitten..."))
 				pterm.Println()
 				return OverwriteDatabaseFileOption
