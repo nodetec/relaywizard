@@ -8,7 +8,7 @@ import (
 )
 
 // Function to handle existing database during install
-func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, databaseLockFilePath string) string {
+func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {
 	pterm.Println()
 	spinner, _ := pterm.DefaultSpinner.Start("Checking for existing database...")
 
@@ -42,9 +42,7 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 		if selectedDatabaseActionOption == BackupDatabaseFileOption {
 			pterm.Println(pterm.Cyan("Creating database backup..."))
 			pterm.Println()
-			// TODO
-			// Refactor
-			BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, databaseLockFilePath)
+			BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
 			return BackupDatabaseFileOption
 		} else if selectedDatabaseActionOption == UseExistingDatabaseFileOption {
 			pterm.Println(pterm.Cyan("Using existing database..."))
