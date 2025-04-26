@@ -17,8 +17,8 @@ import (
 func Install(relayDomain, pubKey, relayContact string) {
 	// TODO
 	// Check if you should wait for any db writes to finish before disabling and stopping the service
-	// TODO
 	// Re-enable service if it exists and the user says no to overwriting the existing database
+
 	// Check if the service file exists and disable and stop the service if it does
 	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
 

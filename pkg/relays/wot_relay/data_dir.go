@@ -11,13 +11,18 @@ import (
 func SetUpRelayDataDir() {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay data directory...")
 
+	// TODO
+	// Look into how to back up WoT Relay databases
+	spinner.UpdateText("Checking for existing data directory...")
+	if directories.DirExists(DataDirPath) {
+		spinner.UpdateText("Removing existing data directory...")
+		directories.RemoveDirectory(DataDirPath)
+	}
+
 	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	directories.CreateDirectory(DataDirPath, 0755)
 	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
-
-	// Use chown command to set ownership of the data directory and its content to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
 
 	spinner.Success("Data directory set up")
 }

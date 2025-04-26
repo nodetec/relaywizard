@@ -17,9 +17,17 @@ func SetDatabaseFilePermissions(dataDirPath, databaseFilePath, relayName string)
 		if files.FileExists(NostrRsRelayDatabaseWALFilePath) {
 			files.SetPermissions(NostrRsRelayDatabaseWALFilePath, NostrRsRelayDatabaseWALFilePerms)
 		}
+	} else if relayName == KhatruPyramidRelayName {
+		if files.FileExists(KhatruPyramidDatabaseLockFilePath) {
+			files.SetPermissions(KhatruPyramidDatabaseLockFilePath, DatabaseLockFilePerms)
+		}
 	} else if relayName == StrfryRelayName {
 		if files.FileExists(StrfryDatabaseLockFilePath) {
 			files.SetPermissions(StrfryDatabaseLockFilePath, DatabaseLockFilePerms)
+		}
+	} else if relayName == Khatru29RelayName {
+		if files.FileExists(Khatru29DatabaseLockFilePath) {
+			files.SetPermissions(Khatru29DatabaseLockFilePath, DatabaseLockFilePerms)
 		}
 	} else if relayName == Strfry29RelayName {
 		if files.FileExists(Strfry29DatabaseLockFilePath) {

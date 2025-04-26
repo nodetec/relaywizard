@@ -1,12 +1,12 @@
 package strfry
 
-const GitRepoBranch = "1.0.1"
+const GitRepoBranch = "1.0.4"
 const GitRepoURL = "https://github.com/hoytech/strfry.git"
 const GitRepoTmpDirPath = "/tmp/strfry"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/strfry-1.0.1-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/strfry-1.0.4-x86_64-linux-gnu.tar.gz"
 const BinaryName = "strfry"
 const BinaryFilePath = "/usr/local/bin/strfry"
-const BinaryVersion = "1.0.1"
+const BinaryVersion = "1.0.4"
 const NginxConfigFilePath = "/etc/nginx/conf.d/strfry.conf"
 const DataDirPath = "/var/lib/strfry"
 const DatabaseFilePath = "/var/lib/strfry/db/data.mdb"

@@ -47,9 +47,12 @@ func BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase
 		spinner.UpdateText("Creating database backup in the backups directory...")
 		uniqueBackupFileName = createUniqueBackupFileName(databaseBackupsDirPath, backupFileNameBase)
 		backupSQLite3Database(databaseFilePath, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName))
-	} else if relayName == StrfryRelayName || relayName == Strfry29RelayName {
+		files.RemoveFile(databaseFilePath)
+	} else if relayName == KhatruPyramidRelayName || relayName == StrfryRelayName || relayName == Khatru29RelayName || relayName == Strfry29RelayName {
 		spinner.UpdateText("Moving database to the backups directory...")
 		uniqueBackupFileName = createUniqueBackupFileName(databaseBackupsDirPath, backupFileNameBase)
+		// TODO
+		// Look into if moving the db can cause db corruption and look for a better method
 		files.MoveFile(databaseFilePath, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName))
 	}
 

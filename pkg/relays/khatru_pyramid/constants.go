@@ -1,12 +1,19 @@
 package khatru_pyramid
 
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/khatru-pyramid-0.1.0-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/khatru-pyramid-0.2.2-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru-pyramid"
 const BinaryFilePath = "/usr/local/bin/khatru-pyramid"
 const NginxConfigFilePath = "/etc/nginx/conf.d/khatru_pyramid.conf"
 const DataDirPath = "/var/lib/khatru-pyramid"
+const DatabaseFilePath = "/var/lib/khatru-pyramid/db/data.mdb"
+const DatabaseBackupsDirPath = "/var/lib/khatru-pyramid/db/backups"
+const BackupFileNameBase = "data.mdb-bak"
 const ConfigDirPath = "/etc/khatru-pyramid"
 const UsersFilePath = "/var/lib/khatru-pyramid/users.json"
+const UsersFilePerms = 0644
+const UsersFileBackupsDirPath = "/var/lib/khatru-pyramid/users/backups"
+const UsersFileBackupsDirPerms = 0755
+const UsersFileNameBase = "users.json-bak"
 const ServiceName = "khatru-pyramid"
 const EnvFilePath = "/etc/khatru-pyramid/khatru-pyramid.env"
 const EnvFileTemplate = `DOMAIN="{{.Domain}}"

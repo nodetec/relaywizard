@@ -3,7 +3,7 @@ package nostr_rs_relay
 const GitRepoBranch = "0.9.0"
 const GitRepoURL = "https://github.com/scsibug/nostr-rs-relay"
 const GitRepoTmpDirPath = "/tmp/nostr-rs-relay"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/nostr-rs-relay-0.9.0-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/nostr-rs-relay-0.9.0-x86_64-linux-gnu.tar.gz"
 const BinaryName = "nostr-rs-relay"
 const BinaryFilePath = "/usr/local/bin/nostr-rs-relay"
 const NginxConfigFilePath = "/etc/nginx/conf.d/nostr_rs_relay.conf"

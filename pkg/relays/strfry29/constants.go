@@ -1,13 +1,13 @@
 package strfry29
 
-const GitRepoBranch = "v0.4.0"
+const GitRepoBranch = "v0.5.1"
 const GitRepoURL = "https://github.com/fiatjaf/relay29.git"
 const GitRepoTmpDirPath = "/tmp/relay29"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/strfry-1.0.1-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/strfry-1.0.4-x86_64-linux-gnu.tar.gz"
 const BinaryName = "strfry"
 const BinaryFilePath = "/usr/local/bin/strfry"
-const BinaryVersion = "1.0.1"
-const BinaryPluginDownloadURL = "https://github.com/nodetec/relays/releases/download/v0.4.0/relay29-0.4.0-strfry29-x86_64-linux-gnu.tar.gz"
+const BinaryVersion = "1.0.4"
+const BinaryPluginDownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/relay29-0.5.1-strfry29-x86_64-linux-gnu.tar.gz"
 const BinaryPluginName = "strfry29"
 const BinaryPluginFilePath = "/usr/local/bin/strfry29"
 const NginxConfigFilePath = "/etc/nginx/conf.d/strfry29.conf"
