@@ -57,7 +57,7 @@ func AptInstallPackages(selectedRelayOption string) {
 	}
 
 	if selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
-		packages = append(packages, "libsecp256k1-dev")
+		packages = append(packages, "libssl-dev", "zlib1g-dev", "liblmdb-dev", "libflatbuffers-dev", "libsecp256k1-dev", "libzstd-dev")
 	}
 
 	// Check if package is installed, install if not
