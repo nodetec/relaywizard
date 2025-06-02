@@ -38,15 +38,15 @@ const ServiceFilePath = "/etc/systemd/system/strfry29.service"
 
 // TODO
 // Check working directory
-// WorkingDirectory=/home/nostr
+// WorkingDirectory=/home/{{.RelayUser}}
 const ServiceFileTemplate = `[Unit]
 Description=strfry29 Relay Service
 After=network.target
 
 [Service]
 Type=simple
-User=nostr
-Group=nostr
+User={{.RelayUser}}
+Group={{.RelayUser}}
 ExecStart={{.BinaryFilePath}} --config={{.ConfigFilePath}} relay
 Restart=on-failure
 RestartSec=5

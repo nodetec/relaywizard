@@ -10,6 +10,7 @@ import (
 )
 
 type ServiceFileParams struct {
+	RelayUser      string
 	EnvFilePath    string
 	BinaryFilePath string
 	ConfigFilePath string
@@ -31,7 +32,7 @@ func CreateServiceFile(serviceFilePath, serviceTemplate string, serviceFileParam
 		os.Exit(1)
 	}
 
-	err = serviceTmpl.Execute(serviceFile, struct{ EnvFilePath, BinaryFilePath, ConfigFilePath string }{EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
+	err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Println(fmt.Sprintf("Failed to execute service template: %v", err))

@@ -99,27 +99,36 @@ var installCmd = &cobra.Command{
 		network.ConfigureNginx()
 
 		// Create relay user
-		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relays.User))
-		if !users.UserExists(relays.User) {
-			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relays.User))
-			users.CreateUser(relays.User, true)
-			spinner.Success(fmt.Sprintf("Created '%s' user", relays.User))
+		var relayUser string
+		pterm.Println()
+		pterm.Println(pterm.Cyan("Create a user for the relay."))
+
+		pterm.Println()
+		userInput := pterm.DefaultInteractiveTextInput.WithDefaultValue(relays.DefaultUser)
+		relayUser, _ = userInput.Show("Relay user")
+
+		pterm.Println()
+		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relayUser))
+		if !users.UserExists(relayUser) {
+			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relayUser))
+			users.CreateUser(relayUser, true)
+			spinner.Success(fmt.Sprintf("Created '%s' user", relayUser))
 		} else {
-			spinner.Success(fmt.Sprintf("'%s' user already exists", relays.User))
+			spinner.Success(fmt.Sprintf("'%s' user already exists", relayUser))
 		}
 
 		if selectedRelayOption == khatru_pyramid.RelayName {
-			khatru_pyramid.Install(relayDomain, pubKey, relayContact)
+			khatru_pyramid.Install(relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == nostr_rs_relay.RelayName {
-			nostr_rs_relay.Install(relayDomain, pubKey, relayContact)
+			nostr_rs_relay.Install(relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == strfry.RelayName {
-			strfry.Install(relayDomain, pubKey, relayContact)
+			strfry.Install(relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == wot_relay.RelayName {
-			wot_relay.Install(relayDomain, pubKey, relayContact)
+			wot_relay.Install(relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == khatru29.RelayName {
-			khatru29.Install(relayDomain, privKey, relayContact)
+			khatru29.Install(relayDomain, privKey, relayContact, relayUser)
 		} else if selectedRelayOption == strfry29.RelayName {
-			strfry29.Install(relayDomain, pubKey, privKey, relayContact)
+			strfry29.Install(relayDomain, pubKey, privKey, relayContact, relayUser)
 		}
 
 		pterm.Println()

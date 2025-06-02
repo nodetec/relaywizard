@@ -2,7 +2,6 @@ package khatru_pyramid
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
@@ -50,7 +49,7 @@ func backupUsersFile() {
 // normal user in the file?
 
 // Function to handle existing users.json file during install
-func HandleExistingUsersFile(pubKey string) {
+func HandleExistingUsersFile(pubKey, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Checking for existing users file...")
 
 	const BackupUsersFileOption = "Backup users file (experimental)"
@@ -106,8 +105,8 @@ func HandleExistingUsersFile(pubKey string) {
 			pterm.Println()
 			// Set permissions for the users file
 			files.SetPermissions(UsersFilePath, UsersFilePerms)
-			// Use chown command to set ownership of the users file to the nostr user
-			files.SetOwnerAndGroup(relays.User, relays.User, UsersFilePath)
+			// Use chown command to set ownership of the users file to the provided relay user
+			files.SetOwnerAndGroup(relayUser, relayUser, UsersFilePath)
 		} else if selectedUsersFileActionOption == OverwriteUsersFileOption {
 			prompt := pterm.InteractiveContinuePrinter{
 				DefaultValueIndex: 0,

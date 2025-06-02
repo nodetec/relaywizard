@@ -7,7 +7,7 @@ import (
 )
 
 // Function to set up the relay service
-func SetUpRelayService() {
+func SetUpRelayService(relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Check if the service file exists and remove it if it does
@@ -15,7 +15,7 @@ func SetUpRelayService() {
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	serviceFileParams := systemd.ServiceFileParams{EnvFilePath: EnvFilePath, BinaryFilePath: BinaryFilePath}
+	serviceFileParams := systemd.ServiceFileParams{RelayUser: relayUser, EnvFilePath: EnvFilePath, BinaryFilePath: BinaryFilePath}
 	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
 
 	// Reload systemd to apply the new service

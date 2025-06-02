@@ -14,7 +14,7 @@ import (
 )
 
 // Install the relay
-func Install(relayDomain, pubKey, relayContact string) {
+func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	// TODO
 	// Check if you should wait for any db writes to finish before disabling and stopping the service
 	// Re-enable the service if it exists and the user says no to overwriting the existing database
@@ -64,13 +64,13 @@ func Install(relayDomain, pubKey, relayContact string) {
 	ConfigureRelay(relayDomain, pubKey, relayContact, httpsEnabled)
 
 	// Set up the relay service
-	SetUpRelayService()
+	SetUpRelayService(relayUser)
 
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
-	// Use chown command to set ownership of the data directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
+	// Use chown command to set ownership of the data directory to the provided relay user
+	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
 
 	// Show success messages
 	SuccessMessages(relayDomain, httpsEnabled)

@@ -22,9 +22,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=nostr
-Group=nostr
-WorkingDirectory=/home/nostr
+User={{.RelayUser}}
+Group={{.RelayUser}}
+WorkingDirectory=/home/{{.RelayUser}}
 Environment=RUST_LOG=info,nostr_rs_relay=info
 ExecStart={{.BinaryFilePath}} --config /etc/nostr-rs-relay/config.toml --db /var/lib/nostr-rs-relay/db
 Restart=on-failure

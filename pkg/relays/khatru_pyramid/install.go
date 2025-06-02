@@ -13,7 +13,7 @@ import (
 )
 
 // Install the relay
-func Install(relayDomain, pubKey, relayContact string) {
+func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	// TODO
 	// Check if db writes should be allowed to finish before disabling and stopping the service
 	// Re-enable the service if it exists and the user says no to overwriting the existing database
@@ -25,7 +25,7 @@ func Install(relayDomain, pubKey, relayContact string) {
 	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, RelayName)
 
 	// Determine how to handle existing users file during install
-	HandleExistingUsersFile(pubKey)
+	HandleExistingUsersFile(pubKey, relayUser)
 
 	// Configure Nginx for HTTP
 	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
@@ -63,13 +63,13 @@ func Install(relayDomain, pubKey, relayContact string) {
 	ConfigureRelay(relayDomain, pubKey, relayContact)
 
 	// Set up the relay service
-	SetUpRelayService()
+	SetUpRelayService(relayUser)
 
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
-	// Use chown command to set ownership of the data directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
+	// Use chown command to set ownership of the data directory to the provided relay user
+	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
 
 	// TODO
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the khatru pyramid env file to use the database backup to check if the version is compatible with the installed khatru pyramid binary, and then use the installed khatru pyramid binary to create potential specfic exports if compatibile

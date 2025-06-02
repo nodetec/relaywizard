@@ -33,9 +33,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=nostr
-Group=nostr
-WorkingDirectory=/home/nostr
+User={{.RelayUser}}
+Group={{.RelayUser}}
+WorkingDirectory=/home/{{.RelayUser}}
 EnvironmentFile={{.EnvFilePath}}
 ExecStart={{.BinaryFilePath}}
 Restart=on-failure

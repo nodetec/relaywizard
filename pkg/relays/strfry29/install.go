@@ -14,7 +14,7 @@ import (
 )
 
 // Install the relay
-func Install(relayDomain, pubKey, privKey, relayContact string) {
+func Install(relayDomain, pubKey, privKey, relayContact, relayUser string) {
 	// TODO
 	// Check if you should wait for any db writes to finish before disabling and stopping the service
 	// Re-enable the service if it exists and the user says no to overwriting the existing database
@@ -95,13 +95,13 @@ func Install(relayDomain, pubKey, privKey, relayContact string) {
 	ConfigureRelay(relayDomain, pubKey, privKey, relayContact)
 
 	// Set up the relay service
-	SetUpRelayService()
+	SetUpRelayService(relayUser)
 
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
-	// Use chown command to set ownership of the data directory to the nostr user
-	directories.SetOwnerAndGroup(relays.User, relays.User, DataDirPath)
+	// Use chown command to set ownership of the data directory to the provided relay user
+	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
 
 	// TODO
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the strfry config file to use the database backup to check if the version is compatible with the installed strfry binary, and then use the installed strfry binary to create a fried export if compatibile
