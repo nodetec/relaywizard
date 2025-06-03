@@ -38,36 +38,24 @@ func Install(relayDomain, pubKey, privKey, relayContact, relayUser string) {
 	// Download the config file from the git repository
 	git.RemoveThenClone(GitRepoTmpDirPath, GitRepoBranch, GitRepoURL, relays.GitRepoDirPerms)
 
-	pterm.Println()
-	relayBinaryCheckSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking for existing %s binary...", BinaryName))
+	// Determine the temporary file path
+	tmpCompressedBinaryFilePath := files.FilePathFromFilePathBase(DownloadURL, relays.TmpDirPath)
 
-	// Check if relay binary exists
-	if !files.FileExists(BinaryFilePath) {
-		relayBinaryCheckSpinner.Info(fmt.Sprintf("%s binary not found", BinaryName))
-		pterm.Println()
+	// Check if the temporary file exists and remove it if it does
+	files.RemoveFile(tmpCompressedBinaryFilePath)
 
-		// Determine the temporary file path
-		tmpCompressedBinaryFilePath := files.FilePathFromFilePathBase(DownloadURL, relays.TmpDirPath)
+	// Download and copy the file
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", BinaryName))
+	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
+	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", BinaryName))
 
-		// Check if the temporary file exists and remove it if it does
-		files.RemoveFile(tmpCompressedBinaryFilePath)
+	// Verify relay binary
+	verification.VerifyRelayBinary(BinaryName, tmpCompressedBinaryFilePath)
 
-		// Download and copy the file
-		downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", BinaryName))
-		files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
-		downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", BinaryName))
-
-		// Verify relay binary
-		verification.VerifyRelayBinary(BinaryName, tmpCompressedBinaryFilePath)
-
-		// Install the compressed relay binary and make it executable
-		installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", BinaryName))
-		files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
-		installSpinner.Success(fmt.Sprintf("%s binary installed", BinaryName))
-	} else {
-		relayBinaryCheckSpinner.Info(fmt.Sprintf("%s binary found", BinaryName))
-		pterm.Println()
-	}
+	// Install the compressed relay binary and make it executable
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", BinaryName))
+	files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
+	installSpinner.Success(fmt.Sprintf("%s binary installed", BinaryName))
 
 	// Determine the temporary file path
 	tmpCompressedBinaryPluginFilePath := files.FilePathFromFilePathBase(BinaryPluginDownloadURL, relays.TmpDirPath)
