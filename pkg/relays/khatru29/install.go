@@ -59,9 +59,6 @@ func Install(relayDomain, privKey, relayContact, relayUser string) {
 	// Configure the relay
 	ConfigureRelay(relayDomain, privKey, relayContact)
 
-	// Set up the relay service
-	SetUpRelayService(relayUser)
-
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
@@ -70,6 +67,9 @@ func Install(relayDomain, privKey, relayContact, relayUser string) {
 
 	// TODO
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the khatru29 env file to use the database backup to check if the version is compatible with the installed khatru29 binary, and then use the installed khatru29 binary to create potential specfic exports if compatibile
+
+	// Set up the relay service
+	SetUpRelayService(relayUser)
 
 	// Show success messages
 	SuccessMessages(relayDomain, httpsEnabled)

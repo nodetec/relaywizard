@@ -78,9 +78,9 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 	}
 
 	pterm.Println()
-	pterm.Println(pterm.Cyan("Do you want to obtain SSL/TLS certificates using Certbot?"))
-	pterm.Println(pterm.Cyan("If you select 'yes', then this step requires that you already have a configured domain name."))
-	pterm.Println(pterm.Cyan("You can always re-run this installer after you have configured your domain name."))
+	pterm.Println(pterm.LightCyan("Do you want to obtain SSL/TLS certificates using Certbot?"))
+	pterm.Println(pterm.LightCyan("If you select 'yes', then this step requires that you already have a configured domain name."))
+	pterm.Println(pterm.LightCyan("You can always re-run this installer after you have configured your domain name."))
 	pterm.Println()
 
 	result, _ := prompt.Show()
@@ -108,7 +108,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 	if err != nil {
 		if !unableToFindExistingCertbotAccount {
 			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
+			pterm.Error.Printfln("Failed to retrieve Certbot account data: %v", err)
 			os.Exit(1)
 		}
 	}
@@ -119,7 +119,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 		certbotSpinner.Info("Certbot account not found.")
 
 		pterm.Println()
-		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+		pterm.Println(pterm.LightCyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
 
 		pterm.Println()
 		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
@@ -130,7 +130,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 		certbotSpinner.Info("Certbot email currently set to none.")
 
 		pterm.Println()
-		pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+		pterm.Println(pterm.LightCyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
 
 		pterm.Println()
 		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
@@ -141,7 +141,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 		err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
 		if err != nil {
 			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to set Certbot email: %v", err))
+			pterm.Error.Printfln("Failed to set Certbot email: %v", err)
 			os.Exit(1)
 		}
 	} else {
@@ -162,7 +162,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 
 		if result == "yes" {
 			pterm.Println()
-			pterm.Println(pterm.Cyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
+			pterm.Println(pterm.LightCyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
 
 			pterm.Println()
 			pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
@@ -173,7 +173,7 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
 			if err != nil {
 				pterm.Println()
-				pterm.Error.Println(fmt.Sprintf("Failed to update Certbot email: %v", err))
+				pterm.Error.Printfln("Failed to update Certbot email: %v", err)
 				os.Exit(1)
 			}
 		}
@@ -195,14 +195,14 @@ func GetCertificates(domainName, nginxConfigFilePath string) bool {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 		err := cmd.Run()
 		if err != nil {
-			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
+			pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 			os.Exit(1)
 		}
 	} else {
 		cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 		err := cmd.Run()
 		if err != nil {
-			pterm.Error.Println(fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
+			pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 			os.Exit(1)
 		}
 	}

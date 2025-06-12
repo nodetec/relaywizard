@@ -17,7 +17,7 @@ func backupSQLite3Database(databaseFilePath, databaseDestPath string) {
 	err := exec.Command("sqlite3", databaseFilePath, backupCommand).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to backup %s database: %v", databaseFilePath, err))
+		pterm.Error.Printfln("Failed to backup %s database: %v", databaseFilePath, err)
 		os.Exit(1)
 	}
 }

@@ -101,7 +101,7 @@ var installCmd = &cobra.Command{
 		// Create relay user
 		var relayUser string
 		pterm.Println()
-		pterm.Println(pterm.Cyan("Create a user for the relay."))
+		pterm.Println(pterm.LightCyan("Create a user for the relay."))
 
 		pterm.Println()
 		userInput := pterm.DefaultInteractiveTextInput.WithDefaultValue(relays.DefaultUser)
@@ -132,10 +132,10 @@ var installCmd = &cobra.Command{
 		}
 
 		pterm.Println()
-		pterm.Println(pterm.Cyan("Join the NODE-TEC Discord to get support:"))
+		pterm.Println(pterm.LightCyan("Join the NODE-TEC Discord to get support:"))
 		pterm.Println(pterm.Magenta("https://discord.gg/J9gRK5pbWb"))
 		pterm.Println()
-		pterm.Println(pterm.Cyan("We plan to use relay groups for support in the future..."))
+		pterm.Println(pterm.LightCyan("We plan to use relay groups for support in the future..."))
 
 		pterm.Println()
 		pterm.Println(pterm.Magenta("You can re-run this installer with `rwz install`."))

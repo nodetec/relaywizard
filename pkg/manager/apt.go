@@ -23,7 +23,7 @@ func IsPackageInstalled(packageName string) bool {
 			if errorCode == 1 {
 				return false
 			} else {
-				pterm.Error.Println(fmt.Sprintf("Failed to check if package is installed: %v", err))
+				pterm.Error.Printfln("Failed to check if package is installed: %v", err)
 				os.Exit(1)
 			}
 		}

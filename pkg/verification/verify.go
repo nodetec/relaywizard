@@ -50,7 +50,7 @@ func VerifyRelayBinary(relayName, path string) {
 
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err))
+		pterm.Error.Printfln("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err)
 		os.Exit(1)
 	}
 
@@ -60,7 +60,7 @@ func VerifyRelayBinary(relayName, path string) {
 		spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file", relaysManifestFilePath))
 	} else {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to verify the signature of the %s file", relaysManifestFilePath))
+		pterm.Error.Printfln("Failed to verify the signature of the %s file", relaysManifestFilePath)
 		os.Exit(1)
 	}
 
@@ -69,7 +69,7 @@ func VerifyRelayBinary(relayName, path string) {
 
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to compute the SHA512 hash of the %s file: %v", path, err))
+		pterm.Error.Printfln("Failed to compute the SHA512 hash of the %s file: %v", path, err)
 		os.Exit(1)
 	}
 
@@ -80,7 +80,7 @@ func VerifyRelayBinary(relayName, path string) {
 	data, err := os.ReadFile(relaysManifestFilePath)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to read the %s file: %v", relaysManifestFilePath, err))
+		pterm.Error.Printfln("Failed to read the %s file: %v", relaysManifestFilePath, err)
 		os.Exit(1)
 	}
 
@@ -90,7 +90,7 @@ func VerifyRelayBinary(relayName, path string) {
 		spinner.Success(fmt.Sprintf("%s binary verified", relayName))
 	} else {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to verify the %s file, the SHA512 hash doesn't match the SHA512 hash in the %s file", path, relaysManifestFilePath))
+		pterm.Error.Printfln("Failed to verify the %s file, the SHA512 hash doesn't match the SHA512 hash in the %s file", path, relaysManifestFilePath)
 		os.Exit(1)
 	}
 }

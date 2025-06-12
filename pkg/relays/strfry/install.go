@@ -63,14 +63,14 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	// Configure the relay
 	ConfigureRelay(pubKey, relayContact)
 
-	// Set up the relay service
-	SetUpRelayService(relayUser)
-
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
 	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
+
+	// Set up the relay service
+	SetUpRelayService(relayUser)
 
 	// TODO
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the strfry config file to use the database backup to check if the version is compatible with the installed strfry binary, and then use the installed strfry binary to create a fried export if compatibile

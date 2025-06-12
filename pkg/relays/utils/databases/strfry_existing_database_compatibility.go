@@ -17,7 +17,7 @@ func CheckStrfryBinaryAndDatabaseCompatibility(binaryName, configFilePath, suppo
 	out, err := exec.Command(binaryName, "--config", configFilePath, "info").CombinedOutput()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to check %s binary and existing database compatibility: %v", binaryName, err))
+		pterm.Error.Printfln("Failed to check %s binary and existing database compatibility: %v", binaryName, err)
 		os.Exit(1)
 	}
 
@@ -30,6 +30,6 @@ func CheckStrfryBinaryAndDatabaseCompatibility(binaryName, configFilePath, suppo
 	} else {
 		spinner.Warning(fmt.Sprintf("Existing database version is incompatible with %s version %s.", binaryName, binaryVersion))
 		pterm.Println()
-		pterm.Println(pterm.Cyan(fmt.Sprintf("Upgrade your database to version %s.", supportedDatabaseVersion)))
+		pterm.Printfln(pterm.LightCyan("Upgrade your database to version %s.", supportedDatabaseVersion))
 	}
 }

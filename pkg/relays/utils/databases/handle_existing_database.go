@@ -1,7 +1,6 @@
 package databases
 
 import (
-	"fmt"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
 	"os"
@@ -40,12 +39,12 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 
 		pterm.Println()
 		if selectedDatabaseActionOption == BackupDatabaseFileOption {
-			pterm.Println(pterm.Cyan("Creating database backup..."))
+			pterm.Println(pterm.LightCyan("Creating database backup..."))
 			pterm.Println()
 			BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
 			return BackupDatabaseFileOption
 		} else if selectedDatabaseActionOption == UseExistingDatabaseFileOption {
-			pterm.Println(pterm.Cyan("Using existing database..."))
+			pterm.Println(pterm.LightCyan("Using existing database..."))
 			pterm.Println()
 			return UseExistingDatabaseFileOption
 		} else if selectedDatabaseActionOption == OverwriteDatabaseFileOption {
@@ -60,7 +59,7 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 			}
 
 			pterm.Println(pterm.Yellow("Warning: Are you sure you want to overwrite your existing database?"))
-			pterm.Println(pterm.Yellow(fmt.Sprintf("If you select 'yes', then the following database will be overwritten: %s", databaseFilePath)))
+			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following database will be overwritten: %s", databaseFilePath))
 			pterm.Println()
 
 			result, _ := prompt.Show()
@@ -69,11 +68,11 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 				// TODO
 				// Display options again
 				pterm.Println()
-				pterm.Println(pterm.Cyan("Exiting wizard..."))
+				pterm.Println(pterm.LightCyan("Exiting wizard..."))
 				os.Exit(1)
 			} else if result == "yes" {
 				pterm.Println()
-				pterm.Println(pterm.Cyan("Database will be overwitten..."))
+				pterm.Println(pterm.LightCyan("Database will be overwitten..."))
 				pterm.Println()
 				return OverwriteDatabaseFileOption
 			} else {

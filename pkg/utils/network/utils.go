@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"github.com/pterm/pterm"
 	"os"
 	"text/template"
@@ -28,7 +27,7 @@ func CreateJailFile(jailFilePath, jailTemplate string) {
 	jailFile, err := os.Create(jailFilePath)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to create jail file: %v", err))
+		pterm.Error.Printfln("Failed to create jail file: %v", err)
 		os.Exit(1)
 	}
 	defer jailFile.Close()
@@ -36,14 +35,14 @@ func CreateJailFile(jailFilePath, jailTemplate string) {
 	jailTmpl, err := template.New("jail").Parse(jailTemplate)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to parse jail template: %v", err))
+		pterm.Error.Printfln("Failed to parse jail template: %v", err)
 		os.Exit(1)
 	}
 
 	err = jailTmpl.Execute(jailFile, struct{}{})
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to execute jail template: %v", err))
+		pterm.Error.Printfln("Failed to execute jail template: %v", err)
 		os.Exit(1)
 	}
 }

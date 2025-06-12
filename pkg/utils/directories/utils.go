@@ -21,7 +21,7 @@ func RemoveDirectory(path string) {
 	err := os.RemoveAll(path)
 	if err != nil && !os.IsNotExist(err) {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to remove %s directory: %v", path, err))
+		pterm.Error.Printfln("Failed to remove %s directory: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -31,7 +31,7 @@ func CreateDirectory(path string, permissions FileMode) {
 	err := os.MkdirAll(path, permissions)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to create %s directory: %v", path, err))
+		pterm.Error.Printfln("Failed to create %s directory: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -41,7 +41,7 @@ func CopyDirectory(dirToCopyPath, destDirPath string) {
 	err := exec.Command("cp", "-R", dirToCopyPath, destDirPath).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to copy the %s directory to the %s directory: %v", dirToCopyPath, destDirPath, err))
+		pterm.Error.Printfln("Failed to copy the %s directory to the %s directory: %v", dirToCopyPath, destDirPath, err)
 		os.Exit(1)
 	}
 }
@@ -51,7 +51,7 @@ func SetPermissions(path string, mode FileMode) {
 	err := os.Chmod(path, mode)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to set %s directory permissions: %v", path, err))
+		pterm.Error.Printfln("Failed to set %s directory permissions: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -61,7 +61,7 @@ func SetOwnerAndGroup(owner, group, dir string) {
 	err := exec.Command("chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of the %s directory: %v", dir, err))
+		pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dir, err)
 		os.Exit(1)
 	}
 }

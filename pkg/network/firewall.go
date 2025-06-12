@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
@@ -14,7 +13,7 @@ func ConfigureFirewall() {
 	err := exec.Command("ufw", "allow", "ssh").Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to allow SSH: %v", err))
+		pterm.Error.Printfln("Failed to allow SSH: %v", err)
 		os.Exit(1)
 	}
 
@@ -22,7 +21,7 @@ func ConfigureFirewall() {
 	err = exec.Command("ufw", "allow", "Nginx Full").Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to allow Nginx Full: %v", err))
+		pterm.Error.Printfln("Failed to allow Nginx Full: %v", err)
 		os.Exit(1)
 	}
 
@@ -30,7 +29,7 @@ func ConfigureFirewall() {
 	err = exec.Command("ufw", "logging", "off").Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to disable logging: %v", err))
+		pterm.Error.Printfln("Failed to disable logging: %v", err)
 		os.Exit(1)
 	}
 
@@ -38,7 +37,7 @@ func ConfigureFirewall() {
 	err = exec.Command("ufw", "--force", "enable").Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to enable firewall: %v", err))
+		pterm.Error.Printfln("Failed to enable firewall: %v", err)
 		os.Exit(1)
 	}
 

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"os"
@@ -20,7 +19,7 @@ func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to add child commands to the root command: %v", err))
+		pterm.Error.Printfln("Failed to add child commands to the root command: %v", err)
 		os.Exit(1)
 	}
 }

@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
@@ -24,7 +23,7 @@ func ConfigureIntrusionDetection() {
 	err := exec.Command("systemctl", "restart", "fail2ban").Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to restart intrusion detection system: %v", err))
+		pterm.Error.Printfln("Failed to restart intrusion detection system: %v", err)
 		os.Exit(1)
 	}
 

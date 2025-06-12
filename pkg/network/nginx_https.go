@@ -1,7 +1,6 @@
 package network
 
 import (
-	"fmt"
 	"github.com/nodetec/rwz/pkg/network/relays/khatru29"
 	"github.com/nodetec/rwz/pkg/network/relays/khatru_pyramid"
 	"github.com/nodetec/rwz/pkg/network/relays/nostr_rs_relay"
@@ -37,7 +36,7 @@ func ConfigureNginxHttps(domainName, nginxConfigFilePath string) {
 		configContent = strfry29.NginxHttpsConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
 	} else {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to generate Nginx config file content for %s file", nginxConfigFilePath))
+		pterm.Error.Printfln("Failed to generate Nginx config file content for %s file", nginxConfigFilePath)
 		os.Exit(1)
 	}
 

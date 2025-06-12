@@ -1,7 +1,6 @@
 package git
 
 import (
-	"fmt"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/pterm/pterm"
 	"io/fs"
@@ -16,7 +15,7 @@ func Clone(branch, url, destDir string) {
 	err := exec.Command("git", "clone", "-b", branch, url, destDir).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to download repository: %v", err))
+		pterm.Error.Printfln("Failed to download repository: %v", err)
 		os.Exit(1)
 	}
 }

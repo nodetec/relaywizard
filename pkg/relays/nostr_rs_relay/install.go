@@ -63,14 +63,14 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	// Configure the relay
 	ConfigureRelay(relayDomain, pubKey, relayContact, httpsEnabled)
 
-	// Set up the relay service
-	SetUpRelayService(relayUser)
-
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
 	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
+
+	// Set up the relay service
+	SetUpRelayService(relayUser)
 
 	// Show success messages
 	SuccessMessages(relayDomain, httpsEnabled)

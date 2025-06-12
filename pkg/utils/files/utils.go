@@ -28,7 +28,7 @@ func RemoveFile(path string) {
 		err = os.Remove(path)
 		if err != nil {
 			pterm.Println()
-			pterm.Error.Println(fmt.Sprintf("Failed to remove %s file: %v", path, err))
+			pterm.Error.Printfln("Failed to remove %s file: %v", path, err)
 			os.Exit(1)
 		}
 	}
@@ -39,7 +39,7 @@ func CopyFile(fileToCopy, destDir string) {
 	err := exec.Command("cp", fileToCopy, destDir).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to copy %s file: %v", fileToCopy, err))
+		pterm.Error.Printfln("Failed to copy %s file: %v", fileToCopy, err)
 		os.Exit(1)
 	}
 }
@@ -49,7 +49,7 @@ func MoveFile(pathToFileBeingMoved, destFilePath string) {
 	err := exec.Command("mv", pathToFileBeingMoved, destFilePath).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to move %s file: %v", pathToFileBeingMoved, err))
+		pterm.Error.Printfln("Failed to move %s file: %v", pathToFileBeingMoved, err)
 		os.Exit(1)
 	}
 }
@@ -59,7 +59,7 @@ func SetPermissions(path string, mode FileMode) {
 	err := os.Chmod(path, mode)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to set %s file permissions: %v", path, err))
+		pterm.Error.Printfln("Failed to set %s file permissions: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -69,7 +69,7 @@ func SetOwnerAndGroup(owner, group, file string) {
 	err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to set ownership of %s file: %v", file, err))
+		pterm.Error.Printfln("Failed to set ownership of %s file: %v", file, err)
 		os.Exit(1)
 	}
 }
@@ -79,7 +79,7 @@ func WriteFile(path, content string, permissions FileMode) {
 	err := os.WriteFile(path, []byte(content), permissions)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to write content to %s file: %v", path, err))
+		pterm.Error.Printfln("Failed to write content to %s file: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -91,7 +91,7 @@ func InPlaceEdit(command, path string) {
 	// Execute the command
 	if err := cmd.Run(); err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to edit %s file in-place: %v", path, err))
+		pterm.Error.Printfln("Failed to edit %s file in-place: %v", path, err)
 		os.Exit(1)
 	}
 }
@@ -108,7 +108,7 @@ func LineExists(pattern, path string) bool {
 				return false
 			} else {
 				pterm.Println()
-				pterm.Error.Println(fmt.Sprintf("Failed to search %s for %s: %v", path, pattern, err))
+				pterm.Error.Printfln("Failed to search %s for %s: %v", path, pattern, err)
 				os.Exit(1)
 			}
 		}
@@ -122,7 +122,7 @@ func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
 	out, err := os.Create(filePath)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to create %s file: %v", filePath, err))
+		pterm.Error.Printfln("Failed to create %s file: %v", filePath, err)
 		os.Exit(1)
 	}
 	defer out.Close()
@@ -134,7 +134,7 @@ func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
 	resp, err := http.Get(downloadURL)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to download file: %v", err))
+		pterm.Error.Printfln("Failed to download file: %v", err)
 		os.Exit(1)
 	}
 	defer resp.Body.Close()
@@ -142,7 +142,7 @@ func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
 	// Check server response
 	if resp.StatusCode != http.StatusOK {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Bad repsonse status code: %s", resp.Status))
+		pterm.Error.Printfln("Bad repsonse status code: %s", resp.Status)
 		os.Exit(1)
 	}
 
@@ -150,7 +150,7 @@ func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to write to temporary file: %v", err))
+		pterm.Error.Printfln("Failed to write to temporary file: %v", err)
 		os.Exit(1)
 	}
 }
@@ -160,7 +160,7 @@ func ExtractFile(tmpFilePath, destDir string) {
 	err := exec.Command("tar", "-xf", tmpFilePath, "-C", destDir).Run()
 	if err != nil {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to extract binary to %s: %v", destDir, err))
+		pterm.Error.Printfln("Failed to extract binary to %s: %v", destDir, err)
 		os.Exit(1)
 	}
 }

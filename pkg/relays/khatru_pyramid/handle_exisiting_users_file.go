@@ -97,11 +97,11 @@ func HandleExistingUsersFile(pubKey, relayUser string) {
 
 		pterm.Println()
 		if selectedUsersFileActionOption == BackupUsersFileOption {
-			pterm.Println(pterm.Cyan("Creating users file backup..."))
+			pterm.Println(pterm.LightCyan("Creating users file backup..."))
 			pterm.Println()
 			backupUsersFile()
 		} else if selectedUsersFileActionOption == UseExistingUsersFileOption {
-			pterm.Println(pterm.Cyan("Using existing users file..."))
+			pterm.Println(pterm.LightCyan("Using existing users file..."))
 			pterm.Println()
 			// Set permissions for the users file
 			files.SetPermissions(UsersFilePath, UsersFilePerms)
@@ -119,7 +119,7 @@ func HandleExistingUsersFile(pubKey, relayUser string) {
 			}
 
 			pterm.Println(pterm.Yellow("Warning: Are you sure you want to overwrite your existing users file?"))
-			pterm.Println(pterm.Yellow(fmt.Sprintf("If you select 'yes', then the following users file will be overwritten: %s", UsersFilePath)))
+			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following users file will be overwritten: %s", UsersFilePath))
 			pterm.Println()
 
 			result, _ := prompt.Show()
@@ -128,11 +128,11 @@ func HandleExistingUsersFile(pubKey, relayUser string) {
 				// TODO
 				// Display options again
 				pterm.Println()
-				pterm.Println(pterm.Cyan("Exiting wizard..."))
+				pterm.Println(pterm.LightCyan("Exiting wizard..."))
 				os.Exit(1)
 			} else if result == "yes" {
 				pterm.Println()
-				pterm.Println(pterm.Cyan("Users file overwitten..."))
+				pterm.Println(pterm.LightCyan("Users file overwitten..."))
 				pterm.Println()
 				files.RemoveFile(UsersFilePath)
 			} else {

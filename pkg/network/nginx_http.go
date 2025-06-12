@@ -42,7 +42,7 @@ func ConfigureNginxHttp(domainName, nginxConfigFilePath string) {
 		configContent = strfry29.NginxHttpConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath)
 	} else {
 		pterm.Println()
-		pterm.Error.Println(fmt.Sprintf("Failed to generate Nginx config file content for %s file", nginxConfigFilePath))
+		pterm.Error.Printfln("Failed to generate Nginx config file content for %s file", nginxConfigFilePath)
 		os.Exit(1)
 	}
 
