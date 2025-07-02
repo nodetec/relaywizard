@@ -2,14 +2,13 @@ package manager
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-
 	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
 	"github.com/nodetec/rwz/pkg/relays/strfry"
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/pterm/pterm"
+	"os"
+	"os/exec"
 )
 
 // Function to check if a package is installed
@@ -46,7 +45,7 @@ func AptInstallPackages(selectedRelayOption string) {
 
 	exec.Command("apt", "update", "-qq").Run()
 
-	packages := []string{"curl", "gnupg", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
+	packages := []string{"curl", "gnupg", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
 
 	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == wot_relay.RelayName || selectedRelayOption == strfry29.RelayName {
 		packages = append(packages, "git")

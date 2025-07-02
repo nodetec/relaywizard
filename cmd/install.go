@@ -12,6 +12,7 @@ import (
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/nodetec/rwz/pkg/ui"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -88,6 +89,30 @@ var installCmd = &cobra.Command{
 
 		// Install necessary packages using APT
 		manager.AptInstallPackages(selectedRelayOption)
+
+		pterm.Println()
+		pterm.Println(pterm.Yellow("Warning: Relay Wizard SSH defaults will not be applied if the current sshd configuration overrides them."))
+		pterm.Printfln(pterm.Yellow("If issues occur, try checking the following locations %s and %s"), network.SSHDConfigFilePath, network.SSHDConfigDDirPath)
+
+		prompt := pterm.InteractiveContinuePrinter{
+			DefaultValueIndex: 0,
+			DefaultText:       "Configure remote access through SSH using Relay Wizard defaults?",
+			TextStyle:         &ThemeDefault.PrimaryStyle,
+			Options:           []string{"yes", "no"},
+			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
+			SuffixStyle:       &ThemeDefault.SecondaryStyle,
+			Delimiter:         ": ",
+		}
+
+		pterm.Println()
+		result, _ := prompt.Show()
+		pterm.Println()
+
+		if result == "yes" {
+			network.ConfigureRemoteAccess()
+		} else {
+			files.RemoveFile(network.SSHDConfigDRWZConfigFilePath)
+		}
 
 		// Configure the firewall
 		network.ConfigureFirewall()

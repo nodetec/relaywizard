@@ -84,6 +84,25 @@ func WriteFile(path, content string, permissions FileMode) {
 	}
 }
 
+// Function to create a file if it doesn't exist, open the file in write only mode, and append content to the end of the file
+func AppendContentToFile(path, content string, permissions FileMode) {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, permissions)
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Printfln("Failed to open %s file: %v", path, err)
+		os.Exit(1)
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(fmt.Sprintf("%s\n", content))
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Printfln("Failed to write to %s file: %v", path, err)
+		os.Exit(1)
+	}
+}
+
 // Function to perform in-place editing
 func InPlaceEdit(command, path string) {
 	cmd := exec.Command("sed", "-i", command, path)
