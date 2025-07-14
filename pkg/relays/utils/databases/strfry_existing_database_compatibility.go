@@ -30,6 +30,6 @@ func CheckStrfryBinaryAndDatabaseCompatibility(binaryName, configFilePath, suppo
 	} else {
 		spinner.Warning(fmt.Sprintf("Existing database version is incompatible with %s version %s.", binaryName, binaryVersion))
 		pterm.Println()
-		pterm.Printfln(pterm.LightCyan("Upgrade your database to version %s.", supportedDatabaseVersion))
+		pterm.Printfln(pterm.LightCyan("Upgrade your database to version %s."), supportedDatabaseVersion)
 	}
 }

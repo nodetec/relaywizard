@@ -119,7 +119,7 @@ func HandleExistingUsersFile(pubKey, relayUser string) {
 			}
 
 			pterm.Println(pterm.Yellow("Warning: Are you sure you want to overwrite your existing users file?"))
-			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following users file will be overwritten: %s", UsersFilePath))
+			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following users file will be overwritten: %s"), UsersFilePath)
 			pterm.Println()
 
 			result, _ := prompt.Show()

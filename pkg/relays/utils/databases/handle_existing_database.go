@@ -59,7 +59,7 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 			}
 
 			pterm.Println(pterm.Yellow("Warning: Are you sure you want to overwrite your existing database?"))
-			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following database will be overwritten: %s", databaseFilePath))
+			pterm.Printfln(pterm.Yellow("If you select 'yes', then the following database will be overwritten: %s"), databaseFilePath)
 			pterm.Println()
 
 			result, _ := prompt.Show()
