@@ -3,7 +3,6 @@ package khatru_pyramid
 const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/khatru-pyramid-0.2.2-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru-pyramid"
 const BinaryFilePath = "/usr/local/bin/khatru-pyramid"
-const NginxConfigFilePath = "/etc/nginx/conf.d/khatru_pyramid.conf"
 const DataDirPath = "/var/lib/khatru-pyramid"
 const DatabaseFilePath = "/var/lib/khatru-pyramid/db/data.mdb"
 const DatabaseBackupsDirPath = "/var/lib/khatru-pyramid/db/backups"
@@ -43,5 +42,4 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 `
-const RelayName = "Khatru Pyramid"
 const GithubLink = "https://github.com/github-tijlxyz/khatru-pyramid"

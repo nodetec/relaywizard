@@ -10,7 +10,6 @@ const BinaryVersion = "1.0.4"
 const BinaryPluginDownloadURL = "https://github.com/nodetec/relays/releases/download/v0.6.0/relay29-0.5.1-strfry29-x86_64-linux-gnu.tar.gz"
 const BinaryPluginName = "strfry29"
 const BinaryPluginFilePath = "/usr/local/bin/strfry29"
-const NginxConfigFilePath = "/etc/nginx/conf.d/strfry29.conf"
 const DataDirPath = "/var/lib/strfry29"
 const DatabaseFilePath = "/var/lib/strfry29/db/data.mdb"
 const SupportedDatabaseVersionOutput = "DB version: 3"
@@ -58,5 +57,4 @@ LimitCORE=1000000000
 [Install]
 WantedBy=multi-user.target
 `
-const RelayName = "strfry29"
 const GithubLink = "https://github.com/fiatjaf/relay29"

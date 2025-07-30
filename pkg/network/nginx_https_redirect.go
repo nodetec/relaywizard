@@ -22,17 +22,17 @@ func ConfigureNginxHttpsRedirect(domainName, nginxConfigFilePath string) {
 
 	var configContent string
 
-	if nginxConfigFilePath == KhatruPyramidNginxConfigFilePath {
+	if nginxConfigFilePath == relays.KhatruPyramidNginxConfigFilePath {
 		configContent = khatru_pyramid.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
-	} else if nginxConfigFilePath == NostrRsRelayNginxConfigFilePath {
+	} else if nginxConfigFilePath == relays.NostrRsRelayNginxConfigFilePath {
 		configContent = nostr_rs_relay.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
-	} else if nginxConfigFilePath == StrfryNginxConfigFilePath {
+	} else if nginxConfigFilePath == relays.StrfryNginxConfigFilePath {
 		configContent = strfry.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
-	} else if nginxConfigFilePath == WotRelayNginxConfigFilePath {
+	} else if nginxConfigFilePath == relays.WotRelayNginxConfigFilePath {
 		configContent = wot_relay.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
-	} else if nginxConfigFilePath == Khatru29NginxConfigFilePath {
+	} else if nginxConfigFilePath == relays.Khatru29NginxConfigFilePath {
 		configContent = khatru29.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
-	} else if nginxConfigFilePath == Strfry29NginxConfigFilePath {
+	} else if nginxConfigFilePath == relays.Strfry29NginxConfigFilePath {
 		configContent = strfry29.NginxHttpsRedirectConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath, CertificateDirPath, FullchainFile, PrivkeyFile, ChainFile)
 	} else {
 		pterm.Println()

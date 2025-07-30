@@ -30,8 +30,11 @@ var installCmd = &cobra.Command{
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		pterm.Println()
 
+		// TODO
+		// Add check here after getting the domain
+
 		// Supported relay options
-		options := []string{khatru_pyramid.RelayName, nostr_rs_relay.RelayName, strfry.RelayName, wot_relay.RelayName, khatru29.RelayName, strfry29.RelayName}
+		options := []string{relays.KhatruPyramidRelayName, relays.NostrRsRelayName, relays.StrfryRelayName, relays.WotRelayName, relays.Khatru29RelayName, relays.Strfry29RelayName}
 
 		// Use PTerm's interactive select feature to present the options to the user and capture their selection
 		// The Show() method displays the options and waits for the user's input
@@ -54,19 +57,19 @@ var installCmd = &cobra.Command{
 
 		var privKey string
 		var pubKey string
-		if selectedRelayOption == khatru_pyramid.RelayName || selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == wot_relay.RelayName || selectedRelayOption == strfry29.RelayName {
+		if selectedRelayOption == relays.KhatruPyramidRelayName || selectedRelayOption == relays.NostrRsRelayName || selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.WotRelayName || selectedRelayOption == relays.Strfry29RelayName {
 			pterm.Println()
 			pubKey, _ = pterm.DefaultInteractiveTextInput.Show("Public key (hex not npub)")
 		}
 
-		if selectedRelayOption == khatru29.RelayName || selectedRelayOption == strfry29.RelayName {
+		if selectedRelayOption == relays.Khatru29RelayName || selectedRelayOption == relays.Strfry29RelayName {
 			pterm.Println()
 			privKeyInput := pterm.DefaultInteractiveTextInput.WithMask("*")
 			privKey, _ = privKeyInput.Show("Private key (hex not nsec)")
 		}
 
 		var relayContact string
-		if selectedRelayOption == wot_relay.RelayName {
+		if selectedRelayOption == relays.WotRelayName {
 			pterm.Println()
 			pterm.Println(pterm.Yellow("If you leave the relay contact information empty, then the relay's public key will be used."))
 
@@ -142,17 +145,17 @@ var installCmd = &cobra.Command{
 			spinner.Success(fmt.Sprintf("'%s' user already exists", relayUser))
 		}
 
-		if selectedRelayOption == khatru_pyramid.RelayName {
+		if selectedRelayOption == relays.KhatruPyramidRelayName {
 			khatru_pyramid.Install(relayDomain, pubKey, relayContact, relayUser)
-		} else if selectedRelayOption == nostr_rs_relay.RelayName {
+		} else if selectedRelayOption == relays.NostrRsRelayName {
 			nostr_rs_relay.Install(relayDomain, pubKey, relayContact, relayUser)
-		} else if selectedRelayOption == strfry.RelayName {
+		} else if selectedRelayOption == relays.StrfryRelayName {
 			strfry.Install(relayDomain, pubKey, relayContact, relayUser)
-		} else if selectedRelayOption == wot_relay.RelayName {
+		} else if selectedRelayOption == relays.WotRelayName {
 			wot_relay.Install(relayDomain, pubKey, relayContact, relayUser)
-		} else if selectedRelayOption == khatru29.RelayName {
+		} else if selectedRelayOption == relays.Khatru29RelayName {
 			khatru29.Install(relayDomain, privKey, relayContact, relayUser)
-		} else if selectedRelayOption == strfry29.RelayName {
+		} else if selectedRelayOption == relays.Strfry29RelayName {
 			strfry29.Install(relayDomain, pubKey, privKey, relayContact, relayUser)
 		}
 

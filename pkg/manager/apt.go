@@ -2,10 +2,7 @@ package manager
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/relays/nostr_rs_relay"
-	"github.com/nodetec/rwz/pkg/relays/strfry"
-	"github.com/nodetec/rwz/pkg/relays/strfry29"
-	"github.com/nodetec/rwz/pkg/relays/wot_relay"
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
@@ -47,15 +44,15 @@ func AptInstallPackages(selectedRelayOption string) {
 
 	packages := []string{"curl", "gnupg", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
 
-	if selectedRelayOption == nostr_rs_relay.RelayName || selectedRelayOption == strfry.RelayName || selectedRelayOption == wot_relay.RelayName || selectedRelayOption == strfry29.RelayName {
+	if selectedRelayOption == relays.NostrRsRelayName || selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.WotRelayName || selectedRelayOption == relays.Strfry29RelayName {
 		packages = append(packages, "git")
 	}
 
-	if selectedRelayOption == nostr_rs_relay.RelayName {
+	if selectedRelayOption == relays.NostrRsRelayName {
 		packages = append(packages, "sqlite3", "libsqlite3-dev")
 	}
 
-	if selectedRelayOption == strfry.RelayName || selectedRelayOption == strfry29.RelayName {
+	if selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.Strfry29RelayName {
 		packages = append(packages, "libssl-dev", "zlib1g-dev", "liblmdb-dev", "libflatbuffers-dev", "libsecp256k1-dev", "libzstd-dev")
 	}
 

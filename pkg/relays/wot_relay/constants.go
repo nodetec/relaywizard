@@ -6,7 +6,6 @@ const GitRepoTmpDirPath = "/tmp/wot-relay"
 const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/wot-relay-0.1.16-x86_64-linux-gnu.tar.gz"
 const BinaryName = "wot-relay"
 const BinaryFilePath = "/usr/local/bin/wot-relay"
-const NginxConfigFilePath = "/etc/nginx/conf.d/wot_relay.conf"
 const DataDirPath = "/var/lib/wot-relay"
 const ConfigDirPath = "/etc/wot-relay"
 const IndexFile = "index.html"
@@ -48,5 +47,4 @@ MemoryMax=2G
 [Install]
 WantedBy=multi-user.target
 `
-const RelayName = "WoT Relay"
 const GithubLink = "https://github.com/bitvora/wot-relay"

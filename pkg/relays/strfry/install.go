@@ -23,16 +23,16 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
 
 	// Determine how to handle existing database during install
-	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, RelayName)
+	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, relays.StrfryRelayName)
 
 	// Configure Nginx for HTTP
-	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
+	network.ConfigureNginxHttp(relayDomain, relays.StrfryNginxConfigFilePath)
 
 	// Get SSL/TLS certificates
-	httpsEnabled := network.GetCertificates(relayDomain, NginxConfigFilePath)
+	httpsEnabled := network.GetCertificates(relayDomain, relays.StrfryNginxConfigFilePath)
 	if httpsEnabled {
 		// Configure Nginx for HTTPS
-		network.ConfigureNginxHttps(relayDomain, NginxConfigFilePath)
+		network.ConfigureNginxHttps(relayDomain, relays.StrfryNginxConfigFilePath)
 	}
 
 	// Download the config file from the git repository
@@ -45,26 +45,26 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	files.RemoveFile(tmpCompressedBinaryFilePath)
 
 	// Download and copy the file
-	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", relays.StrfryRelayName))
 	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
-	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", RelayName))
+	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", relays.StrfryRelayName))
 
 	// Verify relay binary
-	verification.VerifyRelayBinary(RelayName, tmpCompressedBinaryFilePath)
+	verification.VerifyRelayBinary(relays.StrfryRelayName, tmpCompressedBinaryFilePath)
 
 	// Install the compressed relay binary and make it executable
-	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", RelayName))
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", relays.StrfryRelayName))
 	files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
-	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s binary installed", relays.StrfryRelayName))
 
 	// Set up the relay data directory
-	databases.SetUpRelayDataDir(howToHandleExistingDatabase, DataDirPath, DatabaseFilePath, RelayName)
+	databases.SetUpRelayDataDir(howToHandleExistingDatabase, DataDirPath, DatabaseFilePath, relays.StrfryRelayName)
 
 	// Configure the relay
 	ConfigureRelay(pubKey, relayContact)
 
 	// Set permissions for database files
-	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
+	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, relays.StrfryRelayName)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
 	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)

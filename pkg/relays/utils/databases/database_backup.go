@@ -2,6 +2,7 @@ package databases
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
@@ -43,12 +44,12 @@ func BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase
 	directories.CreateDirectory(databaseBackupsDirPath, DatabaseBackupsDirPerms)
 
 	var uniqueBackupFileName string
-	if relayName == NostrRsRelayName {
+	if relayName == relays.NostrRsRelayName {
 		spinner.UpdateText("Creating database backup in the backups directory...")
 		uniqueBackupFileName = createUniqueBackupFileName(databaseBackupsDirPath, backupFileNameBase)
 		backupSQLite3Database(databaseFilePath, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName))
 		files.RemoveFile(databaseFilePath)
-	} else if relayName == KhatruPyramidRelayName || relayName == StrfryRelayName || relayName == Khatru29RelayName || relayName == Strfry29RelayName {
+	} else if relayName == relays.KhatruPyramidRelayName || relayName == relays.StrfryRelayName || relayName == relays.Khatru29RelayName || relayName == relays.Strfry29RelayName {
 		spinner.UpdateText("Moving database to the backups directory...")
 		uniqueBackupFileName = createUniqueBackupFileName(databaseBackupsDirPath, backupFileNameBase)
 		// TODO

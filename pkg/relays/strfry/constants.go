@@ -7,7 +7,6 @@ const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/
 const BinaryName = "strfry"
 const BinaryFilePath = "/usr/local/bin/strfry"
 const BinaryVersion = "1.0.4"
-const NginxConfigFilePath = "/etc/nginx/conf.d/strfry.conf"
 const DataDirPath = "/var/lib/strfry"
 const DatabaseFilePath = "/var/lib/strfry/db/data.mdb"
 const SupportedDatabaseVersionOutput = "DB version: 3"
@@ -42,5 +41,4 @@ LimitCORE=1000000000
 [Install]
 WantedBy=multi-user.target
 `
-const RelayName = "strfry"
 const GithubLink = "https://github.com/hoytech/strfry"

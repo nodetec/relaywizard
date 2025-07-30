@@ -23,16 +23,16 @@ func Install(relayDomain, pubKey, privKey, relayContact, relayUser string) {
 	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
 
 	// Determine how to handle existing database during install
-	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, RelayName)
+	var howToHandleExistingDatabase = databases.HandleExistingDatabase(DatabaseBackupsDirPath, DatabaseFilePath, BackupFileNameBase, relays.Strfry29RelayName)
 
 	// Configure Nginx for HTTP
-	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
+	network.ConfigureNginxHttp(relayDomain, relays.Strfry29NginxConfigFilePath)
 
 	// Get SSL/TLS certificates
-	httpsEnabled := network.GetCertificates(relayDomain, NginxConfigFilePath)
+	httpsEnabled := network.GetCertificates(relayDomain, relays.Strfry29NginxConfigFilePath)
 	if httpsEnabled {
 		// Configure Nginx for HTTPS
-		network.ConfigureNginxHttps(relayDomain, NginxConfigFilePath)
+		network.ConfigureNginxHttps(relayDomain, relays.Strfry29NginxConfigFilePath)
 	}
 
 	// Download the config file from the git repository
@@ -77,13 +77,13 @@ func Install(relayDomain, pubKey, privKey, relayContact, relayUser string) {
 	binaryPluginInstallSpinner.Success(fmt.Sprintf("%s plugin binary installed", BinaryPluginName))
 
 	// Set up the relay data directory
-	databases.SetUpRelayDataDir(howToHandleExistingDatabase, DataDirPath, DatabaseFilePath, RelayName)
+	databases.SetUpRelayDataDir(howToHandleExistingDatabase, DataDirPath, DatabaseFilePath, relays.Strfry29RelayName)
 
 	// Configure the relay
 	ConfigureRelay(relayDomain, pubKey, privKey, relayContact)
 
 	// Set permissions for database files
-	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, RelayName)
+	databases.SetDatabaseFilePermissions(DataDirPath, DatabaseFilePath, relays.Strfry29RelayName)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
 	directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)

@@ -21,13 +21,13 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	systemd.DisableAndStopService(ServiceFilePath, ServiceName)
 
 	// Configure Nginx for HTTP
-	network.ConfigureNginxHttp(relayDomain, NginxConfigFilePath)
+	network.ConfigureNginxHttp(relayDomain, relays.WotRelayNginxConfigFilePath)
 
 	// Get SSL/TLS certificates
-	httpsEnabled := network.GetCertificates(relayDomain, NginxConfigFilePath)
+	httpsEnabled := network.GetCertificates(relayDomain, relays.WotRelayNginxConfigFilePath)
 	if httpsEnabled {
 		// Configure Nginx for HTTPS
-		network.ConfigureNginxHttps(relayDomain, NginxConfigFilePath)
+		network.ConfigureNginxHttps(relayDomain, relays.WotRelayNginxConfigFilePath)
 	}
 
 	// Download the templates directory from the git repository
@@ -40,17 +40,17 @@ func Install(relayDomain, pubKey, relayContact, relayUser string) {
 	files.RemoveFile(tmpCompressedBinaryFilePath)
 
 	// Download and copy the file
-	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", RelayName))
+	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", relays.WotRelayName))
 	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0644)
-	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", RelayName))
+	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", relays.WotRelayName))
 
 	// Verify relay binary
-	verification.VerifyRelayBinary(RelayName, tmpCompressedBinaryFilePath)
+	verification.VerifyRelayBinary(relays.WotRelayName, tmpCompressedBinaryFilePath)
 
 	// Install the compressed relay binary and make it executable
-	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", RelayName))
+	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", relays.WotRelayName))
 	files.InstallCompressedBinary(tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
-	installSpinner.Success(fmt.Sprintf("%s binary installed", RelayName))
+	installSpinner.Success(fmt.Sprintf("%s binary installed", relays.WotRelayName))
 
 	// Set up the relay data directory
 	SetUpRelayDataDir()
