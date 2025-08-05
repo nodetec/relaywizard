@@ -6,25 +6,7 @@ import (
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
 	"os"
-	"strconv"
 )
-
-// TODO
-// Create utils fcns
-
-// TODO
-// Improve backup process by creating a unique and descriptive backup file name, e.g., <users-file-name>-<pubkey-of-main-user>-<utc-timestamp-of-backup>-<unique-identifier>-bak.<users-file-extension> and then check if the file exists and create the file if it doesn't or try to create a new unique file name if it already exists
-func createUniqueBackupFileName() string {
-	backupFileNumber := 0
-	uniqueBackupFileName := fmt.Sprintf("%s-%s", UsersFileNameBase, strconv.Itoa((backupFileNumber)))
-
-	for files.FileExists(fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName)) {
-		backupFileNumber++
-		uniqueBackupFileName = fmt.Sprintf("%s-%s", UsersFileNameBase, strconv.Itoa(backupFileNumber))
-	}
-
-	return uniqueBackupFileName
-}
 
 func backupUsersFile() {
 	spinner, _ := pterm.DefaultSpinner.Start("Backing up users file...")
@@ -34,7 +16,7 @@ func backupUsersFile() {
 
 	var uniqueBackupFileName string
 	spinner.UpdateText("Creating users file backup in the backups directory...")
-	uniqueBackupFileName = createUniqueBackupFileName()
+	uniqueBackupFileName = files.CreateUniqueBackupFileName(UsersFileBackupsDirPath, UsersFileNameBase)
 	files.MoveFile(UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
 
 	// Set permissions for the backup file

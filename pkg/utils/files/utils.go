@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 )
 
 // TODO
@@ -207,4 +208,22 @@ func InstallCompressedBinary(compressedBinaryFilePath, binaryDestDir, binaryName
 
 	// Make the file executable
 	SetPermissions(destPath, permissions)
+}
+
+// TODO
+// Improve backup process by creating a unique and descriptive backup file name
+// E.g., <database-file-name>-<pubkey-of-relay-runner>-<utc-timestamp-of-backup>-<unique-identifier>-bak.<database-file-extension>
+// E.g., <users-file-name>-<pubkey-of-main-user>-<utc-timestamp-of-backup>-<unique-identifier>-bak.<users-file-extension>
+// Then check if the file exists and create the file if it doesn't or try to create a new unique file name if it already exists
+// Function to create a unique backup file name
+func CreateUniqueBackupFileName(backupsDirPath, backupFileNameBase string) string {
+	backupFileNumber := 0
+	uniqueBackupFileName := fmt.Sprintf("%s-%s", backupFileNameBase, strconv.Itoa((backupFileNumber)))
+
+	for FileExists(fmt.Sprintf("%s/%s", backupsDirPath, uniqueBackupFileName)) {
+		backupFileNumber++
+		uniqueBackupFileName = fmt.Sprintf("%s-%s", backupFileNameBase, strconv.Itoa(backupFileNumber))
+	}
+
+	return uniqueBackupFileName
 }
