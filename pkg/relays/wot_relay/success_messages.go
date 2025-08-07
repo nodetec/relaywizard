@@ -8,6 +8,6 @@ import (
 )
 
 func SuccessMessages(domain string, httpsEnabled bool) {
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, IndexFilePath: fmt.Sprintf("%s/%s/%s", network.WWWDirPath, domain, IndexFile), StaticDirPath: fmt.Sprintf("%s/%s/%s", network.WWWDirPath, domain, StaticDir), NginxConfigFilePath: relays.WotRelayNginxConfigFilePath, BinaryFilePath: BinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: relays.WotRelayName, GitHubLink: GithubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, IndexFilePath: fmt.Sprintf("%s/%s/%s", network.WWWDirPath, domain, IndexFile), StaticDirPath: fmt.Sprintf("%s/%s/%s", network.WWWDirPath, domain, StaticDir), NginxConfigFilePath: relays.WotRelayNginxConfigFilePath, BinaryFilePath: relays.WotRelayBinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: relays.WotRelayName, GitHubLink: GithubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

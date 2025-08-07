@@ -55,6 +55,10 @@ var installCmd = &cobra.Command{
 		// Display the selected option to the user with a green color for emphasis
 		pterm.Info.Printfln("Selected option: %s", pterm.Green(selectedRelayOption))
 
+		// Check if the selected relay's port(s) is/are available to use
+		pterm.Println()
+		network.CheckPorts(selectedRelayOption)
+
 		var privKey string
 		var pubKey string
 		if selectedRelayOption == relays.KhatruPyramidRelayName || selectedRelayOption == relays.NostrRsRelayName || selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.WotRelayName || selectedRelayOption == relays.Strfry29RelayName {

@@ -1,6 +1,7 @@
 package wot_relay
 
 import (
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
@@ -15,7 +16,7 @@ func SetUpRelayService(relayUser string) {
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
-	serviceFileParams := systemd.ServiceFileParams{RelayUser: relayUser, EnvFilePath: EnvFilePath, BinaryFilePath: BinaryFilePath}
+	serviceFileParams := systemd.ServiceFileParams{RelayUser: relayUser, EnvFilePath: EnvFilePath, BinaryFilePath: relays.WotRelayBinaryFilePath}
 	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
 
 	// Reload systemd to apply the new service

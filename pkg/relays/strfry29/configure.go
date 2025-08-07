@@ -49,7 +49,7 @@ func ConfigureRelay(domain, pubKey, relaySecretKey, relayContact string) {
 
 	// Create the strfry29.json file
 	spinner.UpdateText("Creating plugin file...")
-	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey, ConfigFilePath: ConfigFilePath, BinaryFilePath: BinaryFilePath}
+	pluginFileParams := plugins.PluginFileParams{Domain: domain, RelaySecretKey: relaySecretKey, ConfigFilePath: ConfigFilePath, BinaryFilePath: relays.Strfry29BinaryFilePath}
 	plugins.CreatePluginFile(PluginFilePath, PluginFileTemplate, &pluginFileParams)
 
 	// Set permissions for the strfry29.json file

@@ -6,6 +6,6 @@ import (
 )
 
 func SuccessMessages(domain string, httpsEnabled bool) {
-	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, NginxConfigFilePath: relays.KhatruPyramidNginxConfigFilePath, BinaryFilePath: BinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: relays.KhatruPyramidRelayName, GitHubLink: GithubLink}
+	successMsgParams := messages.SuccessMsgParams{Domain: domain, HTTPSEnabled: httpsEnabled, DataDirPath: DataDirPath, NginxConfigFilePath: relays.KhatruPyramidNginxConfigFilePath, BinaryFilePath: relays.KhatruPyramidBinaryFilePath, EnvFilePath: EnvFilePath, ServiceFilePath: ServiceFilePath, ServiceName: ServiceName, RelayName: relays.KhatruPyramidRelayName, GitHubLink: GithubLink}
 	messages.SuccessMessages(&successMsgParams)
 }

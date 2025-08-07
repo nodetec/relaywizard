@@ -42,7 +42,7 @@ func AptInstallPackages(selectedRelayOption string) {
 
 	exec.Command("apt", "update", "-qq").Run()
 
-	packages := []string{"curl", "gnupg", "lsof", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
+	packages := []string{"sysvinit-utils", "lsof", "curl", "gnupg", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
 
 	if selectedRelayOption == relays.NostrRsRelayName || selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.WotRelayName || selectedRelayOption == relays.Strfry29RelayName {
 		packages = append(packages, "git")

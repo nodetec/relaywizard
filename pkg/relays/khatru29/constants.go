@@ -2,7 +2,6 @@ package khatru29
 
 const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/relay29-0.5.1-khatru29-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru29"
-const BinaryFilePath = "/usr/local/bin/khatru29"
 const DataDirPath = "/var/lib/khatru29"
 const DatabaseFilePath = "/var/lib/khatru29/db/data.mdb"
 const DatabaseBackupsDirPath = "/var/lib/khatru29/db/backups"
