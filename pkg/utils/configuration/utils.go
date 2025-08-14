@@ -9,6 +9,7 @@ import (
 
 type EnvFileParams struct {
 	Domain       string
+	PortNumber   string
 	HTTPSEnabled bool
 	PrivKey      string
 	PubKey       string
@@ -33,7 +34,7 @@ func CreateEnvFile(envFilePath, envTemplate string, envFileParams *EnvFileParams
 
 	WSScheme := network.WSEnabled(envFileParams.HTTPSEnabled)
 
-	err = envTmpl.Execute(envFile, struct{ Domain, WSScheme, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, WSScheme: WSScheme, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
+	err = envTmpl.Execute(envFile, struct{ Domain, PortNumber, WSScheme, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, PortNumber: envFileParams.PortNumber, WSScheme: WSScheme, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Printfln("Failed to execute environment template: %v", err)

@@ -1,6 +1,7 @@
 package khatru29
 
 import (
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/configuration"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
@@ -20,7 +21,7 @@ func ConfigureRelay(domain, privKey, relayContact string) {
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
-	envFileParams := configuration.EnvFileParams{Domain: domain, PrivKey: privKey, RelayContact: relayContact}
+	envFileParams := configuration.EnvFileParams{Domain: domain, PortNumber: relays.Khatru29PortNumber, PrivKey: privKey, RelayContact: relayContact}
 	configuration.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
 
 	// Set permissions for the environment file

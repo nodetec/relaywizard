@@ -2,6 +2,7 @@ package nostr_rs_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
@@ -11,7 +12,7 @@ func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certi
 }
 
 upstream nostr_rs_relay_websocket {
-    server 0.0.0.0:8080;
+    server %s:%s;
 }
 
 server {
@@ -116,7 +117,7 @@ server {
     # Only return Nginx in server header
     server_tokens off;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
+`, relays.NostrRsRelayIPv4Address, relays.NostrRsRelayPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
 
 	return configContent
 }

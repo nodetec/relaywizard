@@ -2,6 +2,7 @@ package strfry
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpsRedirectConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
@@ -11,7 +12,7 @@ func NginxHttpsRedirectConfigContent(domainName, wwwDirPath, acmeChallengeDirPat
 }
 
 upstream strfry_websocket {
-    server 127.0.0.1:7777;
+    server %s:%s;
 }
 
 server {
@@ -86,7 +87,7 @@ server {
     # Verify chain of trust of OCSP response using Root CA and Intermediate certs
     ssl_trusted_certificate %s/%s/%s;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, domainName, wwwDirPath, domainName, domainName, domainName, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile)
+`, relays.StrfryIPv4Address, relays.StrfryPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath, domainName, wwwDirPath, domainName, domainName, domainName, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile)
 
 	return configContent
 }

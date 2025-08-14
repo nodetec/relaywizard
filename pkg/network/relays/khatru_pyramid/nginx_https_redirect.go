@@ -2,6 +2,7 @@ package khatru_pyramid
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpsRedirectConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
@@ -11,7 +12,7 @@ func NginxHttpsRedirectConfigContent(domainName, wwwDirPath, acmeChallengeDirPat
 }
 
 upstream khatru_pyramid_websocket {
-    server 0.0.0.0:3335;
+    server %s:%s;
 }
 
 server {
@@ -86,7 +87,7 @@ server {
     # Verify chain of trust of OCSP response using Root CA and Intermediate certs
     ssl_trusted_certificate %s/%s/%s;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, domainName, wwwDirPath, domainName, domainName, domainName, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile)
+`, relays.KhatruPyramidIPv4Address, relays.KhatruPyramidPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath, domainName, wwwDirPath, domainName, domainName, domainName, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile)
 
 	return configContent
 }

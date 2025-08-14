@@ -2,6 +2,7 @@ package nostr_rs_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string) string {
@@ -11,7 +12,7 @@ func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string)
 }
 
 upstream nostr_rs_relay_websocket {
-    server 0.0.0.0:8080;
+    server %s:%s;
 }
 
 server {
@@ -60,7 +61,7 @@ server {
     #### Content-Security-Policy (CSP) ####
     add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none';" always;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
+`, relays.NostrRsRelayIPv4Address, relays.NostrRsRelayPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
 
 	return configContent
 }

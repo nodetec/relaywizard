@@ -2,6 +2,7 @@ package strfry
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string) string {
@@ -11,7 +12,7 @@ func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string)
 }
 
 upstream strfry_websocket {
-    server 127.0.0.1:7777;
+    server %s:%s;
 }
 
 server {
@@ -60,7 +61,7 @@ server {
     #### Content-Security-Policy (CSP) ####
     add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none';" always;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
+`, relays.StrfryIPv4Address, relays.StrfryPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
 
 	return configContent
 }

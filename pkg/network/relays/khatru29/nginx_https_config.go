@@ -2,6 +2,7 @@ package khatru29
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certificateDirPath, fullchainFile, privkeyFile, chainFile string) string {
@@ -11,7 +12,7 @@ func NginxHttpsConfigContent(domainName, wwwDirPath, acmeChallengeDirPath, certi
 }
 
 upstream khatru29_websocket {
-    server 0.0.0.0:5577;
+    server %s:%s;
 }
 
 server {
@@ -116,7 +117,7 @@ server {
     # Only return Nginx in server header
     server_tokens off;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
+`, relays.Khatru29IPv4Address, relays.Khatru29PortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath, certificateDirPath, domainName, fullchainFile, certificateDirPath, domainName, privkeyFile, certificateDirPath, domainName, chainFile, domainName, wwwDirPath, domainName, domainName)
 
 	return configContent
 }

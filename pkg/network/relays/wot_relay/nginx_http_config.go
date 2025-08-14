@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+	"github.com/nodetec/rwz/pkg/relays"
 )
 
 func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string) string {
@@ -11,7 +12,7 @@ func NginxHttpConfigContent(domainName, wwwDirPath, acmeChallengeDirPath string)
 }
 
 upstream wot_relay_websocket {
-    server localhost:3334;
+    server %s:%s;
 }
 
 server {
@@ -60,7 +61,7 @@ server {
     #### Content-Security-Policy (CSP) ####
     add_header Content-Security-Policy "base-uri 'self'; object-src 'none'; frame-ancestors 'none';" always;
 }
-`, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
+`, relays.WotRelayHostname, relays.WotRelayPortNumber, domainName, wwwDirPath, domainName, acmeChallengeDirPath)
 
 	return configContent
 }

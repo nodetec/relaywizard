@@ -1,8 +1,10 @@
 package network
 
 import (
+	"fmt"
 	"github.com/pterm/pterm"
 	"os"
+	"os/exec"
 	"text/template"
 )
 
@@ -75,4 +77,40 @@ func CreateJailFile(jailFilePath, jailTemplate string) {
 		pterm.Error.Printfln("Failed to execute jail template: %v", err)
 		os.Exit(1)
 	}
+}
+
+// TODO
+// May have to add check for support for both IPv4 and IPv6 addresses
+// May also have to check if one type of IP address overrides the other
+
+// Function to list the network socket file(s) using a provided IP version, protocol, and port number
+func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protocol, portNumber string) string {
+	networkSocketFiles := fmt.Sprintf("-i%s%s:%s", ipVersion, protocol, portNumber)
+
+	out, err := exec.Command("lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
+		os.Exit(1)
+	}
+
+	lsofOutput := string(out)
+
+	return lsofOutput
+}
+
+// Function to list the network socket file(s) using a provided IP version, protocol, IP address, and port number
+func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(ipVersion, protocol, ipAddress, portNumber string) string {
+	networkSocketFiles := fmt.Sprintf("-i%s%s@%s:%s", ipVersion, protocol, ipAddress, portNumber)
+
+	out, err := exec.Command("lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
+	if err != nil {
+		pterm.Println()
+		pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
+		os.Exit(1)
+	}
+
+	lsofOutput := string(out)
+
+	return lsofOutput
 }
