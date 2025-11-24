@@ -14,36 +14,40 @@ import (
 func determineFirstPIDFromLsofOutput(lsofOutput string) string {
 	var firstPIDFromLsofOutput string
 
-	lsofOutputSplitByNewLine := strings.Split(lsofOutput, "\n")
-	lsofOutputSplitByNewLineLength := len(lsofOutputSplitByNewLine)
+	if lsofOutput == "" {
+		return firstPIDFromLsofOutput
+	} else {
+		lsofOutputSplitByNewLine := strings.Split(lsofOutput, "\n")
+		lsofOutputSplitByNewLineLength := len(lsofOutputSplitByNewLine)
 
-	if lsofOutputSplitByNewLineLength > 1 {
-		firstNetworkSocketFileOutput := lsofOutputSplitByNewLine[1]
-		firstNetworkSocketFileOutputSplitBySpace := strings.Split(firstNetworkSocketFileOutput, " ")
-		firstNetworkSocketFileOutputSplitBySpaceLength := len(firstNetworkSocketFileOutputSplitBySpace)
+		if lsofOutputSplitByNewLineLength > 1 {
+			firstNetworkSocketFileOutput := lsofOutputSplitByNewLine[1]
+			firstNetworkSocketFileOutputSplitBySpace := strings.Split(firstNetworkSocketFileOutput, " ")
+			firstNetworkSocketFileOutputSplitBySpaceLength := len(firstNetworkSocketFileOutputSplitBySpace)
 
-		// Assuming there could potentially be multiple spaces between the lsof COMMAND and PID column outputs and that the second
-		// lsof row output will start with the COMMAND value followed by at least one space before the PID value
-		// Start at the second element if it's an empty string keep looping until the string isn't empty which will give the PID
-		if firstNetworkSocketFileOutputSplitBySpaceLength > 1 {
-			for i := 1; i < firstNetworkSocketFileOutputSplitBySpaceLength; i++ {
-				if firstNetworkSocketFileOutputSplitBySpace[i] != "" {
-					firstPIDFromLsofOutput = firstNetworkSocketFileOutputSplitBySpace[i]
-					break
+			// Assuming there could potentially be multiple spaces between the lsof COMMAND and PID column outputs and that the second
+			// lsof row output will start with the COMMAND value followed by at least one space before the PID value
+			// Start at the second element if it's an empty string keep looping until the string isn't empty which will give the PID
+			if firstNetworkSocketFileOutputSplitBySpaceLength > 1 {
+				for i := 1; i < firstNetworkSocketFileOutputSplitBySpaceLength; i++ {
+					if firstNetworkSocketFileOutputSplitBySpace[i] != "" {
+						firstPIDFromLsofOutput = firstNetworkSocketFileOutputSplitBySpace[i]
+						break
+					}
 				}
+			} else {
+				pterm.Println()
+				pterm.Error.Println("Failed to determine the first PID from the lsof output")
+				os.Exit(1)
 			}
-		} else {
+		} else if lsofOutputSplitByNewLineLength == 1 {
 			pterm.Println()
-			pterm.Error.Println("Failed to determine the first PID from the lsof output")
+			pterm.Error.Println("Failed to parse lsof output")
 			os.Exit(1)
 		}
-	} else if lsofOutputSplitByNewLineLength == 1 {
-		pterm.Println()
-		pterm.Error.Println("Failed to parse lsof output")
-		os.Exit(1)
-	}
 
-	return firstPIDFromLsofOutput
+		return firstPIDFromLsofOutput
+	}
 }
 
 // Function to check if the selected relay's port is available to use

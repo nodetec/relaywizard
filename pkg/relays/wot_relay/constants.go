@@ -42,6 +42,13 @@ EnvironmentFile={{.EnvFilePath}}
 ExecStart={{.BinaryFilePath}}
 Restart=on-failure
 MemoryMax=2G
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=yes
 
 [Install]
 WantedBy=multi-user.target

@@ -26,10 +26,17 @@ After=network.target
 Type=simple
 User={{.RelayUser}}
 Group={{.RelayUser}}
-WorkingDirectory=/home/{{.RelayUser}}
 EnvironmentFile={{.EnvFilePath}}
 ExecStart={{.BinaryFilePath}}
 Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=yes
 
 [Install]
 WantedBy=multi-user.target

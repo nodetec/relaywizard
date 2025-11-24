@@ -34,9 +34,6 @@ const PluginFileTemplate = `{
 const ServiceName = "strfry29"
 const ServiceFilePath = "/etc/systemd/system/strfry29.service"
 
-// TODO
-// Check working directory
-// WorkingDirectory=/home/{{.RelayUser}}
 const ServiceFileTemplate = `[Unit]
 Description=strfry29 Relay Service
 After=network.target
@@ -48,9 +45,14 @@ Group={{.RelayUser}}
 ExecStart={{.BinaryFilePath}} --config={{.ConfigFilePath}} relay
 Restart=on-failure
 RestartSec=5
-ProtectHome=yes
 NoNewPrivileges=yes
 ProtectSystem=full
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=yes
 LimitCORE=1000000000
 
 [Install]

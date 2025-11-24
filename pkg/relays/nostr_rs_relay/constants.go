@@ -26,6 +26,13 @@ WorkingDirectory=/home/{{.RelayUser}}
 Environment=RUST_LOG=info,nostr_rs_relay=info
 ExecStart={{.BinaryFilePath}} --config /etc/nostr-rs-relay/config.toml --db /var/lib/nostr-rs-relay/db
 Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=yes
 
 [Install]
 WantedBy=multi-user.target

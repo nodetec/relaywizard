@@ -89,9 +89,20 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protoc
 
 	out, err := exec.Command("lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
 	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
-		os.Exit(1)
+	}
+
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			errorCode := exitError.ExitCode()
+			// Network socket file(s) not found
+			if errorCode == 1 {
+				return ""
+			} else {
+				pterm.Println()
+				pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
+				os.Exit(1)
+			}
+		}
 	}
 
 	lsofOutput := string(out)
@@ -104,10 +115,19 @@ func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(ipVersio
 	networkSocketFiles := fmt.Sprintf("-i%s%s@%s:%s", ipVersion, protocol, ipAddress, portNumber)
 
 	out, err := exec.Command("lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
+
 	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
-		os.Exit(1)
+		if exitError, ok := err.(*exec.ExitError); ok {
+			errorCode := exitError.ExitCode()
+			// Network socket file(s) not found
+			if errorCode == 1 {
+				return ""
+			} else {
+				pterm.Println()
+				pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
+				os.Exit(1)
+			}
+		}
 	}
 
 	lsofOutput := string(out)
