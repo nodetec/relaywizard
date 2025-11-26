@@ -1,11 +1,13 @@
 package systemd
 
 import (
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
 	"text/template"
+
+	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/pterm/pterm"
 )
 
 type ServiceFileParams struct {
@@ -15,96 +17,204 @@ type ServiceFileParams struct {
 	ConfigFilePath string
 }
 
-func CreateServiceFile(serviceFilePath, serviceTemplate string, serviceFileParams *ServiceFileParams) {
-	serviceFile, err := os.Create(serviceFilePath)
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to create service file: %v", err)
-		os.Exit(1)
-	}
-	defer serviceFile.Close()
+func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate string, serviceFileParams *ServiceFileParams) {
+	if currentUsername == relays.RootUser {
+		serviceFile, err := os.Create(serviceFilePath)
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create service file: %v", err)
+			os.Exit(1)
+		}
+		defer serviceFile.Close()
 
-	serviceTmpl, err := template.New("service").Parse(serviceTemplate)
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to parse service template: %v", err)
-		os.Exit(1)
-	}
+		serviceTmpl, err := template.New("service").Parse(serviceTemplate)
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to parse service template: %v", err)
+			os.Exit(1)
+		}
 
-	err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to execute service template: %v", err)
-		os.Exit(1)
-	}
-}
+		err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to execute service template: %v", err)
+			os.Exit(1)
+		}
+	} else {
+		_, err := exec.Command("sudo", "touch", serviceFilePath).CombinedOutput()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create service file: %v", err)
+			os.Exit(1)
+		}
 
-func Reload() {
-	err := exec.Command("systemctl", "daemon-reload").Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to reload systemd daemon: %v", err)
-		os.Exit(1)
-	}
-}
+		_, err = exec.Command("sudo", "chmod", "0666", serviceFilePath).CombinedOutput()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to set permissions for service file: %v", err)
+			os.Exit(1)
+		}
 
-func EnableService(name string) {
-	err := exec.Command("systemctl", "enable", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to enable %s service: %v", name, err)
-		os.Exit(1)
-	}
-}
+		serviceFile, err := os.OpenFile(serviceFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to open service file: %v", err)
+			os.Exit(1)
+		}
+		defer serviceFile.Close()
 
-func StartService(name string) {
-	err := exec.Command("systemctl", "start", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to start %s service: %v", name, err)
-		os.Exit(1)
-	}
-}
+		serviceTmpl, err := template.New("service").Parse(serviceTemplate)
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to parse service template: %v", err)
+			os.Exit(1)
+		}
 
-func DisableService(name string) {
-	err := exec.Command("systemctl", "disable", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to disable %s service: %v", name, err)
-		os.Exit(1)
-	}
-}
+		err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to execute service template: %v", err)
+			os.Exit(1)
+		}
 
-func StopService(name string) {
-	err := exec.Command("systemctl", "stop", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
-		os.Exit(1)
-	}
-}
-
-func ReloadService(name string) {
-	err := exec.Command("systemctl", "reload", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to reload %s service: %v", name, err)
-		os.Exit(1)
+		_, err = exec.Command("sudo", "chmod", "0644", serviceFilePath).CombinedOutput()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to set permissions for service file: %v", err)
+			os.Exit(1)
+		}
 	}
 }
 
-func RestartService(name string) {
-	err := exec.Command("systemctl", "restart", name).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to restart %s service: %v", name, err)
-		os.Exit(1)
+func Reload(currentUsername string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "daemon-reload").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to reload systemd daemon: %v", err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "daemon-reload").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to reload systemd daemon: %v", err)
+			os.Exit(1)
+		}
 	}
 }
 
-func DisableAndStopService(path, name string) {
+func EnableService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "enable", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to enable %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "enable", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to enable %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func StartService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "start", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to start %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "start", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to start %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func DisableService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "disable", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to disable %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "disable", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to disable %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func StopService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "stop", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "stop", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func ReloadService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "reload", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to reload %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "reload", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to reload %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func RestartService(currentUsername, name string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("systemctl", "restart", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to restart %s service: %v", name, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "systemctl", "restart", name).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to restart %s service: %v", name, err)
+			os.Exit(1)
+		}
+	}
+}
+
+func DisableAndStopService(currentUsername, path, name string) {
 	if files.FileExists(path) {
-		DisableService(name)
-		StopService(name)
+		DisableService(currentUsername, name)
+		StopService(currentUsername, name)
 	}
 }

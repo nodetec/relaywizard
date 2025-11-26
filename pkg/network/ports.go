@@ -51,7 +51,7 @@ func determineFirstPIDFromLsofOutput(lsofOutput string) string {
 }
 
 // Function to check if the selected relay's port is available to use
-func CheckPort(selectedRelayOption string) {
+func CheckPort(selectedRelayOption, currentUsername string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Checking relay port availability...")
 
 	var relayBinaryFilePath string
@@ -66,32 +66,32 @@ func CheckPort(selectedRelayOption string) {
 		relayBinaryFilePath = relays.KhatruPyramidBinaryFilePath
 		portNumber = relays.KhatruPyramidPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
 	} else if selectedRelayOption == relays.NostrRsRelayName {
 		relayBinaryFilePath = relays.NostrRsRelayBinaryFilePath
 		portNumber = relays.NostrRsRelayPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.NostrRsRelayIPv4Address, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.NostrRsRelayIPv4Address, portNumber, currentUsername)
 	} else if selectedRelayOption == relays.StrfryRelayName {
 		relayBinaryFilePath = relays.StrfryBinaryFilePath
 		portNumber = relays.StrfryPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.StrfryIPv4Address, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.StrfryIPv4Address, portNumber, currentUsername)
 	} else if selectedRelayOption == relays.WotRelayName {
 		relayBinaryFilePath = relays.WotRelayBinaryFilePath
 		portNumber = relays.WotRelayPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
 	} else if selectedRelayOption == relays.Khatru29RelayName {
 		relayBinaryFilePath = relays.Khatru29BinaryFilePath
 		portNumber = relays.Khatru29PortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
 	} else if selectedRelayOption == relays.Strfry29RelayName {
 		relayBinaryFilePath = relays.Strfry29BinaryFilePath
 		portNumber = relays.Strfry29PortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.Strfry29IPv4Address, portNumber)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.Strfry29IPv4Address, portNumber, currentUsername)
 	}
 
 	firstPIDFromLsofOutput = determineFirstPIDFromLsofOutput(lsofOutput)

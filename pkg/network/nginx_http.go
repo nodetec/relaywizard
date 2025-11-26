@@ -17,14 +17,32 @@ import (
 )
 
 // Function to configure Nginx for HTTP
-func ConfigureNginxHttp(domainName, nginxConfigFilePath string) {
+func ConfigureNginxHttp(currentUsername, domainName, nginxConfigFilePath string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTP...")
 
-	files.RemoveFile(nginxConfigFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(nginxConfigFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, nginxConfigFilePath)
+	}
 
-	directories.CreateDirectory(fmt.Sprintf("%s/%s", WWWDirPath, domainName), 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, AcmeChallengeDirPath), 0755)
-	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s", WWWDirPath, domainName))
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(fmt.Sprintf("%s/%s", WWWDirPath, domainName), 0755)
+		directories.CreateDirectory(fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, AcmeChallengeDirPath), 0755)
+		directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s", WWWDirPath, domainName))
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, fmt.Sprintf("%s/%s", WWWDirPath, domainName))
+		directories.SetPermissionsUsingLinux(currentUsername, WWWDirPath, "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, WWWDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", WWWDirPath, domainName), "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s", WWWDirPath, domainName))
+
+		directories.CreateDirectoryUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, AcmeChallengeDirPath))
+		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, ".well-known"), "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, ".well-known"))
+		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, AcmeChallengeDirPath), "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, fmt.Sprintf("%s/%s/%s/", WWWDirPath, domainName, AcmeChallengeDirPath))
+	}
 
 	var configContent string
 
@@ -46,10 +64,14 @@ func ConfigureNginxHttp(domainName, nginxConfigFilePath string) {
 		os.Exit(1)
 	}
 
-	files.WriteFile(nginxConfigFilePath, configContent, 0644)
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	files.WriteFile(currentUsername, nginxConfigFilePath, configContent, 0644)
+	if currentUsername == relays.RootUser {
+		files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	} else {
+		files.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	}
 
-	systemd.RestartService("nginx")
+	systemd.RestartService(currentUsername, "nginx")
 
 	spinner.Success("Nginx configured for HTTP")
 }

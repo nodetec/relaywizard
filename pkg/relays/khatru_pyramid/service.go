@@ -8,25 +8,29 @@ import (
 )
 
 // Function to set up the relay service
-func SetUpRelayService(relayUser string) {
+func SetUpRelayService(currentUsername, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay service...")
 
 	// Check if the service file exists and remove it if it does
-	files.RemoveFile(ServiceFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(ServiceFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, ServiceFilePath)
+	}
 
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
 	serviceFileParams := systemd.ServiceFileParams{RelayUser: relayUser, EnvFilePath: EnvFilePath, BinaryFilePath: relays.KhatruPyramidBinaryFilePath}
-	systemd.CreateServiceFile(ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
+	systemd.CreateServiceFile(currentUsername, ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")
-	systemd.Reload()
+	systemd.Reload(currentUsername)
 
 	// Enable and start the Nostr relay service
 	spinner.UpdateText("Enabling and starting service...")
-	systemd.EnableService(ServiceName)
-	systemd.StartService(ServiceName)
+	systemd.EnableService(currentUsername, ServiceName)
+	systemd.StartService(currentUsername, ServiceName)
 
 	spinner.Success("Relay service enabled and started")
 }

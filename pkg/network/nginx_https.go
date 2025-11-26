@@ -15,10 +15,14 @@ import (
 )
 
 // Function to configure Nginx for HTTPS
-func ConfigureNginxHttps(domainName, nginxConfigFilePath string) {
+func ConfigureNginxHttps(currentUsername, domainName, nginxConfigFilePath string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring Nginx for HTTPS...")
 
-	files.RemoveFile(nginxConfigFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(nginxConfigFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, nginxConfigFilePath)
+	}
 
 	var configContent string
 
@@ -40,10 +44,14 @@ func ConfigureNginxHttps(domainName, nginxConfigFilePath string) {
 		os.Exit(1)
 	}
 
-	files.WriteFile(nginxConfigFilePath, configContent, 0644)
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	files.WriteFile(currentUsername, nginxConfigFilePath, configContent, 0644)
+	if currentUsername == relays.RootUser {
+		files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	} else {
+		files.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, nginxConfigFilePath)
+	}
 
-	systemd.RestartService("nginx")
+	systemd.RestartService(currentUsername, "nginx")
 
 	spinner.Success("Nginx configured for HTTPS")
 }

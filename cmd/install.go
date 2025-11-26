@@ -16,6 +16,8 @@ import (
 	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
+	"os"
+	"os/exec"
 )
 
 var installCmd = &cobra.Command{
@@ -26,6 +28,29 @@ var installCmd = &cobra.Command{
 		ThemeDefault := pterm.ThemeDefault
 
 		ui.Greet()
+
+		// Check current username
+		currentUsername := users.CheckCurrentUsername()
+
+		// Set up sudo session
+		if currentUsername != relays.RootUser {
+			err := exec.Command("sudo", "-v").Run()
+			if err != nil {
+				pterm.Println()
+				pterm.Error.Printfln("Failed to get password to set up sudo session: %v", err)
+				os.Exit(1)
+			}
+			// TODO
+			// Double check this command
+			// What happens if a user's sudo session expires before 30 seconds, i.e., before the session can be extended by this loop?
+			err = exec.Command("/bin/sh", "-c", "while true; do sudo -v; sleep 30 kill -0 $$ 2>/dev/null || exit; done &").Run()
+			if err != nil {
+				pterm.Println()
+				pterm.Error.Printfln("Failed to set up sudo session: %v", err)
+				os.Exit(1)
+			}
+			pterm.Println()
+		}
 
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		pterm.Println()
@@ -57,7 +82,7 @@ var installCmd = &cobra.Command{
 
 		// Check if the selected relay's port is available to use
 		pterm.Println()
-		network.CheckPort(selectedRelayOption)
+		network.CheckPort(selectedRelayOption, currentUsername)
 
 		var privKey string
 		var pubKey string
@@ -95,7 +120,7 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		// Install necessary packages using APT
-		manager.AptInstallPackages(selectedRelayOption)
+		manager.AptInstallPackages(selectedRelayOption, currentUsername)
 
 		pterm.Println()
 		pterm.Println(pterm.Yellow("Warning: Relay Wizard SSH defaults will not be applied if the current sshd configuration overrides them."))
@@ -105,7 +130,7 @@ var installCmd = &cobra.Command{
 			DefaultValueIndex: 0,
 			DefaultText:       "Configure remote access through SSH using Relay Wizard defaults?",
 			TextStyle:         &ThemeDefault.PrimaryStyle,
-			Options:           []string{"yes", "no"},
+			Options:           []string{"no", "yes"},
 			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
 			SuffixStyle:       &ThemeDefault.SecondaryStyle,
 			Delimiter:         ": ",
@@ -116,19 +141,23 @@ var installCmd = &cobra.Command{
 		pterm.Println()
 
 		if result == "yes" {
-			network.ConfigureRemoteAccess()
+			network.ConfigureRemoteAccess(currentUsername)
 		} else {
-			files.RemoveFile(network.SSHDConfigDRWZConfigFilePath)
+			if currentUsername == relays.RootUser {
+				files.RemoveFile(network.SSHDConfigDRWZConfigFilePath)
+			} else {
+				files.RemoveFileUsingLinux(currentUsername, network.SSHDConfigDRWZConfigFilePath)
+			}
 		}
 
 		// Configure the firewall
-		network.ConfigureFirewall()
+		network.ConfigureFirewall(currentUsername)
 
 		// Configure the intrusion detection system
-		network.ConfigureIntrusionDetection()
+		network.ConfigureIntrusionDetection(currentUsername)
 
 		// Configure Nginx
-		network.ConfigureNginx()
+		network.ConfigureNginx(currentUsername)
 
 		// Create relay user
 		var relayUser string
@@ -143,24 +172,24 @@ var installCmd = &cobra.Command{
 		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relayUser))
 		if !users.UserExists(relayUser) {
 			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relayUser))
-			users.CreateUser(relayUser, true)
+			users.CreateUser(currentUsername, relayUser, true)
 			spinner.Success(fmt.Sprintf("Created '%s' user", relayUser))
 		} else {
 			spinner.Success(fmt.Sprintf("'%s' user already exists", relayUser))
 		}
 
 		if selectedRelayOption == relays.KhatruPyramidRelayName {
-			khatru_pyramid.Install(relayDomain, pubKey, relayContact, relayUser)
+			khatru_pyramid.Install(currentUsername, relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == relays.NostrRsRelayName {
-			nostr_rs_relay.Install(relayDomain, pubKey, relayContact, relayUser)
+			nostr_rs_relay.Install(currentUsername, relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == relays.StrfryRelayName {
-			strfry.Install(relayDomain, pubKey, relayContact, relayUser)
+			strfry.Install(currentUsername, relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == relays.WotRelayName {
-			wot_relay.Install(relayDomain, pubKey, relayContact, relayUser)
+			wot_relay.Install(currentUsername, relayDomain, pubKey, relayContact, relayUser)
 		} else if selectedRelayOption == relays.Khatru29RelayName {
-			khatru29.Install(relayDomain, privKey, relayContact, relayUser)
+			khatru29.Install(currentUsername, relayDomain, privKey, relayContact, relayUser)
 		} else if selectedRelayOption == relays.Strfry29RelayName {
-			strfry29.Install(relayDomain, pubKey, privKey, relayContact, relayUser)
+			strfry29.Install(currentUsername, relayDomain, pubKey, privKey, relayContact, relayUser)
 		}
 
 		pterm.Println()

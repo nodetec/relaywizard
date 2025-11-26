@@ -10,15 +10,24 @@ import (
 )
 
 // Function to configure the relay
-func ConfigureRelay(domain, pubKey, relayContact string, httpsEnabled bool) {
+func ConfigureRelay(currentUsername, domain, pubKey, relayContact string, httpsEnabled bool) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay...")
 
 	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
-	directories.CreateDirectory(ConfigDirPath, 0755)
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(ConfigDirPath, 0755)
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, ConfigDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, ConfigDirPath, "0755")
+	}
 
 	// Check for and remove existing config file
-	files.RemoveFile(ConfigFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(ConfigFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, ConfigFilePath)
+	}
 
 	// Construct the sed command to change the relay url
 	files.InPlaceEdit(fmt.Sprintf(`s|relay_url = ".*"|relay_url = "%s://%s/"|`, network.WSEnabled(httpsEnabled), domain), TmpConfigFilePath)
@@ -36,10 +45,14 @@ func ConfigureRelay(domain, pubKey, relayContact string, httpsEnabled bool) {
 	files.InPlaceEdit(fmt.Sprintf(`s|#remote_ip_header = "x-forwarded-for"|remote_ip_header = "x-forwarded-for"|`), TmpConfigFilePath)
 
 	// Copy config file to config directory
-	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
+	files.CopyFile(currentUsername, TmpConfigFilePath, ConfigDirPath)
 
 	// Set permissions for the config file
-	files.SetPermissions(ConfigFilePath, 0644)
+	if currentUsername == relays.RootUser {
+		files.SetPermissions(ConfigFilePath, 0644)
+	} else {
+		files.SetPermissionsUsingLinux(currentUsername, ConfigFilePath, "0644")
+	}
 
 	spinner.Success("Relay configured")
 }

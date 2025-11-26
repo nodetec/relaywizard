@@ -37,10 +37,14 @@ func IsPackageInstalled(packageName string) bool {
 }
 
 // Function to install necessary packages
-func AptInstallPackages(selectedRelayOption string) {
+func AptInstallPackages(selectedRelayOption, currentUsername string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Updating and installing packages...")
 
-	exec.Command("apt", "update", "-qq").Run()
+	if currentUsername == relays.RootUser {
+		exec.Command("apt", "update", "-qq").Run()
+	} else {
+		exec.Command("sudo", "apt", "update", "-qq").Run()
+	}
 
 	packages := []string{"sysvinit-utils", "lsof", "curl", "gnupg", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
 
@@ -62,7 +66,11 @@ func AptInstallPackages(selectedRelayOption string) {
 			spinner.UpdateText(fmt.Sprintf("%s is already installed.", p))
 		} else {
 			spinner.UpdateText(fmt.Sprintf("Installing %s...", p))
-			exec.Command("apt", "install", "-y", "-qq", p).Run()
+			if currentUsername == relays.RootUser {
+				exec.Command("apt", "install", "-y", "-qq", p).Run()
+			} else {
+				exec.Command("sudo", "apt", "install", "-y", "-qq", p).Run()
+			}
 		}
 	}
 

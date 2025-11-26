@@ -9,15 +9,24 @@ import (
 )
 
 // Function to configure the relay
-func ConfigureRelay(pubKey, relayContact string) {
+func ConfigureRelay(currentUsername, pubKey, relayContact string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay...")
 
 	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
-	directories.CreateDirectory(ConfigDirPath, 0755)
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(ConfigDirPath, 0755)
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, ConfigDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, ConfigDirPath, "0755")
+	}
 
 	// Check for and remove existing config file
-	files.RemoveFile(ConfigFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(ConfigFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, ConfigFilePath)
+	}
 
 	// Construct the sed command to change the db path
 	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
@@ -35,10 +44,14 @@ func ConfigureRelay(pubKey, relayContact string) {
 	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
 
 	// Copy config file to config directory
-	files.CopyFile(TmpConfigFilePath, ConfigDirPath)
+	files.CopyFile(currentUsername, TmpConfigFilePath, ConfigDirPath)
 
 	// Set permissions for the config file
-	files.SetPermissions(ConfigFilePath, 0644)
+	if currentUsername == relays.RootUser {
+		files.SetPermissions(ConfigFilePath, 0644)
+	} else {
+		files.SetPermissionsUsingLinux(currentUsername, ConfigFilePath, "0644")
+	}
 
 	spinner.Success("Relay configured")
 }

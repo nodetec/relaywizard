@@ -8,7 +8,7 @@ import (
 )
 
 // Function to set up the relay data directory
-func SetUpRelayDataDir() {
+func SetUpRelayDataDir(currentUsername string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay data directory...")
 
 	// TODO
@@ -16,13 +16,24 @@ func SetUpRelayDataDir() {
 	spinner.UpdateText("Checking for existing data directory...")
 	if directories.DirExists(DataDirPath) {
 		spinner.UpdateText("Removing existing data directory...")
-		directories.RemoveDirectory(DataDirPath)
+		if currentUsername == relays.RootUser {
+			directories.RemoveDirectory(DataDirPath)
+		} else {
+			directories.RemoveDirectoryUsingLinux(currentUsername, DataDirPath)
+		}
 	}
 
 	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
-	directories.CreateDirectory(DataDirPath, 0755)
-	directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(DataDirPath, 0755)
+		directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, DataDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, DataDirPath, "0755")
+		directories.CreateDirectoryUsingLinux(currentUsername, fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir))
+		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), "0755")
+	}
 
 	spinner.Success("Data directory set up")
 }

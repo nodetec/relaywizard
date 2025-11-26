@@ -10,7 +10,7 @@ import (
 )
 
 // Function to set up the relay site
-func SetUpRelaySite(domain string) {
+func SetUpRelaySite(currentUsername, domain string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay site...")
 
 	// Path to the /var/www/domain directory
@@ -19,33 +19,62 @@ func SetUpRelaySite(domain string) {
 	// Path to the index.html file
 	IndexFilePath := fmt.Sprintf("%s/%s", WWWDomainDirPath, IndexFile)
 
-	// Check if the index.html file exists and remove it if it does
-	files.RemoveFile(IndexFilePath)
+	if currentUsername == relays.RootUser {
+		// Check if the index.html file exists and remove it if it does
+		files.RemoveFile(IndexFilePath)
 
-	// Copy the index.html file to the /var/www/domain directory
-	files.CopyFile(TmpIndexFilePath, WWWDomainDirPath)
+		// Copy the index.html file to the /var/www/domain directory
+		files.CopyFile(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
 
-	// Set permissions for the index.html file
-	files.SetPermissions(IndexFilePath, 0644)
+		// Set permissions for the index.html file
+		files.SetPermissions(IndexFilePath, 0644)
 
-	// Use chown command to set ownership of the index.html file to the www-data user
-	files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, IndexFilePath)
+		// Use chown command to set ownership of the index.html file to the www-data user
+		files.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, IndexFilePath)
+	} else {
+		// Check if the index.html file exists and remove it if it does
+		files.RemoveFileUsingLinux(currentUsername, IndexFilePath)
+
+		// Copy the index.html file to the /var/www/domain directory
+		files.CopyFile(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
+
+		// Set permissions for the index.html file
+		files.SetPermissionsUsingLinux(currentUsername, IndexFilePath, "0644")
+
+		// Use chown command to set ownership of the index.html file to the www-data user
+		files.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, IndexFilePath)
+	}
 
 	// Path to the static directory
 	StaticDirPath := fmt.Sprintf("%s/%s", WWWDomainDirPath, StaticDir)
 
-	// Remove the static directory and all of its content if it exists
-	spinner.UpdateText("Removing static directory...")
-	directories.RemoveDirectory(StaticDirPath)
+	if currentUsername == relays.RootUser {
+		// Remove the static directory and all of its content if it exists
+		spinner.UpdateText("Removing static directory...")
+		directories.RemoveDirectory(StaticDirPath)
 
-	// Copy the static directory and all of its content to the /var/www/domain directory
-	directories.CopyDirectory(TmpStaticDirPath, WWWDomainDirPath)
+		// Copy the static directory and all of its content to the /var/www/domain directory
+		directories.CopyDirectory(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
 
-	// Set permissions for the static directory
-	directories.SetPermissions(StaticDirPath, 0755)
+		// Set permissions for the static directory
+		directories.SetPermissions(StaticDirPath, 0755)
 
-	// Use chown command to set ownership of the static directory and its content to the www-data user
-	directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, StaticDirPath)
+		// Use chown command to set ownership of the static directory and its content to the www-data user
+		directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, StaticDirPath)
+	} else {
+		// Remove the static directory and all of its content if it exists
+		spinner.UpdateText("Removing static directory...")
+		directories.RemoveDirectoryUsingLinux(currentUsername, StaticDirPath)
+
+		// Copy the static directory and all of its content to the /var/www/domain directory
+		directories.CopyDirectory(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
+
+		// Set permissions for the static directory
+		directories.SetPermissionsUsingLinux(currentUsername, StaticDirPath, "0755")
+
+		// Use chown command to set ownership of the static directory and its content to the www-data user
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, StaticDirPath)
+	}
 
 	spinner.Success("Relay site set up")
 }

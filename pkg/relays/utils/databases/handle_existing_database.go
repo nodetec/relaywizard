@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func selectDatabaseActionOption(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {
+func selectDatabaseActionOption(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {
 	ThemeDefault := pterm.ThemeDefault
 
 	// Supported database action options
@@ -36,7 +36,7 @@ func selectDatabaseActionOption(databaseBackupsDirPath, databaseFilePath, backup
 	if selectedDatabaseActionOption == BackupDatabaseFileOption {
 		pterm.Println(pterm.LightCyan("Creating database backup..."))
 		pterm.Println()
-		BackupDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
+		BackupDatabase(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
 		howToHandleExistingDatabase = BackupDatabaseFileOption
 	} else if selectedDatabaseActionOption == UseExistingDatabaseFileOption {
 		pterm.Println(pterm.LightCyan("Using existing database..."))
@@ -81,7 +81,7 @@ func selectDatabaseActionOption(databaseBackupsDirPath, databaseFilePath, backup
 }
 
 // Function to handle existing database during install
-func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {
+func HandleExistingDatabase(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {
 	pterm.Println()
 	spinner, _ := pterm.DefaultSpinner.Start("Checking for existing database...")
 
@@ -89,10 +89,10 @@ func HandleExistingDatabase(databaseBackupsDirPath, databaseFilePath, backupFile
 		spinner.Info("Database found...")
 
 		var howToHandleExistingDatabase string
-		howToHandleExistingDatabase = selectDatabaseActionOption(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
+		howToHandleExistingDatabase = selectDatabaseActionOption(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
 
 		for howToHandleExistingDatabase == "no" {
-			howToHandleExistingDatabase = selectDatabaseActionOption(databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
+			howToHandleExistingDatabase = selectDatabaseActionOption(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName)
 		}
 
 		return howToHandleExistingDatabase

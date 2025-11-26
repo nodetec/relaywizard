@@ -2,30 +2,48 @@ package khatru_pyramid
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"os"
 )
 
-func backupUsersFile() {
+func backupUsersFile(currentUsername, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Backing up users file...")
 
 	// Ensure the backups directory exists and set permissions
-	directories.CreateDirectory(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, UsersFileBackupsDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, UsersFileUsersDirPath, "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, UsersFileUsersDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, UsersFileBackupsDirPath, "0755")
+		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, UsersFileBackupsDirPath)
+	}
 
 	var uniqueBackupFileName string
 	spinner.UpdateText("Creating users file backup in the backups directory...")
 	uniqueBackupFileName = files.CreateUniqueBackupFileName(UsersFileBackupsDirPath, UsersFileNameBase)
-	files.MoveFile(UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
+	if currentUsername == relays.RootUser {
+		files.MoveFile(UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
+	} else {
+		files.MoveFileUsingLinux(currentUsername, UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
+	}
 
 	// Set permissions for the backup file
-	files.SetPermissions(fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName), UsersFilePerms)
+	if currentUsername == relays.RootUser {
+		files.SetPermissions(fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName), UsersFilePerms)
+	} else {
+		files.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName), "0644")
+	}
 
 	spinner.Success("Users file backed up")
 }
 
-func selectUsersFileActionOption(relayUser, backupUsersFileOption, useExistingUsersFileOption, overwriteUsersFileOption string, options []string) string {
+func selectUsersFileActionOption(currentUsername, relayUser, backupUsersFileOption, useExistingUsersFileOption, overwriteUsersFileOption string, options []string) string {
 	ThemeDefault := pterm.ThemeDefault
 
 	usersFileActionSelector := pterm.InteractiveSelectPrinter{
@@ -52,15 +70,22 @@ func selectUsersFileActionOption(relayUser, backupUsersFileOption, useExistingUs
 	if selectedUsersFileActionOption == backupUsersFileOption {
 		pterm.Println(pterm.LightCyan("Creating users file backup..."))
 		pterm.Println()
-		backupUsersFile()
+		backupUsersFile(currentUsername, relayUser)
 		howToHandleExistingUsersFile = backupUsersFileOption
 	} else if selectedUsersFileActionOption == useExistingUsersFileOption {
 		pterm.Println(pterm.LightCyan("Using existing users file..."))
 		pterm.Println()
-		// Set permissions for the users file
-		files.SetPermissions(UsersFilePath, UsersFilePerms)
-		// Use chown command to set ownership of the users file to the provided relay user
-		files.SetOwnerAndGroup(relayUser, relayUser, UsersFilePath)
+		if currentUsername == relays.RootUser {
+			// Set permissions for the users file
+			files.SetPermissions(UsersFilePath, UsersFilePerms)
+			// Use chown command to set ownership of the users file to the provided relay user
+			files.SetOwnerAndGroup(relayUser, relayUser, UsersFilePath)
+		} else {
+			// Set permissions for the users file
+			files.SetPermissionsUsingLinux(currentUsername, UsersFilePath, "0644")
+			// Use chown command to set ownership of the users file to the provided relay user
+			files.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, UsersFilePath)
+		}
 		howToHandleExistingUsersFile = useExistingUsersFileOption
 	} else if selectedUsersFileActionOption == overwriteUsersFileOption {
 		prompt := pterm.InteractiveContinuePrinter{
@@ -82,10 +107,14 @@ func selectUsersFileActionOption(relayUser, backupUsersFileOption, useExistingUs
 		if result == "no" {
 			howToHandleExistingUsersFile = result
 		} else if result == "yes" {
+			if currentUsername == relays.RootUser {
+				files.RemoveFile(UsersFilePath)
+			} else {
+				files.RemoveFileUsingLinux(currentUsername, UsersFilePath)
+			}
 			pterm.Println()
 			pterm.Println(pterm.LightCyan("Users file overwitten..."))
 			pterm.Println()
-			files.RemoveFile(UsersFilePath)
 			howToHandleExistingUsersFile = overwriteUsersFileOption
 		} else {
 			pterm.Println()
@@ -107,7 +136,7 @@ func selectUsersFileActionOption(relayUser, backupUsersFileOption, useExistingUs
 // normal user in the file?
 
 // Function to handle existing users.json file during install
-func HandleExistingUsersFile(pubKey, relayUser string) {
+func HandleExistingUsersFile(currentUsername, pubKey, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Checking for existing users file...")
 
 	if files.FileExists(UsersFilePath) {
@@ -134,10 +163,10 @@ func HandleExistingUsersFile(pubKey, relayUser string) {
 		}
 
 		var howToHandleExistingUsersFile string
-		howToHandleExistingUsersFile = selectUsersFileActionOption(relayUser, BackupUsersFileOption, UseExistingUsersFileOption, OverwriteUsersFileOption, options)
+		howToHandleExistingUsersFile = selectUsersFileActionOption(currentUsername, relayUser, BackupUsersFileOption, UseExistingUsersFileOption, OverwriteUsersFileOption, options)
 
 		for howToHandleExistingUsersFile == "no" {
-			howToHandleExistingUsersFile = selectUsersFileActionOption(relayUser, BackupUsersFileOption, UseExistingUsersFileOption, OverwriteUsersFileOption, options)
+			howToHandleExistingUsersFile = selectUsersFileActionOption(currentUsername, relayUser, BackupUsersFileOption, UseExistingUsersFileOption, OverwriteUsersFileOption, options)
 		}
 	} else {
 		spinner.Info("Users file not found continuing with installation...")

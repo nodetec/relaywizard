@@ -9,6 +9,7 @@ const BackupFileNameBase = "data.mdb-bak"
 const ConfigDirPath = "/etc/khatru-pyramid"
 const UsersFilePath = "/var/lib/khatru-pyramid/users.json"
 const UsersFilePerms = 0644
+const UsersFileUsersDirPath = "/var/lib/khatru-pyramid/users"
 const UsersFileBackupsDirPath = "/var/lib/khatru-pyramid/users/backups"
 const UsersFileBackupsDirPerms = 0755
 const UsersFileNameBase = "users.json-bak"

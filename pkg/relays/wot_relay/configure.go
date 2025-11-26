@@ -1,6 +1,7 @@
 package wot_relay
 
 import (
+	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/configuration"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
@@ -8,23 +9,34 @@ import (
 )
 
 // Function to configure the relay
-func ConfigureRelay(domain, pubKey, relayContact string, httpsEnabled bool) {
+func ConfigureRelay(currentUsername, domain, pubKey, relayContact string, httpsEnabled bool) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay...")
 
 	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
-	directories.CreateDirectory(ConfigDirPath, 0755)
+	if currentUsername == relays.RootUser {
+		directories.CreateDirectory(ConfigDirPath, 0755)
+	} else {
+		directories.CreateDirectoryUsingLinux(currentUsername, ConfigDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, ConfigDirPath, "0755")
+	}
 
 	// Check if the environment file exists and remove it if it does
-	files.RemoveFile(EnvFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(EnvFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, EnvFilePath)
+	}
 
 	// Create the environment file
 	spinner.UpdateText("Creating environment file...")
 	envFileParams := configuration.EnvFileParams{Domain: domain, HTTPSEnabled: httpsEnabled, PubKey: pubKey, RelayContact: relayContact}
-	configuration.CreateEnvFile(EnvFilePath, EnvFileTemplate, &envFileParams)
+	configuration.CreateEnvFile(currentUsername, EnvFilePath, EnvFileTemplate, &envFileParams)
 
 	// Set permissions for the environment file
-	files.SetPermissions(EnvFilePath, 0644)
+	if currentUsername == relays.RootUser {
+		files.SetPermissions(EnvFilePath, 0644)
+	}
 
 	spinner.Success("Relay configured")
 }

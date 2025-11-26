@@ -13,7 +13,7 @@ import (
 )
 
 // Function to verify relay binaries
-func VerifyRelayBinary(relayName, path string) {
+func VerifyRelayBinary(currentUsername, relayName, path string) {
 	spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Verifying %s binary...", relayName))
 
 	// Import NODE-TEC PGP key
@@ -28,10 +28,14 @@ func VerifyRelayBinary(relayName, path string) {
 	relaysManifestSigFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, relaysManifestSigFile)
 
 	// Check if the relay manifest signature file exists and remove it if it does
-	files.RemoveFile(relaysManifestSigFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(relaysManifestSigFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, relaysManifestSigFilePath)
+	}
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(relaysManifestSigFilePath, RelaysManifestSigFileURL, 0644)
+	files.DownloadAndCopyFile(relaysManifestSigFilePath, RelaysManifestSigFileURL, 0666)
 
 	// Determine the file name from the URL
 	relaysManifestFile := filepath.Base(RelaysManifestFileURL)
@@ -40,10 +44,14 @@ func VerifyRelayBinary(relayName, path string) {
 	relaysManifestFilePath := fmt.Sprintf("%s/%s", relays.TmpDirPath, relaysManifestFile)
 
 	// Check if the temporary file exists and remove it if it does
-	files.RemoveFile(relaysManifestFilePath)
+	if currentUsername == relays.RootUser {
+		files.RemoveFile(relaysManifestFilePath)
+	} else {
+		files.RemoveFileUsingLinux(currentUsername, relaysManifestFilePath)
+	}
 
 	// Download and copy the file
-	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL, 0644)
+	files.DownloadAndCopyFile(relaysManifestFilePath, RelaysManifestFileURL, 0666)
 
 	// Use GPG to verify the manifest signature file
 	out, err := exec.Command("gpg", "--status-fd", "1", "--verify", relaysManifestSigFilePath).Output()
