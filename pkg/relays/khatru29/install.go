@@ -46,7 +46,7 @@ func Install(currentUsername, relayDomain, privKey, relayContact, relayUser stri
 
 	// Download and copy the file
 	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", relays.Khatru29RelayName))
-	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0666)
+	files.DownloadAndCopyFile(currentUsername, tmpCompressedBinaryFilePath, DownloadURL, 0644)
 	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", relays.Khatru29RelayName))
 
 	// Verify relay binary

@@ -50,7 +50,7 @@ func Install(currentUsername, relayDomain, pubKey, relayContact, relayUser strin
 
 	// Download and copy the file
 	downloadSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Downloading %s binary...", relays.StrfryRelayName))
-	files.DownloadAndCopyFile(tmpCompressedBinaryFilePath, DownloadURL, 0666)
+	files.DownloadAndCopyFile(currentUsername, tmpCompressedBinaryFilePath, DownloadURL, 0644)
 	downloadSpinner.Success(fmt.Sprintf("%s binary downloaded", relays.StrfryRelayName))
 
 	// Verify relay binary
@@ -85,7 +85,7 @@ func Install(currentUsername, relayDomain, pubKey, relayContact, relayUser strin
 
 	// Check if installed strfry binary and existing database version are compatible
 	if howToHandleExistingDatabase == databases.UseExistingDatabaseFileOption {
-		databases.CheckStrfryBinaryAndDatabaseCompatibility(BinaryName, ConfigFilePath, SupportedDatabaseVersionOutput, BinaryVersion, SupportedDatabaseVersion)
+		databases.CheckStrfryBinaryAndDatabaseCompatibility(currentUsername, BinaryName, ConfigFilePath, SupportedDatabaseVersionOutput, BinaryVersion, SupportedDatabaseVersion)
 	}
 
 	// Show success messages

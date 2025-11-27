@@ -288,7 +288,7 @@ func LineExists(pattern, path string) bool {
 }
 
 // Function to download and copy a file
-func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
+func DownloadAndCopyFile(currentUsername, filePath, downloadURL string, permissions FileMode) {
 	// Create the file from the provided file path
 	out, err := os.Create(filePath)
 	if err != nil {
@@ -300,6 +300,13 @@ func DownloadAndCopyFile(filePath, downloadURL string, permissions FileMode) {
 
 	// Set the permissions for the created file
 	SetPermissions(filePath, permissions)
+
+	// Set owner and group for the created file to be the current user
+	// if the current user isn't the root user
+	// to ensure the current user has write access to the file
+	if currentUsername != relays.RootUser {
+		SetOwnerAndGroup(currentUsername, currentUsername, filePath)
+	}
 
 	// Download the file to copy
 	resp, err := http.Get(downloadURL)
