@@ -21,7 +21,7 @@ func SetUpRelayService(currentUsername, relayUser string) {
 	// Create the systemd service file
 	spinner.UpdateText("Creating service file...")
 	serviceFileParams := systemd.ServiceFileParams{RelayUser: relayUser, BinaryFilePath: relays.Strfry29BinaryFilePath, ConfigFilePath: ConfigFilePath}
-	systemd.CreateServiceFile(currentUsername, ServiceFilePath, ServiceFileTemplate, &serviceFileParams)
+	systemd.CreateServiceFile(currentUsername, ServiceFilePath, ServiceFileTemplate, "0644", &serviceFileParams)
 
 	// Reload systemd to apply the new service
 	spinner.UpdateText("Reloading systemd daemon...")

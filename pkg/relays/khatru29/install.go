@@ -2,6 +2,7 @@ package khatru29
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/relays/utils/databases"
@@ -54,7 +55,7 @@ func Install(currentUsername, relayDomain, privKey, relayContact, relayUser stri
 
 	// Install the compressed relay binary and make it executable
 	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", relays.Khatru29RelayName))
-	files.InstallCompressedBinary(currentUsername, tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
+	files.InstallCompressedBinary(currentUsername, tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, "0755", relays.BinaryFilePerms)
 	installSpinner.Success(fmt.Sprintf("%s binary installed", relays.Khatru29RelayName))
 
 	// Set up the relay data directory
@@ -67,11 +68,7 @@ func Install(currentUsername, relayDomain, privKey, relayContact, relayUser stri
 	databases.SetDatabaseFilePermissions(currentUsername, DataDirPath, DatabaseFilePath, relays.Khatru29RelayName)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
-	if currentUsername == relays.RootUser {
-		directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
-	} else {
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, DataDirPath)
-	}
+	directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, DataDirPath)
 
 	// TODO
 	// Add check for database compatibility for the creating a backup case using the database backup, may have to edit the khatru29 env file to use the database backup to check if the version is compatible with the installed khatru29 binary, and then use the installed khatru29 binary to create potential specfic exports if compatibile

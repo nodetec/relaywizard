@@ -2,6 +2,7 @@ package strfry29
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
@@ -16,9 +17,10 @@ func ConfigureRelay(currentUsername, domain, pubKey, relaySecretKey, relayContac
 	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
 	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(ConfigDirPath, 0755)
+		directories.CreateAllDirectories(ConfigDirPath, 0755)
+		directories.SetPermissions(ConfigDirPath, 0755)
 	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, ConfigDirPath)
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, ConfigDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, ConfigDirPath, "0755")
 	}
 
@@ -37,25 +39,25 @@ func ConfigureRelay(currentUsername, domain, pubKey, relaySecretKey, relayContac
 	}
 
 	// Construct the sed command to change the db path
-	files.InPlaceEdit(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(fmt.Sprintf(`s|db = ".*"|db = "%s/%s"|`, DataDirPath, relays.DBDir), TmpConfigFilePath)
 
 	// Construct the sed command to change the realIpHeader
-	files.InPlaceEdit(`s|realIpHeader = .*|realIpHeader = "x-forwarded-for"|`, TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(`s|realIpHeader = .*|realIpHeader = "x-forwarded-for"|`, TmpConfigFilePath)
 
 	// Construct the sed command to change the info description
-	files.InPlaceEdit(fmt.Sprintf(`s|description = ".*"|description = "%s"|`, ConfigFileInfoDescription), TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(fmt.Sprintf(`s|description = ".*"|description = "%s"|`, ConfigFileInfoDescription), TmpConfigFilePath)
 
 	// Construct the sed command to change the pubkey
-	files.InPlaceEdit(fmt.Sprintf(`s|pubkey = .*|pubkey = "%s"|`, pubKey), TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(fmt.Sprintf(`s|pubkey = .*|pubkey = "%s"|`, pubKey), TmpConfigFilePath)
 
 	// Construct the sed command to change the contact
-	files.InPlaceEdit(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(fmt.Sprintf(`s|contact = ".*"|contact = "%s"|`, relayContact), TmpConfigFilePath)
 
 	// Construct the sed command to change the plugin path
-	files.InPlaceEdit(fmt.Sprintf(`s|plugin = ".*"|plugin = "%s"|`, BinaryPluginFilePath), TmpConfigFilePath)
+	files.InPlaceEditUsingLinux(fmt.Sprintf(`s|plugin = ".*"|plugin = "%s"|`, BinaryPluginFilePath), TmpConfigFilePath)
 
 	// Copy config file to /etc/strfry29
-	files.CopyFile(currentUsername, TmpConfigFilePath, ConfigDirPath)
+	files.CopyFileUsingLinux(currentUsername, TmpConfigFilePath, ConfigDirPath)
 
 	// Set permissions for the config file
 	if currentUsername == relays.RootUser {
@@ -73,7 +75,7 @@ func ConfigureRelay(currentUsername, domain, pubKey, relaySecretKey, relayContac
 	if currentUsername == relays.RootUser {
 		files.SetPermissions(PluginFilePath, 0600)
 	} else {
-		files.SetPermissionsUsingLinux(currentUsername, ConfigFilePath, "0600")
+		files.SetPermissionsUsingLinux(currentUsername, PluginFilePath, "0600")
 	}
 
 	spinner.Success("Relay configured")

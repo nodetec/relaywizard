@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
@@ -31,7 +32,7 @@ func Install(currentUsername, relayDomain, pubKey, relayContact, relayUser strin
 	}
 
 	// Download the templates directory from the git repository
-	git.RemoveThenClone(currentUsername, GitRepoTmpDirPath, GitRepoBranch, GitRepoURL, relays.GitRepoDirPerms)
+	git.RemoveThenClone(currentUsername, GitRepoTmpDirPath, GitRepoBranch, GitRepoURL, "0755", relays.GitRepoDirPerms)
 
 	// Determine the temporary file path
 	tmpCompressedBinaryFilePath := files.FilePathFromFilePathBase(DownloadURL, relays.TmpDirPath)
@@ -53,11 +54,11 @@ func Install(currentUsername, relayDomain, pubKey, relayContact, relayUser strin
 
 	// Install the compressed relay binary and make it executable
 	installSpinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Installing %s binary...", relays.WotRelayName))
-	files.InstallCompressedBinary(currentUsername, tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, relays.BinaryFilePerms)
+	files.InstallCompressedBinary(currentUsername, tmpCompressedBinaryFilePath, relays.BinaryDestDir, BinaryName, "0755", relays.BinaryFilePerms)
 	installSpinner.Success(fmt.Sprintf("%s binary installed", relays.WotRelayName))
 
 	// Set up the relay data directory
-	SetUpRelayDataDir(currentUsername)
+	SetUpRelayDataDir(currentUsername, relayUser)
 
 	// Configure the relay
 	ConfigureRelay(currentUsername, relayDomain, pubKey, relayContact, httpsEnabled)
@@ -69,11 +70,7 @@ func Install(currentUsername, relayDomain, pubKey, relayContact, relayUser strin
 	SetUpRelayService(currentUsername, relayUser)
 
 	// Use chown command to set ownership of the data directory to the provided relay user
-	if currentUsername == relays.RootUser {
-		directories.SetOwnerAndGroup(relayUser, relayUser, DataDirPath)
-	} else {
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, DataDirPath)
-	}
+	directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, DataDirPath)
 
 	// Show success messages
 	SuccessMessages(relayDomain, httpsEnabled)

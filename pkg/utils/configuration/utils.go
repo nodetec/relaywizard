@@ -6,6 +6,7 @@ import (
 	"text/template"
 
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
 )
@@ -45,19 +46,14 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 			os.Exit(1)
 		}
 	} else {
-		_, err := exec.Command("sudo", "touch", envFilePath).CombinedOutput()
+		err := exec.Command("sudo", "touch", envFilePath).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create environment file: %v", err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", envFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for environment file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, envFilePath, "0666")
 
 		envFile, err := os.OpenFile(envFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
@@ -80,13 +76,6 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute environment template: %v", err)
-			os.Exit(1)
-		}
-
-		_, err = exec.Command("sudo", "chmod", "0644", envFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for environment file: %v", err)
 			os.Exit(1)
 		}
 	}

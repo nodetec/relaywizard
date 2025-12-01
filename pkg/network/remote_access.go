@@ -2,13 +2,14 @@ package network
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
-	"os"
-	"os/exec"
 )
 
 // Function to configure remote access
@@ -16,7 +17,8 @@ func ConfigureRemoteAccess(currentUsername string) {
 	if directories.DirExists(SSHDirPath) {
 		if currentUsername == relays.RootUser {
 			directories.SetPermissions(SSHDirPath, 0755)
-			directories.SetOwnerAndGroup(relays.RootUser, relays.RootUser, SSHDirPath)
+		} else {
+			directories.SetPermissionsUsingLinux(currentUsername, SSHDirPath, "0755")
 		}
 	} else {
 		pterm.Println()
@@ -27,6 +29,8 @@ func ConfigureRemoteAccess(currentUsername string) {
 	if files.FileExists(SSHDConfigFilePath) {
 		if currentUsername == relays.RootUser {
 			files.SetPermissions(SSHDConfigFilePath, 0644)
+		} else {
+			files.SetPermissionsUsingLinux(currentUsername, SSHDConfigFilePath, "0644")
 		}
 	} else {
 		pterm.Println()
@@ -34,7 +38,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 		os.Exit(1)
 	}
 
-	if !files.LineExists(SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath) {
+	if !files.LineExistsUsingLinux(SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath) {
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s pattern in %s", SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath)
 		os.Exit(1)
@@ -43,6 +47,8 @@ func ConfigureRemoteAccess(currentUsername string) {
 	if directories.DirExists(SSHDConfigDDirPath) {
 		if currentUsername == relays.RootUser {
 			directories.SetPermissions(SSHDConfigDDirPath, 0755)
+		} else {
+			directories.SetPermissionsUsingLinux(currentUsername, SSHDConfigDDirPath, "0755")
 		}
 	} else {
 		pterm.Println()
@@ -76,11 +82,14 @@ func ConfigureRemoteAccess(currentUsername string) {
 
 	if result == "yes" {
 		if currentUsername == relays.RootUser {
-			directories.CreateDirectory(RootHiddenSSHDirPath, 0700)
-			directories.SetOwnerAndGroup(relays.RootUser, relays.RootUser, RootHiddenSSHDirPath)
+			directories.CreateAllDirectories(RootHiddenSSHDirPath, 0700)
+			directories.SetPermissions(RootHiddenSSHDirPath, 0700)
+			directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.RootUser, relays.RootUser, RootHiddenSSHDirPath)
 		} else {
-			directories.CreateDirectory(fmt.Sprintf("/home/%s/.ssh", currentUsername), 0700)
-			directories.SetOwnerAndGroup(currentUsername, currentUsername, fmt.Sprintf("/home/%s/.ssh", currentUsername))
+			userHiddenSSHDirPath := fmt.Sprintf("/home/%s/.ssh", currentUsername)
+			directories.CreateAllDirectories(userHiddenSSHDirPath, 0700)
+			directories.SetPermissions(userHiddenSSHDirPath, 0700)
+			directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, currentUsername, currentUsername, userHiddenSSHDirPath)
 		}
 
 		var authorizedKey string
@@ -89,8 +98,9 @@ func ConfigureRemoteAccess(currentUsername string) {
 
 		if currentUsername == relays.RootUser {
 			if files.FileExists(RootHiddenSSHAuthorizedKeysFilePath) {
-				if !files.LineExists(authorizedKey, RootHiddenSSHAuthorizedKeysFilePath) {
+				if !files.LineExistsUsingLinux(authorizedKey, RootHiddenSSHAuthorizedKeysFilePath) {
 					files.AppendContentToFile(RootHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
+					files.SetPermissions(RootHiddenSSHAuthorizedKeysFilePath, 0600)
 				} else {
 					files.SetPermissions(RootHiddenSSHAuthorizedKeysFilePath, 0600)
 				}
@@ -98,14 +108,16 @@ func ConfigureRemoteAccess(currentUsername string) {
 				files.AppendContentToFile(RootHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
 			}
 		} else {
-			if files.FileExists(fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername)) {
-				if !files.LineExists(authorizedKey, fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername)) {
-					files.AppendContentToFile(fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername), authorizedKey, 0600)
+			userHiddenSSHAuthorizedKeysFilePath := fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername)
+			if files.FileExists(userHiddenSSHAuthorizedKeysFilePath) {
+				if !files.LineExistsUsingLinux(authorizedKey, userHiddenSSHAuthorizedKeysFilePath) {
+					files.AppendContentToFile(userHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
+					files.SetPermissions(userHiddenSSHAuthorizedKeysFilePath, 0600)
 				} else {
-					files.SetPermissions(fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername), 0600)
+					files.SetPermissions(userHiddenSSHAuthorizedKeysFilePath, 0600)
 				}
 			} else {
-				files.AppendContentToFile(fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername), authorizedKey, 0600)
+				files.AppendContentToFile(userHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
 			}
 		}
 

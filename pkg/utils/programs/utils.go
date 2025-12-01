@@ -1,10 +1,11 @@
 package programs
 
 import (
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/pterm/pterm"
 )
 
 // Function to determine an array of process IDs (pids) as strings for a given path to a program
@@ -15,7 +16,7 @@ func DeterminePidsOfProgram(programFilePath string) []string {
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			errorCode := exitError.ExitCode()
-			// pid for program not found
+			// pid for program not found or if pidof cannot access the process information
 			if errorCode == 1 {
 				return pidsOfProgram
 			} else {

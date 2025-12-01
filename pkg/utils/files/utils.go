@@ -1,6 +1,7 @@
 package files
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -15,21 +16,29 @@ import (
 )
 
 // TODO
-// Use Go os library instead of Linux commands
+// Use Go os library instead of Linux commands when possible
 
 type FileMode = fs.FileMode
 
 // Function to check if a file exists
-func FileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	return !os.IsNotExist(err) && !info.IsDir()
+func FileExists(path string) bool {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false
+		}
+		pterm.Error.Printfln("Failed to check if %s file exists: %v", path, err)
+		os.Exit(1)
+	}
+
+	return !fileInfo.IsDir()
 }
 
-// Function to check if a file exists and removes it if it does
+// Function to remove a file, if the file doesn't exist the program continues
 func RemoveFile(path string) {
-	if _, err := os.Stat(path); err == nil {
-		err = os.Remove(path)
-		if err != nil {
+	err := os.Remove(path)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to remove %s file: %v", path, err)
 			os.Exit(1)
@@ -37,7 +46,7 @@ func RemoveFile(path string) {
 	}
 }
 
-// Function to remove a file using a linux command
+// Function to remove a file using a linux command, if the file doesn't exist the program continues
 func RemoveFileUsingLinux(currentUsername, path string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("rm", "-f", path).Run()
@@ -56,8 +65,8 @@ func RemoveFileUsingLinux(currentUsername, path string) {
 	}
 }
 
-// Function to copy a file to a directory
-func CopyFile(currentUsername, fileToCopy, destDir string) {
+// Function to copy a file to a directory using a linux command
+func CopyFileUsingLinux(currentUsername, fileToCopy, destDir string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("cp", fileToCopy, destDir).Run()
 		if err != nil {
@@ -72,16 +81,6 @@ func CopyFile(currentUsername, fileToCopy, destDir string) {
 			pterm.Error.Printfln("Failed to copy %s file: %v", fileToCopy, err)
 			os.Exit(1)
 		}
-	}
-}
-
-// Function to move a file to a new location
-func MoveFile(pathToFileBeingMoved, destFilePath string) {
-	err := exec.Command("mv", pathToFileBeingMoved, destFilePath).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to move %s file: %v", pathToFileBeingMoved, err)
-		os.Exit(1)
 	}
 }
 
@@ -115,7 +114,7 @@ func SetPermissions(path string, mode FileMode) {
 }
 
 // Function to set permissions of a file using a linux command
-func SetPermissionsUsingLinux(currentUsername, path string, mode string) {
+func SetPermissionsUsingLinux(currentUsername, path, mode string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("chmod", mode, path).Run()
 		if err != nil {
@@ -134,7 +133,7 @@ func SetPermissionsUsingLinux(currentUsername, path string, mode string) {
 }
 
 // Function to check if a file exists and set permissions of the file using a linux command
-func CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, path string, mode string) bool {
+func CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, path, mode string) bool {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("chmod", mode, path).Run()
 		if err != nil {
@@ -164,12 +163,15 @@ func CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, path string, 
 			}
 		}
 	}
+
 	return true
 }
 
 // Function to set owner and group of a file
 func SetOwnerAndGroup(owner, group, file string) {
-	err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
+	ownerGroupArgument := fmt.Sprintf("%s:%s", owner, group)
+
+	err := exec.Command("chown", ownerGroupArgument, file).Run()
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Printfln("Failed to set ownership of %s file: %v", file, err)
@@ -179,15 +181,17 @@ func SetOwnerAndGroup(owner, group, file string) {
 
 // Function to set owner and group of a file using a linux command
 func SetOwnerAndGroupUsingLinux(currentUsername, owner, group, file string) {
+	ownerGroupArgument := fmt.Sprintf("%s:%s", owner, group)
+
 	if currentUsername == relays.RootUser {
-		err := exec.Command("chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
+		err := exec.Command("chown", ownerGroupArgument, file).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to set ownership of %s file: %v", file, err)
 			os.Exit(1)
 		}
 	} else {
-		err := exec.Command("sudo", "chown", fmt.Sprintf("%s:%s", owner, group), file).Run()
+		err := exec.Command("sudo", "chown", ownerGroupArgument, file).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to set ownership of %s file: %v", file, err)
@@ -197,7 +201,7 @@ func SetOwnerAndGroupUsingLinux(currentUsername, owner, group, file string) {
 }
 
 // Function to write content to a file
-func WriteFile(currentUsername, path, content string, permissions FileMode) {
+func WriteFile(currentUsername, path, content, permissionsAsString string, permissions FileMode) {
 	if currentUsername == relays.RootUser {
 		err := os.WriteFile(path, []byte(content), permissions)
 		if err != nil {
@@ -205,20 +209,17 @@ func WriteFile(currentUsername, path, content string, permissions FileMode) {
 			pterm.Error.Printfln("Failed to write content to %s file: %v", path, err)
 			os.Exit(1)
 		}
+
+		SetPermissions(path, permissions)
 	} else {
-		_, err := exec.Command("sudo", "touch", path).CombinedOutput()
+		err := exec.Command("sudo", "touch", path).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create %s file: %v", path, err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", path).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for %s file: %v", path, err)
-			os.Exit(1)
-		}
+		SetPermissionsUsingLinux(currentUsername, path, "0666")
 
 		err = os.WriteFile(path, []byte(content), permissions)
 		if err != nil {
@@ -227,27 +228,21 @@ func WriteFile(currentUsername, path, content string, permissions FileMode) {
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0644", path).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for %s file: %v", path, err)
-			os.Exit(1)
-		}
+		SetPermissionsUsingLinux(currentUsername, path, permissionsAsString)
 	}
 }
 
 // Function to create a file if it doesn't exist, open the file in write only mode, and append content to the end of the file
 func AppendContentToFile(path, content string, permissions FileMode) {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, permissions)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, permissions)
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Printfln("Failed to open %s file: %v", path, err)
 		os.Exit(1)
 	}
+	defer file.Close()
 
-	defer f.Close()
-
-	_, err = f.WriteString(fmt.Sprintf("%s\n", content))
+	_, err = file.WriteString(fmt.Sprintf("%s\n", content))
 	if err != nil {
 		pterm.Println()
 		pterm.Error.Printfln("Failed to write to %s file: %v", path, err)
@@ -255,8 +250,8 @@ func AppendContentToFile(path, content string, permissions FileMode) {
 	}
 }
 
-// Function to perform in-place editing
-func InPlaceEdit(command, path string) {
+// Function to perform in-place editing using a linux command
+func InPlaceEditUsingLinux(command, path string) {
 	cmd := exec.Command("sed", "-i", command, path)
 
 	// Execute the command
@@ -267,14 +262,16 @@ func InPlaceEdit(command, path string) {
 	}
 }
 
-// Function to check if a line exists
-func LineExists(pattern, path string) bool {
+// Function to check if a line exists using a linux command
+func LineExistsUsingLinux(pattern, path string) bool {
 	cmd := exec.Command("grep", "-q", pattern, path)
-	err := cmd.Run()
 
+	// Execute the command
+	err := cmd.Run()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
 			exitCode := exitError.ExitCode()
+			// Line not found
 			if exitCode == 1 {
 				return false
 			} else {
@@ -284,6 +281,7 @@ func LineExists(pattern, path string) bool {
 			}
 		}
 	}
+
 	return true
 }
 
@@ -334,7 +332,7 @@ func DownloadAndCopyFile(currentUsername, filePath, downloadURL string, permissi
 }
 
 // Function to extract a file
-func ExtractFile(currentUsername, tmpFilePath, destDir string) {
+func ExtractFileUsingLinux(currentUsername, tmpFilePath, destDir string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("tar", "-xf", tmpFilePath, "-C", destDir).Run()
 		if err != nil {
@@ -362,9 +360,9 @@ func FilePathFromFilePathBase(filePath, newFileDirPath string) string {
 }
 
 // Install a compressed binary
-func InstallCompressedBinary(currentUsername, compressedBinaryFilePath, binaryDestDir, binaryName string, permissions FileMode) {
+func InstallCompressedBinary(currentUsername, compressedBinaryFilePath, binaryDestDir, binaryName, permissionsAsString string, permissions FileMode) {
 	// Extract binary
-	ExtractFile(currentUsername, compressedBinaryFilePath, binaryDestDir)
+	ExtractFileUsingLinux(currentUsername, compressedBinaryFilePath, binaryDestDir)
 
 	// TODO
 	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
@@ -374,10 +372,13 @@ func InstallCompressedBinary(currentUsername, compressedBinaryFilePath, binaryDe
 	destPath := filepath.Join(binaryDestDir, binaryName)
 
 	// Make the file executable
+	// Set owner and group of the file to be root
 	if currentUsername == relays.RootUser {
 		SetPermissions(destPath, permissions)
+		SetOwnerAndGroup(relays.RootUser, relays.RootUser, destPath)
 	} else {
-		SetPermissionsUsingLinux(currentUsername, destPath, "0755")
+		SetPermissionsUsingLinux(currentUsername, destPath, permissionsAsString)
+		SetOwnerAndGroupUsingLinux(currentUsername, relays.RootUser, relays.RootUser, destPath)
 	}
 }
 

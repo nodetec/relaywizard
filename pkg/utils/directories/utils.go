@@ -1,6 +1,7 @@
 package directories
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -14,8 +15,16 @@ type FileMode = fs.FileMode
 
 // Function to check if a directory exists
 func DirExists(dirPath string) bool {
-	info, err := os.Stat(dirPath)
-	return !os.IsNotExist(err) && info.IsDir()
+	dirInfo, err := os.Stat(dirPath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false
+		}
+		pterm.Error.Printfln("Failed to check if %s directory exists: %v", dirPath, err)
+		os.Exit(1)
+	}
+
+	return dirInfo.IsDir()
 }
 
 // Function to remove directory and its content
@@ -47,8 +56,9 @@ func RemoveDirectoryUsingLinux(currentUsername, path string) {
 	}
 }
 
-// Function to ensure directory and path to directory exists and sets permissions if created
-func CreateDirectory(path string, permissions FileMode) {
+// Function to ensure directory and path to directory exists and sets permissions for all created directories, if directories aren't created then the permissions aren't set
+// No data is overwritten and no error is thrown if any of the directories already exist
+func CreateAllDirectories(path string, permissions FileMode) {
 	err := os.MkdirAll(path, permissions)
 	if err != nil {
 		pterm.Println()
@@ -58,28 +68,27 @@ func CreateDirectory(path string, permissions FileMode) {
 }
 
 // Function to ensure directory and path to directory exists using a linux command
-func CreateDirectoryUsingLinux(currentUsername, path string) {
-	if !DirExists(path) {
-		if currentUsername == relays.RootUser {
-			err := exec.Command("mkdir", "-p", path).Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to create %s directory: %v", path, err)
-				os.Exit(1)
-			}
-		} else {
-			err := exec.Command("sudo", "mkdir", "-p", path).Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to create %s directory: %v", path, err)
-				os.Exit(1)
-			}
+// No data is overwritten and no error is thrown if any of the directories already exist
+func CreateAllDirectoriesUsingLinux(currentUsername, path string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("mkdir", "-p", path).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create %s directory: %v", path, err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "mkdir", "-p", path).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create %s directory: %v", path, err)
+			os.Exit(1)
 		}
 	}
 }
 
-// Function to copy a directory and all of its content
-func CopyDirectory(currentUsername, dirToCopyPath, destDirPath string) {
+// Function to copy a directory and all of its content using a linux command
+func CopyDirectoryUsingLinux(currentUsername, dirToCopyPath, destDirPath string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("cp", "-R", dirToCopyPath, destDirPath).Run()
 		if err != nil {
@@ -108,7 +117,7 @@ func SetPermissions(path string, mode FileMode) {
 }
 
 // Function to set permissions of a directory using a linux command
-func SetPermissionsUsingLinux(currentUsername, path string, mode string) {
+func SetPermissionsUsingLinux(currentUsername, path, mode string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("chmod", mode, path).Run()
 		if err != nil {
@@ -127,13 +136,13 @@ func SetPermissionsUsingLinux(currentUsername, path string, mode string) {
 }
 
 // Function to check if a directory exists and set permissions of the directory using a linux command
-func CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, path string, mode string) bool {
+func CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, path, mode string) bool {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("chmod", mode, path).Run()
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				errorCode := exitError.ExitCode()
-				// File not found
+				// Directory not found
 				if errorCode == 1 {
 					return false
 				} else {
@@ -147,7 +156,7 @@ func CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, path str
 		err := exec.Command("sudo", "chmod", mode, path).Run()
 		if exitError, ok := err.(*exec.ExitError); ok {
 			errorCode := exitError.ExitCode()
-			// File not found
+			// Directory not found
 			if errorCode == 1 {
 				return false
 			} else {
@@ -157,33 +166,26 @@ func CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, path str
 			}
 		}
 	}
+
 	return true
 }
 
-// Function to set owner and group of a directory
-func SetOwnerAndGroup(owner, group, dir string) {
-	err := exec.Command("chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
-	if err != nil {
-		pterm.Println()
-		pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dir, err)
-		os.Exit(1)
-	}
-}
+// Function to set owner and group of a directory and all of the directories and files within the specified directory using a linux command
+func SetOwnerAndGroupForAllContentUsingLinux(currentUsername, owner, group, dirPath string) {
+	ownerGroupArgument := fmt.Sprintf("%s:%s", owner, group)
 
-// Function to set owner and group of a directory using a linux command
-func SetOwnerAndGroupUsingLinux(currentUsername, owner, group, dir string) {
 	if currentUsername == relays.RootUser {
-		err := exec.Command("chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
+		err := exec.Command("chown", "-R", ownerGroupArgument, dirPath).Run()
 		if err != nil {
 			pterm.Println()
-			pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dir, err)
+			pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dirPath, err)
 			os.Exit(1)
 		}
 	} else {
-		err := exec.Command("sudo", "chown", "-R", fmt.Sprintf("%s:%s", owner, group), dir).Run()
+		err := exec.Command("sudo", "chown", "-R", ownerGroupArgument, dirPath).Run()
 		if err != nil {
 			pterm.Println()
-			pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dir, err)
+			pterm.Error.Printfln("Failed to set ownership of the %s directory: %v", dirPath, err)
 			os.Exit(1)
 		}
 	}

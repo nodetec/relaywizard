@@ -2,13 +2,14 @@ package network
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/nodetec/rwz/pkg/utils/programs"
 	"github.com/pterm/pterm"
-	"os"
-	"strings"
 )
 
 func determineFirstPIDFromLsofOutput(lsofOutput string) string {
@@ -51,7 +52,7 @@ func determineFirstPIDFromLsofOutput(lsofOutput string) string {
 }
 
 // Function to check if the selected relay's port is available to use
-func CheckPort(selectedRelayOption, currentUsername string) {
+func CheckPort(currentUsername, selectedRelayOption string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Checking relay port availability...")
 
 	var relayBinaryFilePath string
@@ -66,32 +67,32 @@ func CheckPort(selectedRelayOption, currentUsername string) {
 		relayBinaryFilePath = relays.KhatruPyramidBinaryFilePath
 		portNumber = relays.KhatruPyramidPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, "6", protocol, portNumber)
 	} else if selectedRelayOption == relays.NostrRsRelayName {
 		relayBinaryFilePath = relays.NostrRsRelayBinaryFilePath
 		portNumber = relays.NostrRsRelayPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.NostrRsRelayIPv4Address, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentUsername, "4", protocol, relays.NostrRsRelayIPv4Address, portNumber)
 	} else if selectedRelayOption == relays.StrfryRelayName {
 		relayBinaryFilePath = relays.StrfryBinaryFilePath
 		portNumber = relays.StrfryPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.StrfryIPv4Address, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentUsername, "4", protocol, relays.StrfryIPv4Address, portNumber)
 	} else if selectedRelayOption == relays.WotRelayName {
 		relayBinaryFilePath = relays.WotRelayBinaryFilePath
 		portNumber = relays.WotRelayPortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, "6", protocol, portNumber)
 	} else if selectedRelayOption == relays.Khatru29RelayName {
 		relayBinaryFilePath = relays.Khatru29BinaryFilePath
 		portNumber = relays.Khatru29PortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber("6", protocol, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, "6", protocol, portNumber)
 	} else if selectedRelayOption == relays.Strfry29RelayName {
 		relayBinaryFilePath = relays.Strfry29BinaryFilePath
 		portNumber = relays.Strfry29PortNumber
 
-		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber("4", protocol, relays.Strfry29IPv4Address, portNumber, currentUsername)
+		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentUsername, "4", protocol, relays.Strfry29IPv4Address, portNumber)
 	}
 
 	firstPIDFromLsofOutput = determineFirstPIDFromLsofOutput(lsofOutput)
@@ -126,7 +127,7 @@ func CheckPort(selectedRelayOption, currentUsername string) {
 				spinner.UpdateText(fmt.Sprintf("Relay binary located at %s is currently running on a custom port, overwriting any related relay installation files...", relayBinaryFilePath))
 			}
 		} else {
-			spinner.UpdateText(fmt.Sprintf("Relay binary located at %s is currently not running...", relayBinaryFilePath))
+			spinner.UpdateText(fmt.Sprintf("Unable to find process for relay binary located at %s...", relayBinaryFilePath))
 
 			if firstPIDFromLsofOutput != "" {
 				pterm.Println()

@@ -13,31 +13,34 @@ import (
 func backupUsersFile(currentUsername, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Backing up users file...")
 
-	// Ensure the backups directory exists and set permissions
 	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
+		directories.CreateAllDirectories(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
+		directories.SetPermissions(UsersFileUsersDirPath, UsersFileUsersDirPerms)
+		directories.SetPermissions(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, UsersFilePath)
 	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, UsersFileBackupsDirPath)
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, UsersFileBackupsDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, UsersFileUsersDirPath, "0755")
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, UsersFileUsersDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, UsersFileBackupsDirPath, "0755")
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, UsersFileBackupsDirPath)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, UsersFileUsersDirPath)
 	}
 
 	var uniqueBackupFileName string
 	spinner.UpdateText("Creating users file backup in the backups directory...")
 	uniqueBackupFileName = files.CreateUniqueBackupFileName(UsersFileBackupsDirPath, UsersFileNameBase)
+	usersFileBackupFileDestPath := fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName)
 	if currentUsername == relays.RootUser {
-		files.MoveFile(UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
+		files.MoveFileUsingLinux(currentUsername, UsersFilePath, usersFileBackupFileDestPath)
 	} else {
-		files.MoveFileUsingLinux(currentUsername, UsersFilePath, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName))
+		files.MoveFileUsingLinux(currentUsername, UsersFilePath, usersFileBackupFileDestPath)
+		files.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, usersFileBackupFileDestPath)
 	}
 
 	// Set permissions for the backup file
 	if currentUsername == relays.RootUser {
-		files.SetPermissions(fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName), UsersFilePerms)
+		files.SetPermissions(usersFileBackupFileDestPath, UsersFilePerms)
 	} else {
-		files.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", UsersFileBackupsDirPath, uniqueBackupFileName), "0644")
+		files.SetPermissionsUsingLinux(currentUsername, usersFileBackupFileDestPath, "0644")
 	}
 
 	spinner.Success("Users file backed up")
@@ -148,8 +151,8 @@ func HandleExistingUsersFile(currentUsername, pubKey, relayUser string) {
 
 		// TODO
 		// Improve the line exits fcn and/or look into handling different possible patterns
-		lineExistsWithoutSpace := files.LineExists(fmt.Sprintf(`"%s":""`, pubKey), UsersFilePath)
-		lineExistsWithSpace := files.LineExists(fmt.Sprintf(`"%s": ""`, pubKey), UsersFilePath)
+		lineExistsWithoutSpace := files.LineExistsUsingLinux(fmt.Sprintf(`"%s":""`, pubKey), UsersFilePath)
+		lineExistsWithSpace := files.LineExistsUsingLinux(fmt.Sprintf(`"%s": ""`, pubKey), UsersFilePath)
 
 		// Users file action options
 		var options []string

@@ -21,27 +21,38 @@ func CheckCurrentUsername() string {
 }
 
 func UserExists(username string) bool {
-	cmd := exec.Command("id", "-u", username)
-	err := cmd.Run()
-	return err == nil
+	err := exec.Command("id", "-u", username).Run()
+	if err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			errorCode := exitError.ExitCode()
+			// User not found
+			if errorCode == 1 {
+				return false
+			} else {
+				pterm.Println()
+				pterm.Error.Printfln("Failed to check if user exists: %v", err)
+				os.Exit(1)
+			}
+		}
+	}
+
+	return true
 }
 
-func CreateUser(currentUsername, username string, disableLogin bool) {
-	if disableLogin {
-		if currentUsername == relays.RootUser {
-			err := exec.Command("adduser", "--disabled-login", "--gecos", "", username).Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to create user: %v", err)
-				os.Exit(1)
-			}
-		} else {
-			err := exec.Command("sudo", "adduser", "--disabled-login", "--gecos", "", username).Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to create user: %v", err)
-				os.Exit(1)
-			}
+func CreateUser(currentUsername, username string) {
+	if currentUsername == relays.RootUser {
+		err := exec.Command("adduser", "--disabled-login", "--gecos", "", username).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create user: %v", err)
+			os.Exit(1)
+		}
+	} else {
+		err := exec.Command("sudo", "adduser", "--disabled-login", "--gecos", "", username).Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to create user: %v", err)
+			os.Exit(1)
 		}
 	}
 }

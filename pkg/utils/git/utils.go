@@ -24,7 +24,7 @@ func Clone(branch, url, destDir string) {
 
 // TODO
 // Just download the necessary files instead of the whole repo
-func RemoveThenClone(currentUsername, repoDirPath, branch, URL string, permissions FileMode) {
+func RemoveThenClone(currentUsername, repoDirPath, branch, URL, permissionsAsString string, permissions FileMode) {
 	if currentUsername == relays.RootUser {
 		// Check for and remove existing git repository
 		directories.RemoveDirectory(repoDirPath)
@@ -40,6 +40,6 @@ func RemoveThenClone(currentUsername, repoDirPath, branch, URL string, permissio
 		// Download git repository
 		Clone(branch, URL, repoDirPath)
 
-		directories.SetPermissionsUsingLinux(currentUsername, repoDirPath, "0755")
+		directories.SetPermissionsUsingLinux(currentUsername, repoDirPath, permissionsAsString)
 	}
 }
