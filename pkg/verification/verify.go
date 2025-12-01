@@ -2,14 +2,15 @@ package verification
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/nodetec/rwz/pkg/utils/commands"
-	"github.com/nodetec/rwz/pkg/utils/files"
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/commands"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/pterm/pterm"
 )
 
 // Function to verify relay binaries

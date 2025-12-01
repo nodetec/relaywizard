@@ -2,17 +2,18 @@ package databases
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"os"
-	"os/exec"
 )
 
 // Function to backup sqlite3 database
-func backupSQLite3Database(currentUsername, relayUser, databaseFilePath, databaseDestPath string) {
-	backupCommand := fmt.Sprintf(".backup '%s'", databaseDestPath)
+func backupSQLite3Database(currentUsername, relayUser, databaseFilePath, databaseDestFilePath string) {
+	backupCommand := fmt.Sprintf(".backup '%s'", databaseDestFilePath)
 
 	if currentUsername == relays.RootUser {
 		err := exec.Command("sqlite3", databaseFilePath, backupCommand).Run()
@@ -28,7 +29,7 @@ func backupSQLite3Database(currentUsername, relayUser, databaseFilePath, databas
 			pterm.Error.Printfln("Failed to backup %s database: %v", databaseFilePath, err)
 			os.Exit(1)
 		}
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, databaseDestPath)
+		files.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, databaseDestFilePath)
 	}
 }
 
@@ -37,11 +38,13 @@ func BackupDatabase(currentUsername, relayUser, databaseBackupsDirPath, database
 
 	// Ensure the backups directory exists and set permissions
 	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(databaseBackupsDirPath, DatabaseBackupsDirPerms)
+		directories.CreateAllDirectories(databaseBackupsDirPath, DatabaseBackupsDirPerms)
+		directories.SetPermissions(databaseBackupsDirPath, DatabaseBackupsDirPerms)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, databaseBackupsDirPath)
 	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, databaseBackupsDirPath)
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, databaseBackupsDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, databaseBackupsDirPath, "0755")
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, databaseBackupsDirPath)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, databaseBackupsDirPath)
 	}
 
 	var uniqueBackupFileName string
@@ -59,20 +62,23 @@ func BackupDatabase(currentUsername, relayUser, databaseBackupsDirPath, database
 		uniqueBackupFileName = files.CreateUniqueBackupFileName(databaseBackupsDirPath, backupFileNameBase)
 		// TODO
 		// Look into if moving the db can cause db corruption and look for a better method
+		databaseDestFilePath := fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName)
 		if currentUsername == relays.RootUser {
-			files.MoveFile(databaseFilePath, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName))
+			files.MoveFileUsingLinux(currentUsername, databaseFilePath, databaseDestFilePath)
 		} else {
-			files.MoveFileUsingLinux(currentUsername, databaseFilePath, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName))
+			files.MoveFileUsingLinux(currentUsername, databaseFilePath, databaseDestFilePath)
+			files.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, databaseDestFilePath)
 		}
 	}
 
 	RemoveAuxiliaryDatabaseFiles(currentUsername, relayName)
 
 	// Set permissions for the backup file
+	databaseDestFilePath := fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName)
 	if currentUsername == relays.RootUser {
-		files.SetPermissions(fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName), DatabaseFilePerms)
+		files.SetPermissions(databaseDestFilePath, DatabaseFilePerms)
 	} else {
-		files.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", databaseBackupsDirPath, uniqueBackupFileName), "0644")
+		files.SetPermissionsUsingLinux(currentUsername, databaseDestFilePath, "0644")
 	}
 
 	spinner.Success("Database backed up")

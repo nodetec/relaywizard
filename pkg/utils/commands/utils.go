@@ -1,9 +1,10 @@
 package commands
 
 import (
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
+
+	"github.com/pterm/pterm"
 )
 
 func PipeTwoCommands(commandOne, commandTwo *exec.Cmd, errMsg string) {
@@ -14,6 +15,7 @@ func PipeTwoCommands(commandOne, commandTwo *exec.Cmd, errMsg string) {
 		os.Exit(1)
 	}
 	defer r.Close()
+
 	commandOne.Stdout = w
 	err = commandOne.Start()
 	if err != nil {
@@ -22,7 +24,9 @@ func PipeTwoCommands(commandOne, commandTwo *exec.Cmd, errMsg string) {
 		os.Exit(1)
 	}
 	defer commandOne.Wait()
+
 	w.Close()
+
 	commandTwo.Stdin = r
 	commandTwo.Stdout = os.Stdout
 	commandTwo.Run()

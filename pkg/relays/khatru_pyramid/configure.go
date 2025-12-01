@@ -15,9 +15,10 @@ func ConfigureRelay(currentUsername, domain, pubKey, relayContact string) {
 	// Ensure the config directory exists and set permissions
 	spinner.UpdateText("Creating config directory...")
 	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(ConfigDirPath, 0755)
+		directories.CreateAllDirectories(ConfigDirPath, 0755)
+		directories.SetPermissions(ConfigDirPath, 0755)
 	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, ConfigDirPath)
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, ConfigDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, ConfigDirPath, "0755")
 	}
 
@@ -36,6 +37,8 @@ func ConfigureRelay(currentUsername, domain, pubKey, relayContact string) {
 	// Set permissions for the environment file
 	if currentUsername == relays.RootUser {
 		files.SetPermissions(EnvFilePath, 0644)
+	} else {
+		files.SetPermissionsUsingLinux(currentUsername, EnvFilePath, "0644")
 	}
 
 	spinner.Success("Relay configured")

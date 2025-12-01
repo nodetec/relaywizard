@@ -2,14 +2,15 @@ package manager
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
+
+	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/pterm/pterm"
 )
 
 // Function to check if a package is installed
-func IsPackageInstalled(packageName string) bool {
+func isPackageInstalled(packageName string) bool {
 	out, err := exec.Command("dpkg-query", "-W", "-f='${Status}'", packageName).Output()
 
 	if err != nil {
@@ -27,9 +28,7 @@ func IsPackageInstalled(packageName string) bool {
 
 	status := string(out)
 
-	if status == "'unknown ok not-installed'" {
-		return false
-	} else if status == "'install ok installed'" {
+	if status == "'install ok installed'" {
 		return true
 	}
 
@@ -62,7 +61,7 @@ func AptInstallPackages(selectedRelayOption, currentUsername string) {
 
 	// Check if package is installed, install if not
 	for _, p := range packages {
-		if IsPackageInstalled(p) {
+		if isPackageInstalled(p) {
 			spinner.UpdateText(fmt.Sprintf("%s is already installed.", p))
 		} else {
 			spinner.UpdateText(fmt.Sprintf("Installing %s...", p))

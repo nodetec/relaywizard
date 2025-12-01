@@ -1,9 +1,10 @@
 package databases
 
 import (
+	"os"
+
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"os"
 )
 
 func selectDatabaseActionOption(currentUsername, relayUser, databaseBackupsDirPath, databaseFilePath, backupFileNameBase, relayName string) string {

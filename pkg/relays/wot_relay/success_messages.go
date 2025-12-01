@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/messages"

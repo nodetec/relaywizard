@@ -2,6 +2,7 @@ package messages
 
 import (
 	"fmt"
+
 	"github.com/pterm/pterm"
 )
 

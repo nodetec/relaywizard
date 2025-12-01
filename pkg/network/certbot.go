@@ -13,41 +13,41 @@ import (
 )
 
 func setDomainCertDirPerms(domainName string) {
-	DomainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
+	domainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
 
-	if directories.DirExists(DomainCertificateDirPath) {
-		directories.SetPermissions(DomainCertificateDirPath, 0700)
+	if directories.DirExists(domainCertificateDirPath) {
+		directories.SetPermissions(domainCertificateDirPath, 0700)
 	}
 }
 
 func setDomainCertArchiveDirPerms(domainName string) {
-	DomainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
+	domainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
 
-	if directories.DirExists(DomainCertificateArchiveDirPath) {
-		directories.SetPermissions(DomainCertificateArchiveDirPath, 0700)
+	if directories.DirExists(domainCertificateArchiveDirPath) {
+		directories.SetPermissions(domainCertificateArchiveDirPath, 0700)
 	}
 }
 
 func setDomainCertArchiveFilePerms(domainName string) {
-	FullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
-	PrivkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
-	ChainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
-	CertArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
+	fullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
+	privkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
+	chainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
+	certArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
 
-	if files.FileExists(FullchainArchiveFilePath) {
-		files.SetPermissions(FullchainArchiveFilePath, 0600)
+	if files.FileExists(fullchainArchiveFilePath) {
+		files.SetPermissions(fullchainArchiveFilePath, 0600)
 	}
 
-	if files.FileExists(PrivkeyArchiveFilePath) {
-		files.SetPermissions(PrivkeyArchiveFilePath, 0600)
+	if files.FileExists(privkeyArchiveFilePath) {
+		files.SetPermissions(privkeyArchiveFilePath, 0600)
 	}
 
-	if files.FileExists(ChainArchiveFilePath) {
-		files.SetPermissions(ChainArchiveFilePath, 0600)
+	if files.FileExists(chainArchiveFilePath) {
+		files.SetPermissions(chainArchiveFilePath, 0600)
 	}
 
-	if files.FileExists(CertArchiveFilePath) {
-		files.SetPermissions(CertArchiveFilePath, 0600)
+	if files.FileExists(certArchiveFilePath) {
+		files.SetPermissions(certArchiveFilePath, 0600)
 	}
 }
 
@@ -58,10 +58,14 @@ func checkForCertificates(currentUsername, domainName string) bool {
 	// This can be simplified since the files in the archive directory can just be checked to see if they exist and the permissions can then be set there since the files in /etc/letsencrypt/live/domainName are just symbolic links to the archive directory
 	// Also the archive files may have appropriate permissions already so this may be unecessary
 	// Also there are potentially multiple archive files that are created and get appended with a number
+	fullchainFilePath := fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)
+	privkeyFilePath := fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)
+	chainFilePath := fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)
+
 	if currentUsername == relays.RootUser {
-		if files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile)) &&
-			files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile)) &&
-			files.FileExists(fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile)) {
+		if files.FileExists(fullchainFilePath) &&
+			files.FileExists(privkeyFilePath) &&
+			files.FileExists(chainFilePath) {
 			setDomainCertDirPerms(domainName)
 			setDomainCertArchiveDirPerms(domainName)
 			setDomainCertArchiveFilePerms(domainName)
@@ -70,24 +74,24 @@ func checkForCertificates(currentUsername, domainName string) bool {
 		}
 		return false
 	} else {
-		if files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, FullchainFile), "0600") &&
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, PrivkeyFile), "0600") &&
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s/%s", CertificateDirPath, domainName, ChainFile), "0600") {
-			DomainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
-			directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, DomainCertificateDirPath, "0700")
+		if files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fullchainFilePath, "0600") &&
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, privkeyFilePath, "0600") &&
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, chainFilePath, "0600") {
+			domainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
+			directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, domainCertificateDirPath, "0700")
 
-			DomainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
-			directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, DomainCertificateArchiveDirPath, "0700")
+			domainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
+			directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, domainCertificateArchiveDirPath, "0700")
 
-			FullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
-			PrivkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
-			ChainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
-			CertArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
+			fullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
+			privkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
+			chainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
+			certArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
 
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, FullchainArchiveFilePath, "0600")
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, PrivkeyArchiveFilePath, "0600")
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, ChainArchiveFilePath, "0600")
-			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, CertArchiveFilePath, "0600")
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fullchainArchiveFilePath, "0600")
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, privkeyArchiveFilePath, "0600")
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, chainArchiveFilePath, "0600")
+			files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, certArchiveFilePath, "0600")
 
 			return true
 		}
@@ -258,16 +262,19 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 	}
 
 	certificateSpinner.UpdateText("Obtaining SSL/TLS certificates...")
+
+	domainDirPath := fmt.Sprintf("%s/%s", WWWDirPath, domainName)
+
 	if email == "" {
 		if currentUsername == relays.RootUser {
-			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
+			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 			err := cmd.Run()
 			if err != nil {
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}
 		} else {
-			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
+			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 			err := cmd.Run()
 			if err != nil {
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
@@ -276,14 +283,14 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 		}
 	} else {
 		if currentUsername == relays.RootUser {
-			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
+			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 			err := cmd.Run()
 			if err != nil {
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}
 		} else {
-			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", fmt.Sprintf("%s/%s", WWWDirPath, domainName), "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
+			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 			err := cmd.Run()
 			if err != nil {
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
@@ -297,20 +304,20 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 		setDomainCertArchiveDirPerms(domainName)
 		setDomainCertArchiveFilePerms(domainName)
 	} else {
-		DomainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
-		directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, DomainCertificateDirPath, "0700")
+		domainCertificateDirPath := fmt.Sprintf("%s/%s", CertificateDirPath, domainName)
+		directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, domainCertificateDirPath, "0700")
 
-		DomainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
-		directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, DomainCertificateArchiveDirPath, "0700")
+		domainCertificateArchiveDirPath := fmt.Sprintf("%s/%s", CertificateArchiveDirPath, domainName)
+		directories.CheckIfDirectoryExistsAndSetPermissionsUsingLinux(currentUsername, domainCertificateArchiveDirPath, "0700")
 
-		FullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
-		PrivkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
-		ChainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
-		CertArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
-		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, FullchainArchiveFilePath, "0600")
-		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, PrivkeyArchiveFilePath, "0600")
-		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, ChainArchiveFilePath, "0600")
-		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, CertArchiveFilePath, "0600")
+		fullchainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, FullchainArchiveFile)
+		privkeyArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, PrivkeyArchiveFile)
+		chainArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, ChainArchiveFile)
+		certArchiveFilePath := fmt.Sprintf("%s/%s/%s", CertificateArchiveDirPath, domainName, CertArchiveFile)
+		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, fullchainArchiveFilePath, "0600")
+		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, privkeyArchiveFilePath, "0600")
+		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, chainArchiveFilePath, "0600")
+		files.CheckIfFileExistsAndSetPermissionsUsingLinux(currentUsername, certArchiveFilePath, "0600")
 	}
 
 	certificateSpinner.Success("SSL/TLS certificates obtained successfully.")

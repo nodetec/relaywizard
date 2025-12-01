@@ -2,25 +2,19 @@ package network
 
 import (
 	"fmt"
-	"github.com/nodetec/rwz/pkg/relays"
-	"github.com/pterm/pterm"
 	"os"
 	"os/exec"
 	"text/template"
+
+	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/pterm/pterm"
 )
 
 type SSHDConfigDConfigFileParams struct {
 	Port                                string
 	AllowOnlyPubkeyAuthenticationMethod string
 	PasswordAuthentication              string
-}
-
-// Function to determine http scheme being used
-func HTTPEnabled(httpsEnabled bool) string {
-	if httpsEnabled {
-		return "https"
-	}
-	return "http"
 }
 
 // Function to determine ws scheme being used
@@ -55,19 +49,14 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 			os.Exit(1)
 		}
 	} else {
-		_, err := exec.Command("sudo", "touch", sshdConfigDConfigFilePath).CombinedOutput()
+		err := exec.Command("sudo", "touch", sshdConfigDConfigFilePath).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create sshd_config.d config file: %v", err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", sshdConfigDConfigFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for sshd_config.d config file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, sshdConfigDConfigFilePath, "0666")
 
 		sshdConfigDConfigFile, err := os.OpenFile(sshdConfigDConfigFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
@@ -91,12 +80,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0644", sshdConfigDConfigFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for sshd_config.d config file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, sshdConfigDConfigFilePath, "0644")
 	}
 }
 
@@ -125,19 +109,14 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 			os.Exit(1)
 		}
 	} else {
-		_, err := exec.Command("sudo", "touch", jailFilePath).CombinedOutput()
+		err := exec.Command("sudo", "touch", jailFilePath).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create jail file: %v", err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", jailFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for jail file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, jailFilePath, "0666")
 
 		jailFile, err := os.OpenFile(jailFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
@@ -161,12 +140,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0644", jailFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for jail file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, jailFilePath, "0644")
 	}
 }
 
@@ -175,7 +149,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 // May also have to check if one type of IP address overrides the other
 
 // Function to list the network socket file(s) using a provided IP version, protocol, and port number
-func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protocol, portNumber, currentUsername string) string {
+func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, ipVersion, protocol, portNumber string) string {
 	networkSocketFiles := fmt.Sprintf("-i%s%s:%s", ipVersion, protocol, portNumber)
 
 	if currentUsername == relays.RootUser {
@@ -193,6 +167,7 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protoc
 				}
 			}
 		}
+
 		lsofOutput := string(out)
 
 		return lsofOutput
@@ -211,6 +186,7 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protoc
 				}
 			}
 		}
+
 		lsofOutput := string(out)
 
 		return lsofOutput
@@ -218,12 +194,11 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(ipVersion, protoc
 }
 
 // Function to list the network socket file(s) using a provided IP version, protocol, IP address, and port number
-func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(ipVersion, protocol, ipAddress, portNumber, currentUsername string) string {
+func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentUsername, ipVersion, protocol, ipAddress, portNumber string) string {
 	networkSocketFiles := fmt.Sprintf("-i%s%s@%s:%s", ipVersion, protocol, ipAddress, portNumber)
 
 	if currentUsername == relays.RootUser {
 		out, err := exec.Command("lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
-
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				errorCode := exitError.ExitCode()
@@ -243,7 +218,6 @@ func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(ipVersio
 		return lsofOutput
 	} else {
 		out, err := exec.Command("sudo", "lsof", "-Q", "-nP", networkSocketFiles).CombinedOutput()
-
 		if err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				errorCode := exitError.ExitCode()
@@ -261,6 +235,5 @@ func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(ipVersio
 		lsofOutput := string(out)
 
 		return lsofOutput
-
 	}
 }

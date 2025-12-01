@@ -2,6 +2,7 @@ package nostr_rs_relay
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/relays"
 )
 

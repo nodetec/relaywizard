@@ -6,6 +6,7 @@ import (
 	"text/template"
 
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
 )
 
@@ -40,19 +41,14 @@ func CreatePluginFile(currentUsername, pluginFilePath, pluginTemplate string, pl
 			os.Exit(1)
 		}
 	} else {
-		_, err := exec.Command("sudo", "touch", pluginFilePath).CombinedOutput()
+		err := exec.Command("sudo", "touch", pluginFilePath).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create plugin file: %v", err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", pluginFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for plugin file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, pluginFilePath, "0666")
 
 		pluginFile, err := os.OpenFile(pluginFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {

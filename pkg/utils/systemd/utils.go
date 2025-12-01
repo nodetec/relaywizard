@@ -17,7 +17,7 @@ type ServiceFileParams struct {
 	ConfigFilePath string
 }
 
-func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate string, serviceFileParams *ServiceFileParams) {
+func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, serviceFilePermissionsAsString string, serviceFileParams *ServiceFileParams) {
 	if currentUsername == relays.RootUser {
 		serviceFile, err := os.Create(serviceFilePath)
 		if err != nil {
@@ -41,19 +41,14 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate string,
 			os.Exit(1)
 		}
 	} else {
-		_, err := exec.Command("sudo", "touch", serviceFilePath).CombinedOutput()
+		err := exec.Command("sudo", "touch", serviceFilePath).Run()
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create service file: %v", err)
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0666", serviceFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for service file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, serviceFilePath, "0666")
 
 		serviceFile, err := os.OpenFile(serviceFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
@@ -77,12 +72,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate string,
 			os.Exit(1)
 		}
 
-		_, err = exec.Command("sudo", "chmod", "0644", serviceFilePath).CombinedOutput()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to set permissions for service file: %v", err)
-			os.Exit(1)
-		}
+		files.SetPermissionsUsingLinux(currentUsername, serviceFilePath, serviceFilePermissionsAsString)
 	}
 }
 
@@ -171,24 +161,6 @@ func StopService(currentUsername, name string) {
 		if err != nil {
 			pterm.Println()
 			pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
-			os.Exit(1)
-		}
-	}
-}
-
-func ReloadService(currentUsername, name string) {
-	if currentUsername == relays.RootUser {
-		err := exec.Command("systemctl", "reload", name).Run()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to reload %s service: %v", name, err)
-			os.Exit(1)
-		}
-	} else {
-		err := exec.Command("sudo", "systemctl", "reload", name).Run()
-		if err != nil {
-			pterm.Println()
-			pterm.Error.Printfln("Failed to reload %s service: %v", name, err)
 			os.Exit(1)
 		}
 	}

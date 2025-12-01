@@ -2,13 +2,14 @@ package wot_relay
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/pterm/pterm"
 )
 
 // Function to set up the relay data directory
-func SetUpRelayDataDir(currentUsername string) {
+func SetUpRelayDataDir(currentUsername, relayUser string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring relay data directory...")
 
 	// TODO
@@ -23,16 +24,19 @@ func SetUpRelayDataDir(currentUsername string) {
 		}
 	}
 
+	dataDBDirPath := fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir)
+
 	// Ensure the data directory exists and set permissions
 	spinner.UpdateText("Creating data directory...")
 	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(DataDirPath, 0755)
-		directories.CreateDirectory(fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), 0755)
+		directories.CreateAllDirectories(dataDBDirPath, 0755)
+		directories.SetPermissions(DataDirPath, 0755)
+		directories.SetPermissions(dataDBDirPath, 0755)
 	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, DataDirPath)
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, dataDBDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, DataDirPath, "0755")
-		directories.CreateDirectoryUsingLinux(currentUsername, fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir))
-		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", DataDirPath, relays.DBDir), "0755")
+		directories.SetPermissionsUsingLinux(currentUsername, dataDBDirPath, "0755")
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, DataDirPath)
 	}
 
 	spinner.Success("Data directory set up")

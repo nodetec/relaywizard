@@ -2,26 +2,27 @@ package databases
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/pterm/pterm"
-	"os"
 )
 
 // Ensure the data directory exists and set permissions
 func checkForDataDirectoryAndSetPermissions(currentUsername, relayUser, dataDirPath string) {
-	if currentUsername == relays.RootUser {
-		directories.CreateDirectory(dataDirPath, 0755)
-		directories.CreateDirectory(fmt.Sprintf("%s/%s", dataDirPath, relays.DBDir), 0755)
-	} else {
-		directories.CreateDirectoryUsingLinux(currentUsername, dataDirPath)
-		directories.SetPermissionsUsingLinux(currentUsername, dataDirPath, "0755")
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, dataDirPath)
+	dataDBDirPath := fmt.Sprintf("%s/%s", dataDirPath, relays.DBDir)
 
-		directories.CreateDirectoryUsingLinux(currentUsername, fmt.Sprintf("%s/%s", dataDirPath, relays.DBDir))
-		directories.SetPermissionsUsingLinux(currentUsername, fmt.Sprintf("%s/%s", dataDirPath, relays.DBDir), "0755")
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relayUser, relayUser, fmt.Sprintf("%s/%s", dataDirPath, relays.DBDir))
+	if currentUsername == relays.RootUser {
+		directories.CreateAllDirectories(dataDBDirPath, 0755)
+		directories.SetPermissions(dataDirPath, 0755)
+		directories.SetPermissions(dataDBDirPath, 0755)
+	} else {
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, dataDBDirPath)
+		directories.SetPermissionsUsingLinux(currentUsername, dataDirPath, "0755")
+		directories.SetPermissionsUsingLinux(currentUsername, dataDBDirPath, "0755")
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, dataDirPath)
 	}
 }
 

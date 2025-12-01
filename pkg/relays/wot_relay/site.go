@@ -2,6 +2,7 @@ package wot_relay
 
 import (
 	"fmt"
+
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
@@ -24,7 +25,7 @@ func SetUpRelaySite(currentUsername, domain string) {
 		files.RemoveFile(IndexFilePath)
 
 		// Copy the index.html file to the /var/www/domain directory
-		files.CopyFile(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
+		files.CopyFileUsingLinux(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
 
 		// Set permissions for the index.html file
 		files.SetPermissions(IndexFilePath, 0644)
@@ -36,7 +37,7 @@ func SetUpRelaySite(currentUsername, domain string) {
 		files.RemoveFileUsingLinux(currentUsername, IndexFilePath)
 
 		// Copy the index.html file to the /var/www/domain directory
-		files.CopyFile(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
+		files.CopyFileUsingLinux(currentUsername, TmpIndexFilePath, WWWDomainDirPath)
 
 		// Set permissions for the index.html file
 		files.SetPermissionsUsingLinux(currentUsername, IndexFilePath, "0644")
@@ -54,26 +55,26 @@ func SetUpRelaySite(currentUsername, domain string) {
 		directories.RemoveDirectory(StaticDirPath)
 
 		// Copy the static directory and all of its content to the /var/www/domain directory
-		directories.CopyDirectory(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
+		directories.CopyDirectoryUsingLinux(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
 
 		// Set permissions for the static directory
 		directories.SetPermissions(StaticDirPath, 0755)
 
 		// Use chown command to set ownership of the static directory and its content to the www-data user
-		directories.SetOwnerAndGroup(relays.NginxUser, relays.NginxUser, StaticDirPath)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, StaticDirPath)
 	} else {
 		// Remove the static directory and all of its content if it exists
 		spinner.UpdateText("Removing static directory...")
 		directories.RemoveDirectoryUsingLinux(currentUsername, StaticDirPath)
 
 		// Copy the static directory and all of its content to the /var/www/domain directory
-		directories.CopyDirectory(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
+		directories.CopyDirectoryUsingLinux(currentUsername, TmpStaticDirPath, WWWDomainDirPath)
 
 		// Set permissions for the static directory
 		directories.SetPermissionsUsingLinux(currentUsername, StaticDirPath, "0755")
 
 		// Use chown command to set ownership of the static directory and its content to the www-data user
-		directories.SetOwnerAndGroupUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, StaticDirPath)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, StaticDirPath)
 	}
 
 	spinner.Success("Relay site set up")

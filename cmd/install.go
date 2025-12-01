@@ -2,6 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+
 	"github.com/nodetec/rwz/pkg/manager"
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
@@ -16,8 +19,6 @@ import (
 	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
-	"os"
-	"os/exec"
 )
 
 var installCmd = &cobra.Command{
@@ -49,9 +50,9 @@ var installCmd = &cobra.Command{
 				pterm.Error.Printfln("Failed to set up sudo session: %v", err)
 				os.Exit(1)
 			}
-			pterm.Println()
 		}
 
+		pterm.Println()
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
 		pterm.Println()
 
@@ -82,7 +83,7 @@ var installCmd = &cobra.Command{
 
 		// Check if the selected relay's port is available to use
 		pterm.Println()
-		network.CheckPort(selectedRelayOption, currentUsername)
+		network.CheckPort(currentUsername, selectedRelayOption)
 
 		var privKey string
 		var pubKey string
@@ -172,7 +173,7 @@ var installCmd = &cobra.Command{
 		spinner, _ := pterm.DefaultSpinner.Start(fmt.Sprintf("Checking if '%s' user exists...", relayUser))
 		if !users.UserExists(relayUser) {
 			spinner.UpdateText(fmt.Sprintf("Creating '%s' user...", relayUser))
-			users.CreateUser(currentUsername, relayUser, true)
+			users.CreateUser(currentUsername, relayUser)
 			spinner.Success(fmt.Sprintf("Created '%s' user", relayUser))
 		} else {
 			spinner.Success(fmt.Sprintf("'%s' user already exists", relayUser))

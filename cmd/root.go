@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var rootCmd = &cobra.Command{
