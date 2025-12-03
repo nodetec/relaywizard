@@ -34,23 +34,7 @@ var installCmd = &cobra.Command{
 		currentUsername := users.CheckCurrentUsername()
 
 		// Set up sudo session
-		if currentUsername != relays.RootUser {
-			err := exec.Command("sudo", "-v").Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to get password to set up sudo session: %v", err)
-				os.Exit(1)
-			}
-			// TODO
-			// Double check this command
-			// What happens if a user's sudo session expires before 30 seconds, i.e., before the session can be extended by this loop?
-			err = exec.Command("/bin/sh", "-c", "while true; do sudo -v; sleep 30 kill -0 $$ 2>/dev/null || exit; done &").Run()
-			if err != nil {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to set up sudo session: %v", err)
-				os.Exit(1)
-			}
-		}
+		users.SetUpSudoSession(currentUsername)
 
 		pterm.Println()
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
@@ -146,8 +130,20 @@ var installCmd = &cobra.Command{
 		} else {
 			if currentUsername == relays.RootUser {
 				files.RemoveFile(network.SSHDConfigDRWZConfigFilePath)
+				err := exec.Command("/usr/sbin/sshd", "-t").Run()
+				if err != nil {
+					pterm.Println()
+					pterm.Error.Printfln("sshd configuration tests failed: %v", err)
+					os.Exit(1)
+				}
 			} else {
 				files.RemoveFileUsingLinux(currentUsername, network.SSHDConfigDRWZConfigFilePath)
+				err := exec.Command("sudo", "/usr/sbin/sshd", "-t").Run()
+				if err != nil {
+					pterm.Println()
+					pterm.Error.Printfln("sshd configuration tests failed: %v", err)
+					os.Exit(1)
+				}
 			}
 		}
 

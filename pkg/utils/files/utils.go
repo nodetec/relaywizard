@@ -331,8 +331,17 @@ func DownloadAndCopyFile(currentUsername, filePath, downloadURL string, permissi
 	}
 }
 
+// Determine a file path from the base of another file path
+func FilePathFromFilePathBase(filePath, newFileDirPath string) string {
+	newFileName := filepath.Base(filePath)
+
+	newFilePath := filepath.Join(newFileDirPath, newFileName)
+
+	return newFilePath
+}
+
 // Function to extract a file
-func ExtractFileUsingLinux(currentUsername, tmpFilePath, destDir string) {
+func extractFileUsingLinux(currentUsername, tmpFilePath, destDir string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("tar", "-xf", tmpFilePath, "-C", destDir).Run()
 		if err != nil {
@@ -350,19 +359,10 @@ func ExtractFileUsingLinux(currentUsername, tmpFilePath, destDir string) {
 	}
 }
 
-// Determine a file path from the base of another file path
-func FilePathFromFilePathBase(filePath, newFileDirPath string) string {
-	newFileName := filepath.Base(filePath)
-
-	newFilePath := filepath.Join(newFileDirPath, newFileName)
-
-	return newFilePath
-}
-
 // Install a compressed binary
 func InstallCompressedBinary(currentUsername, compressedBinaryFilePath, binaryDestDir, binaryName, permissionsAsString string, permissions FileMode) {
 	// Extract binary
-	ExtractFileUsingLinux(currentUsername, compressedBinaryFilePath, binaryDestDir)
+	extractFileUsingLinux(currentUsername, compressedBinaryFilePath, binaryDestDir)
 
 	// TODO
 	// Currently, the downloaded binary is expected to have a name that matches the binaryName variable
