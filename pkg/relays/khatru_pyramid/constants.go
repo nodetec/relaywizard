@@ -14,6 +14,8 @@ const UsersFileUsersDirPerms = 0755
 const UsersFileBackupsDirPath = "/var/lib/khatru-pyramid/users/backups"
 const UsersFileBackupsDirPerms = 0755
 const UsersFileNameBase = "users.json-bak"
+const BrowseDir = "browse"
+const ReportsDir = "reports"
 const ServiceName = "khatru-pyramid"
 const EnvFilePath = "/etc/khatru-pyramid/khatru-pyramid.env"
 const EnvFileTemplate = `DOMAIN="{{.Domain}}"
