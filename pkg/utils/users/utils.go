@@ -56,3 +56,23 @@ func CreateUser(currentUsername, username string) {
 		}
 	}
 }
+
+func SetUpSudoSession(currentUsername string) {
+	if currentUsername != relays.RootUser {
+		err := exec.Command("sudo", "-v").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to get password to set up sudo session: %v", err)
+			os.Exit(1)
+		}
+		// TODO
+		// Double check this command
+		// What happens if a user's sudo session expires before 30 seconds, i.e., before the session can be extended by this loop?
+		err = exec.Command("/bin/sh", "-c", "while true; do sudo -v; sleep 30 kill -0 $$ 2>/dev/null || exit; done &").Run()
+		if err != nil {
+			pterm.Println()
+			pterm.Error.Printfln("Failed to set up sudo session: %v", err)
+			os.Exit(1)
+		}
+	}
+}
