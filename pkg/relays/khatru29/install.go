@@ -64,6 +64,8 @@ func Install(currentUsername, relayDomain, privKey, relayContact, relayUser stri
 	// Configure the relay
 	ConfigureRelay(currentUsername, relayDomain, privKey, relayContact)
 
+	SetUpRelaySite(currentUsername, relayDomain)
+
 	// Set permissions for database files
 	databases.SetDatabaseFilePermissions(currentUsername, DataDirPath, DatabaseFilePath, relays.Khatru29RelayName)
 
