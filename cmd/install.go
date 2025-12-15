@@ -107,6 +107,25 @@ var installCmd = &cobra.Command{
 		// Install necessary packages using APT
 		manager.AptInstallPackages(selectedRelayOption, currentUsername)
 
+		// Configure Nginx
+		network.ConfigureNginx(currentUsername)
+
+		// Check if domain has already been used
+		pterm.Println()
+		if selectedRelayOption == relays.KhatruPyramidRelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.KhatruPyramidNginxConfigFilePath)
+		} else if selectedRelayOption == relays.NostrRsRelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.NostrRsRelayNginxConfigFilePath)
+		} else if selectedRelayOption == relays.StrfryRelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.StrfryNginxConfigFilePath)
+		} else if selectedRelayOption == relays.WotRelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.WotRelayNginxConfigFilePath)
+		} else if selectedRelayOption == relays.Khatru29RelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.Khatru29NginxConfigFilePath)
+		} else if selectedRelayOption == relays.Strfry29RelayName {
+			network.CheckDomainUsage(currentUsername, relayDomain, relays.Strfry29NginxConfigFilePath)
+		}
+
 		pterm.Println()
 		pterm.Println(pterm.Yellow("Warning: Relay Wizard SSH defaults will not be applied if the current sshd configuration overrides them."))
 		pterm.Printfln(pterm.Yellow("If issues occur, try checking the following locations %s and %s"), network.SSHDConfigFilePath, network.SSHDConfigDDirPath)
@@ -152,9 +171,6 @@ var installCmd = &cobra.Command{
 
 		// Configure the intrusion detection system
 		network.ConfigureIntrusionDetection(currentUsername)
-
-		// Configure Nginx
-		network.ConfigureNginx(currentUsername)
 
 		// Create relay user
 		var relayUser string
