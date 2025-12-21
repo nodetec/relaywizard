@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"os/user"
@@ -21,19 +22,16 @@ func CheckCurrentUsername() string {
 }
 
 func UserExists(username string) bool {
-	err := exec.Command("id", "-u", username).Run()
+	_, err := user.Lookup(username)
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			errorCode := exitError.ExitCode()
-			// User not found
-			if errorCode == 1 {
-				return false
-			} else {
-				pterm.Println()
-				pterm.Error.Printfln("Failed to check if user exists: %v", err)
-				os.Exit(1)
-			}
+		var notFoundErr user.UnknownUserError
+		if errors.As(err, &notFoundErr) {
+			return false
 		}
+
+		pterm.Println()
+		pterm.Error.Printfln("Failed to check if user exists: %v", err)
+		os.Exit(1)
 	}
 
 	return true
