@@ -35,7 +35,7 @@ The program will automate the following steps:
 To install a relay, spin up a new Debian server, hook up a domain name, and run the following command:
 
 ```bash
-curl -sL https://relaywizard.com/install.sh | bash
+curl --proto '=https' --tlsv1.2 -sL https://relaywizard.com/install.sh | bash
 ```
 
 ## Verification
