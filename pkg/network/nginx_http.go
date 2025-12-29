@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/network/relays/khatru29"
 	"github.com/nodetec/rwz/pkg/network/relays/khatru_pyramid"
 	"github.com/nodetec/rwz/pkg/network/relays/nostr_rs_relay"
@@ -13,6 +14,7 @@ import (
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/systemd"
 	"github.com/pterm/pterm"
 )
@@ -62,6 +64,7 @@ func ConfigureNginxHttp(currentUsername, domainName, nginxConfigFilePath string)
 	} else if nginxConfigFilePath == relays.Strfry29NginxConfigFilePath {
 		configContent = strfry29.NginxHttpConfigContent(domainName, WWWDirPath, AcmeChallengeDirPath)
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to generate Nginx config file content for %s file", nginxConfigFilePath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to generate Nginx config file content for %s file", nginxConfigFilePath)
 		os.Exit(1)

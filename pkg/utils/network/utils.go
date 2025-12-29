@@ -6,8 +6,10 @@ import (
 	"os/exec"
 	"text/template"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -29,6 +31,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 	if currentUsername == relays.RootUser {
 		sshdConfigDConfigFile, err := os.Create(sshdConfigDConfigFilePath)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create sshd_config.d config file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create sshd_config.d config file: %v", err)
 			os.Exit(1)
@@ -37,6 +40,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 
 		sshdConfigDConfigFileTmpl, err := template.New("config").Parse(sshdConfigDConfigFileTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse sshd_config.d config file template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse sshd_config.d config file template: %v", err)
 			os.Exit(1)
@@ -44,6 +48,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 
 		err = sshdConfigDConfigFileTmpl.Execute(sshdConfigDConfigFile, struct{ Port, AllowOnlyPubkeyAuthenticationMethod, PasswordAuthentication string }{Port: sshdConfigDConfigFileParams.Port, AllowOnlyPubkeyAuthenticationMethod: sshdConfigDConfigFileParams.AllowOnlyPubkeyAuthenticationMethod, PasswordAuthentication: sshdConfigDConfigFileParams.PasswordAuthentication})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute sshd_config.d config file template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute sshd_config.d config file template: %v", err)
 			os.Exit(1)
@@ -51,6 +56,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 	} else {
 		err := exec.Command("sudo", "touch", sshdConfigDConfigFilePath).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create sshd_config.d config file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create sshd_config.d config file: %v", err)
 			os.Exit(1)
@@ -60,6 +66,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 
 		sshdConfigDConfigFile, err := os.OpenFile(sshdConfigDConfigFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to open sshd_config.d config file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to open sshd_config.d config file: %v", err)
 			os.Exit(1)
@@ -68,6 +75,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 
 		sshdConfigDConfigFileTmpl, err := template.New("config").Parse(sshdConfigDConfigFileTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse sshd_config.d config file template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse sshd_config.d config file template: %v", err)
 			os.Exit(1)
@@ -75,6 +83,7 @@ func CreateSSHDConfigDConfigFile(currentUsername, sshdConfigDConfigFilePath, ssh
 
 		err = sshdConfigDConfigFileTmpl.Execute(sshdConfigDConfigFile, struct{ Port, AllowOnlyPubkeyAuthenticationMethod, PasswordAuthentication string }{Port: sshdConfigDConfigFileParams.Port, AllowOnlyPubkeyAuthenticationMethod: sshdConfigDConfigFileParams.AllowOnlyPubkeyAuthenticationMethod, PasswordAuthentication: sshdConfigDConfigFileParams.PasswordAuthentication})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute sshd_config.d config file template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute sshd_config.d config file template: %v", err)
 			os.Exit(1)
@@ -89,6 +98,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 	if currentUsername == relays.RootUser {
 		jailFile, err := os.Create(jailFilePath)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create jail file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create jail file: %v", err)
 			os.Exit(1)
@@ -97,6 +107,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 
 		jailTmpl, err := template.New("jail").Parse(jailTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse jail template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse jail template: %v", err)
 			os.Exit(1)
@@ -104,6 +115,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 
 		err = jailTmpl.Execute(jailFile, struct{}{})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute jail template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute jail template: %v", err)
 			os.Exit(1)
@@ -111,6 +123,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 	} else {
 		err := exec.Command("sudo", "touch", jailFilePath).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create jail file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create jail file: %v", err)
 			os.Exit(1)
@@ -120,6 +133,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 
 		jailFile, err := os.OpenFile(jailFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to open jail file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to open jail file: %v", err)
 			os.Exit(1)
@@ -128,6 +142,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 
 		jailTmpl, err := template.New("jail").Parse(jailTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse jail template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse jail template: %v", err)
 			os.Exit(1)
@@ -135,6 +150,7 @@ func CreateJailFile(currentUsername, jailFilePath, jailTemplate string) {
 
 		err = jailTmpl.Execute(jailFile, struct{}{})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute jail template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute jail template: %v", err)
 			os.Exit(1)
@@ -161,6 +177,7 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, 
 				if errorCode == 1 {
 					return ""
 				} else {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
 					os.Exit(1)
@@ -180,6 +197,7 @@ func ListNetworkSocketFilesUsingIPVersionProtocolAndPortNumber(currentUsername, 
 				if errorCode == 1 {
 					return ""
 				} else {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
 					os.Exit(1)
@@ -206,6 +224,7 @@ func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentU
 				if errorCode == 1 {
 					return ""
 				} else {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
 					os.Exit(1)
@@ -225,6 +244,7 @@ func ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentU
 				if errorCode == 1 {
 					return ""
 				} else {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to list the network socket file(s) for %s: %v", networkSocketFiles, err)
 					os.Exit(1)

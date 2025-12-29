@@ -2,8 +2,24 @@ package main
 
 import (
 	"github.com/nodetec/rwz/cmd"
+	"github.com/nodetec/rwz/pkg/logs"
+	"github.com/nodetec/rwz/pkg/utils/users"
 )
 
+func init() {
+	// Check current username
+	currentUsername := users.CheckCurrentUsername()
+
+	// Set up sudo session
+	users.SetUpSudoSession(currentUsername)
+
+	// Set up rwz log file
+	logs.SetUpRWZLogFile(currentUsername)
+}
+
 func main() {
-	cmd.Execute()
+	// Check current username
+	currentUsername := users.CheckCurrentUsername()
+
+	cmd.Execute(currentUsername)
 }

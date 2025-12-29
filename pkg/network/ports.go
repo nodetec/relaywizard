@@ -5,14 +5,16 @@ import (
 	"os"
 	"strings"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/nodetec/rwz/pkg/utils/programs"
 	"github.com/pterm/pterm"
 )
 
-func determineFirstPIDFromLsofOutput(lsofOutput string) string {
+func determineFirstPIDFromLsofOutput(currentUsername, lsofOutput string) string {
 	var firstPIDFromLsofOutput string
 
 	if lsofOutput == "" {
@@ -37,11 +39,13 @@ func determineFirstPIDFromLsofOutput(lsofOutput string) string {
 					}
 				}
 			} else {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to determine the first PID from the lsof output")
 				pterm.Println()
 				pterm.Error.Println("Failed to determine the first PID from the lsof output")
 				os.Exit(1)
 			}
 		} else if lsofOutputSplitByNewLineLength == 1 {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to parse lsof output")
 			pterm.Println()
 			pterm.Error.Println("Failed to parse lsof output")
 			os.Exit(1)
@@ -95,12 +99,12 @@ func CheckPort(currentUsername, selectedRelayOption string) {
 		lsofOutput = network.ListNetworkSocketFilesUsingIPVersionIPAddressProtocolAndPortNumber(currentUsername, "4", protocol, relays.Strfry29IPv4Address, portNumber)
 	}
 
-	firstPIDFromLsofOutput = determineFirstPIDFromLsofOutput(lsofOutput)
+	firstPIDFromLsofOutput = determineFirstPIDFromLsofOutput(currentUsername, lsofOutput)
 
 	// TODO
 	// Look into clarifying the explanation to end user
 	if files.FileExists(relayBinaryFilePath) {
-		pidsOfRelayBinary := programs.DeterminePidsOfProgram(relayBinaryFilePath)
+		pidsOfRelayBinary := programs.DeterminePidsOfProgram(currentUsername, relayBinaryFilePath)
 
 		if pidsOfRelayBinary != nil {
 			spinner.UpdateText(fmt.Sprintf("Relay binary located at %s is currently running...", relayBinaryFilePath))
@@ -115,6 +119,7 @@ func CheckPort(currentUsername, selectedRelayOption string) {
 					}
 
 					if i == pidsOfRelayBinaryLength-1 {
+						logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber))
 						pterm.Println()
 						pterm.Error.Printfln("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber)
 						spinner.Fail("Relay port unavailable")
@@ -130,6 +135,7 @@ func CheckPort(currentUsername, selectedRelayOption string) {
 			spinner.UpdateText(fmt.Sprintf("Unable to find process for relay binary located at %s...", relayBinaryFilePath))
 
 			if firstPIDFromLsofOutput != "" {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber))
 				pterm.Println()
 				pterm.Error.Printfln("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber)
 				spinner.Fail("Relay port unavailable")
@@ -140,6 +146,7 @@ func CheckPort(currentUsername, selectedRelayOption string) {
 		spinner.UpdateText(fmt.Sprintf("Relay binary located at %s not found...", relayBinaryFilePath))
 
 		if firstPIDFromLsofOutput != "" {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber))
 			pterm.Println()
 			pterm.Error.Printfln("Unable to bind to port number %s, another process has a connection open on the required TCP IP address and port combination", portNumber)
 			spinner.Fail("Relay port unavailable")

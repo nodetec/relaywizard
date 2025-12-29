@@ -6,7 +6,9 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -20,6 +22,7 @@ func CheckStrfryBinaryAndDatabaseCompatibility(currentUsername, binaryName, conf
 	if currentUsername == relays.RootUser {
 		out, err := exec.Command(binaryName, "--config", configFilePath, "info").CombinedOutput()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to check %s binary and existing database compatibility: %v", binaryName, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to check %s binary and existing database compatibility: %v", binaryName, err)
 			os.Exit(1)
@@ -28,6 +31,7 @@ func CheckStrfryBinaryAndDatabaseCompatibility(currentUsername, binaryName, conf
 	} else {
 		out, err := exec.Command("sudo", binaryName, "--config", configFilePath, "info").CombinedOutput()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to check %s binary and existing database compatibility: %v", binaryName, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to check %s binary and existing database compatibility: %v", binaryName, err)
 			os.Exit(1)

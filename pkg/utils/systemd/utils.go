@@ -1,12 +1,15 @@
 package systemd
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"text/template"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -21,6 +24,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 	if currentUsername == relays.RootUser {
 		serviceFile, err := os.Create(serviceFilePath)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create service file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create service file: %v", err)
 			os.Exit(1)
@@ -29,6 +33,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 
 		serviceTmpl, err := template.New("service").Parse(serviceTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse service template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse service template: %v", err)
 			os.Exit(1)
@@ -36,6 +41,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 
 		err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute service template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute service template: %v", err)
 			os.Exit(1)
@@ -43,6 +49,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 	} else {
 		err := exec.Command("sudo", "touch", serviceFilePath).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create service file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create service file: %v", err)
 			os.Exit(1)
@@ -52,6 +59,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 
 		serviceFile, err := os.OpenFile(serviceFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to open service file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to open service file: %v", err)
 			os.Exit(1)
@@ -60,6 +68,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 
 		serviceTmpl, err := template.New("service").Parse(serviceTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse service template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse service template: %v", err)
 			os.Exit(1)
@@ -67,6 +76,7 @@ func CreateServiceFile(currentUsername, serviceFilePath, serviceTemplate, servic
 
 		err = serviceTmpl.Execute(serviceFile, struct{ RelayUser, EnvFilePath, BinaryFilePath, ConfigFilePath string }{RelayUser: serviceFileParams.RelayUser, EnvFilePath: serviceFileParams.EnvFilePath, BinaryFilePath: serviceFileParams.BinaryFilePath, ConfigFilePath: serviceFileParams.ConfigFilePath})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute service template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute service template: %v", err)
 			os.Exit(1)
@@ -80,6 +90,7 @@ func Reload(currentUsername string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "daemon-reload").Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to reload systemd daemon: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to reload systemd daemon: %v", err)
 			os.Exit(1)
@@ -87,6 +98,7 @@ func Reload(currentUsername string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "daemon-reload").Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to reload systemd daemon: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to reload systemd daemon: %v", err)
 			os.Exit(1)
@@ -98,6 +110,7 @@ func EnableService(currentUsername, name string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "enable", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to enable %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to enable %s service: %v", name, err)
 			os.Exit(1)
@@ -105,6 +118,7 @@ func EnableService(currentUsername, name string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "enable", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to enable %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to enable %s service: %v", name, err)
 			os.Exit(1)
@@ -116,6 +130,7 @@ func StartService(currentUsername, name string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "start", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to start %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to start %s service: %v", name, err)
 			os.Exit(1)
@@ -123,6 +138,7 @@ func StartService(currentUsername, name string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "start", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to start %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to start %s service: %v", name, err)
 			os.Exit(1)
@@ -134,6 +150,7 @@ func DisableService(currentUsername, name string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "disable", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to disable %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to disable %s service: %v", name, err)
 			os.Exit(1)
@@ -141,6 +158,7 @@ func DisableService(currentUsername, name string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "disable", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to disable %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to disable %s service: %v", name, err)
 			os.Exit(1)
@@ -152,6 +170,7 @@ func StopService(currentUsername, name string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "stop", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to stop %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
 			os.Exit(1)
@@ -159,6 +178,7 @@ func StopService(currentUsername, name string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "stop", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to stop %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to stop %s service: %v", name, err)
 			os.Exit(1)
@@ -170,6 +190,7 @@ func RestartService(currentUsername, name string) {
 	if currentUsername == relays.RootUser {
 		err := exec.Command("systemctl", "restart", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to restart %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to restart %s service: %v", name, err)
 			os.Exit(1)
@@ -177,6 +198,7 @@ func RestartService(currentUsername, name string) {
 	} else {
 		err := exec.Command("sudo", "systemctl", "restart", name).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to restart %s service: %v", name, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to restart %s service: %v", name, err)
 			os.Exit(1)

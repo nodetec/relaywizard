@@ -5,9 +5,11 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -18,6 +20,7 @@ func backupSQLite3Database(currentUsername, relayUser, databaseFilePath, databas
 	if currentUsername == relays.RootUser {
 		err := exec.Command("sqlite3", databaseFilePath, backupCommand).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to backup %s database: %v", databaseFilePath, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to backup %s database: %v", databaseFilePath, err)
 			os.Exit(1)
@@ -25,6 +28,7 @@ func backupSQLite3Database(currentUsername, relayUser, databaseFilePath, databas
 	} else {
 		err := exec.Command("sudo", "sqlite3", databaseFilePath, backupCommand).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to backup %s database: %v", databaseFilePath, err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to backup %s database: %v", databaseFilePath, err)
 			os.Exit(1)

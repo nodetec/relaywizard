@@ -7,9 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/commands"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -58,6 +60,7 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 	out, err := exec.Command("gpg", "--status-fd", "1", "--verify", relaysManifestSigFilePath).Output()
 
 	if err != nil {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err)
 		os.Exit(1)
@@ -68,6 +71,7 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 	if validSig {
 		spinner.UpdateText(fmt.Sprintf("Verified the signature of the %s file", relaysManifestFilePath))
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to verify the signature of the %s file", relaysManifestFilePath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to verify the signature of the %s file", relaysManifestFilePath)
 		os.Exit(1)
@@ -77,6 +81,7 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 	out, err = exec.Command("sha512sum", path).Output()
 
 	if err != nil {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to compute the SHA512 hash of the %s file: %v", path, err))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to compute the SHA512 hash of the %s file: %v", path, err)
 		os.Exit(1)
@@ -88,6 +93,7 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 	// Read the manifest file
 	data, err := os.ReadFile(relaysManifestFilePath)
 	if err != nil {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to read the %s file: %v", relaysManifestFilePath, err))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to read the %s file: %v", relaysManifestFilePath, err)
 		os.Exit(1)
@@ -98,6 +104,7 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 		spinner.UpdateText(fmt.Sprintf("Verified the SHA512 hash of the %s file", path))
 		spinner.Success(fmt.Sprintf("%s binary verified", relayName))
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to verify the %s file, the SHA512 hash doesn't match the SHA512 hash in the %s file", path, relaysManifestFilePath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to verify the %s file, the SHA512 hash doesn't match the SHA512 hash in the %s file", path, relaysManifestFilePath)
 		os.Exit(1)

@@ -1,12 +1,15 @@
 package configuration
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"text/template"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
 )
@@ -24,6 +27,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 	if currentUsername == relays.RootUser {
 		envFile, err := os.Create(envFilePath)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create environment file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create environment file: %v", err)
 			os.Exit(1)
@@ -32,6 +36,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 
 		envTmpl, err := template.New("env").Parse(envTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse environment template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse environment template: %v", err)
 			os.Exit(1)
@@ -41,6 +46,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 
 		err = envTmpl.Execute(envFile, struct{ Domain, PortNumber, WSScheme, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, PortNumber: envFileParams.PortNumber, WSScheme: WSScheme, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute environment template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute environment template: %v", err)
 			os.Exit(1)
@@ -48,6 +54,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 	} else {
 		err := exec.Command("sudo", "touch", envFilePath).Run()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to create environment file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to create environment file: %v", err)
 			os.Exit(1)
@@ -57,6 +64,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 
 		envFile, err := os.OpenFile(envFilePath, os.O_WRONLY|os.O_TRUNC, 0666)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to open environment file: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to open environment file: %v", err)
 			os.Exit(1)
@@ -65,6 +73,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 
 		envTmpl, err := template.New("env").Parse(envTemplate)
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to parse environment template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to parse environment template: %v", err)
 			os.Exit(1)
@@ -74,6 +83,7 @@ func CreateEnvFile(currentUsername, envFilePath, envTemplate string, envFilePara
 
 		err = envTmpl.Execute(envFile, struct{ Domain, PortNumber, WSScheme, PrivKey, PubKey, RelayContact string }{Domain: envFileParams.Domain, PortNumber: envFileParams.PortNumber, WSScheme: WSScheme, PrivKey: envFileParams.PrivKey, PubKey: envFileParams.PubKey, RelayContact: envFileParams.RelayContact})
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to execute environment template: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to execute environment template: %v", err)
 			os.Exit(1)

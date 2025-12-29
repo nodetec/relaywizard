@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/nodetec/rwz/pkg/logs"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 )
@@ -16,9 +19,10 @@ helps install and configure your relays.`,
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(currentUsername string) {
 	err := rootCmd.Execute()
 	if err != nil {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to add child commands to the root command: %v", err))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to add child commands to the root command: %v", err)
 		os.Exit(1)

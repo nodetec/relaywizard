@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -120,13 +122,15 @@ func selectUsersFileActionOption(currentUsername, relayUser, backupUsersFileOpti
 			pterm.Println()
 			howToHandleExistingUsersFile = overwriteUsersFileOption
 		} else {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to confirm users file overwrite action")
 			pterm.Println()
-			pterm.Error.Println(("Failed to confirm users file overwrite action"))
+			pterm.Error.Println("Failed to confirm users file overwrite action")
 			os.Exit(1)
 		}
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to perform selected users file action")
 		pterm.Println()
-		pterm.Error.Println(("Failed to perform selected users file action"))
+		pterm.Error.Println("Failed to perform selected users file action")
 		os.Exit(1)
 	}
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/manager"
 	"github.com/nodetec/rwz/pkg/network"
 	"github.com/nodetec/rwz/pkg/relays"
@@ -16,6 +17,7 @@ import (
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
 	"github.com/nodetec/rwz/pkg/ui"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/users"
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
@@ -32,9 +34,6 @@ var installCmd = &cobra.Command{
 
 		// Check current username
 		currentUsername := users.CheckCurrentUsername()
-
-		// Set up sudo session
-		users.SetUpSudoSession(currentUsername)
 
 		pterm.Println()
 		relayDomain, _ := pterm.DefaultInteractiveTextInput.Show("Relay domain name")
@@ -151,6 +150,7 @@ var installCmd = &cobra.Command{
 				files.RemoveFile(network.SSHDConfigDRWZConfigFilePath)
 				err := exec.Command("/usr/sbin/sshd", "-t").Run()
 				if err != nil {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("sshd configuration tests failed: %v", err))
 					pterm.Println()
 					pterm.Error.Printfln("sshd configuration tests failed: %v", err)
 					os.Exit(1)
@@ -159,6 +159,7 @@ var installCmd = &cobra.Command{
 				files.RemoveFileUsingLinux(currentUsername, network.SSHDConfigDRWZConfigFilePath)
 				err := exec.Command("sudo", "/usr/sbin/sshd", "-t").Run()
 				if err != nil {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("sshd configuration tests failed: %v", err))
 					pterm.Println()
 					pterm.Error.Printfln("sshd configuration tests failed: %v", err)
 					os.Exit(1)

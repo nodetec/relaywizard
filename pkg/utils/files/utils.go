@@ -34,6 +34,22 @@ func FileExists(path string) bool {
 	return !fileInfo.IsDir()
 }
 
+// Function to determine the size of a file
+func DetermineFileSize(path string) int64 {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return -1
+		}
+		pterm.Error.Printfln("Failed to check the size of the %s file: %v", path, err)
+		os.Exit(1)
+	}
+
+	fileSize := fileInfo.Size()
+
+	return fileSize
+}
+
 // Function to remove a file, if the file doesn't exist the program continues
 func RemoveFile(path string) {
 	err := os.Remove(path)

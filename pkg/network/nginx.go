@@ -1,10 +1,13 @@
 package network
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -19,6 +22,7 @@ func ConfigureNginx(currentUsername string) {
 			directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, NginxConfDirPath)
 		}
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to find %s directory", NginxConfDirPath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s directory", NginxConfDirPath)
 		os.Exit(1)

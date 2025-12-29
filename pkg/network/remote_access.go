@@ -5,9 +5,11 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/network"
 	"github.com/pterm/pterm"
 )
@@ -21,6 +23,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 			directories.SetPermissionsUsingLinux(currentUsername, SSHDirPath, "0755")
 		}
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to find %s directory", SSHDirPath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s directory", SSHDirPath)
 		os.Exit(1)
@@ -33,12 +36,14 @@ func ConfigureRemoteAccess(currentUsername string) {
 			files.SetPermissionsUsingLinux(currentUsername, SSHDConfigFilePath, "0644")
 		}
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to find %s file", SSHDConfigFilePath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s file", SSHDConfigFilePath)
 		os.Exit(1)
 	}
 
 	if !files.LineExistsUsingLinux(SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath) {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to find %s pattern in %s", SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s pattern in %s", SSHDConfigFileIncludeAllSSHDConfigDConfFilesLinePattern, SSHDConfigFilePath)
 		os.Exit(1)
@@ -51,6 +56,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 			directories.SetPermissionsUsingLinux(currentUsername, SSHDConfigDDirPath, "0755")
 		}
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to find %s directory", SSHDConfigDDirPath))
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find %s directory", SSHDConfigDDirPath)
 		os.Exit(1)
@@ -199,6 +205,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 		err := exec.Command("/usr/sbin/sshd", "-t").Run()
 		if err != nil {
 			files.RemoveFile(SSHDConfigDRWZConfigFilePath)
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("sshd configuration tests failed: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("sshd configuration tests failed: %v", err)
 			os.Exit(1)
@@ -207,6 +214,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 		err := exec.Command("sudo", "/usr/sbin/sshd", "-t").Run()
 		if err != nil {
 			files.RemoveFileUsingLinux(currentUsername, SSHDConfigDRWZConfigFilePath)
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("sshd configuration tests failed: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("sshd configuration tests failed: %v", err)
 			os.Exit(1)

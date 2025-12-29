@@ -6,9 +6,11 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -22,6 +24,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 		files.RemoveFile(nginxConfigFilePath)
 		nginxTOutput, err = exec.Command("nginx", "-T").CombinedOutput()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to test and display Nginx configuration: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to test and display Nginx configuration: %v", err)
 			os.Exit(1)
@@ -30,6 +33,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 		files.RemoveFileUsingLinux(currentUsername, nginxConfigFilePath)
 		nginxTOutput, err = exec.Command("sudo", "nginx", "-T").CombinedOutput()
 		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to test and display Nginx configuration: %v", err))
 			pterm.Println()
 			pterm.Error.Printfln("Failed to test and display Nginx configuration: %v", err)
 			os.Exit(1)
@@ -43,6 +47,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 	_, completeNginxConfiguration, found := strings.Cut(nginxTestAndConfigurationOutput, nginxConfigurationTestSuccessOutput)
 
 	if !found {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to find Nginx configuration success output")
 		pterm.Println()
 		pterm.Error.Printfln("Failed to find Nginx configuration success output")
 		os.Exit(1)
@@ -51,6 +56,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 	relayDomainNameFound := strings.Contains(completeNginxConfiguration, fmt.Sprintf("server_name %s", relayDomain))
 
 	if relayDomainNameFound {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("The domain %s is already being used in another Nginx configuration file.\nTry using a different domain for the relay or updating/removing the conflicting Nginx configuration file.\nNginx configuration files can be found here: %s", relayDomain, NginxConfDirPath))
 		pterm.Println()
 		pterm.Error.Printfln(fmt.Sprintf("The domain %s is already being used in another Nginx configuration file.", relayDomain))
 		pterm.Error.Printfln("Try using a different domain for the relay or updating/removing the conflicting Nginx configuration file.")
@@ -112,11 +118,13 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 				pterm.Println()
 				pterm.Println(pterm.LightCyan("Relay site overwritten..."))
 			} else {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to confirm relay site overwrite action")
 				pterm.Println()
 				pterm.Error.Println("Failed to confirm relay site overwrite action")
 				os.Exit(1)
 			}
 		} else {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to confirm relay site overwrite action")
 			pterm.Println()
 			pterm.Error.Println("Failed to confirm relay site overwrite action")
 			os.Exit(1)

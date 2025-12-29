@@ -6,9 +6,11 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -146,6 +148,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 
 		if err != nil {
 			if !unableToFindExistingCertbotAccount {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
 				pterm.Println()
 				pterm.Error.Printfln("Failed to retrieve Certbot account data: %v", err)
 				os.Exit(1)
@@ -159,6 +162,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 
 		if err != nil {
 			if !unableToFindExistingCertbotAccount {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to retrieve Certbot account data: %v", err))
 				pterm.Println()
 				pterm.Error.Printfln("Failed to retrieve Certbot account data: %v", err)
 				os.Exit(1)
@@ -194,6 +198,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 		if currentUsername == relays.RootUser {
 			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to set Certbot email: %v", err))
 				pterm.Println()
 				pterm.Error.Printfln("Failed to set Certbot email: %v", err)
 				os.Exit(1)
@@ -201,6 +206,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 		} else {
 			err := exec.Command("sudo", "certbot", "update_account", "--email", email, "--no-eff-email").Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to set Certbot email: %v", err))
 				pterm.Println()
 				pterm.Error.Printfln("Failed to set Certbot email: %v", err)
 				os.Exit(1)
@@ -235,6 +241,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			if currentUsername == relays.RootUser {
 				err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
 				if err != nil {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to update Certbot email: %v", err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to update Certbot email: %v", err)
 					os.Exit(1)
@@ -242,6 +249,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			} else {
 				err := exec.Command("sudo", "certbot", "update_account", "--email", email, "--no-eff-email").Run()
 				if err != nil {
+					logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to update Certbot email: %v", err))
 					pterm.Println()
 					pterm.Error.Printfln("Failed to update Certbot email: %v", err)
 					os.Exit(1)
@@ -270,6 +278,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 			err := cmd.Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}
@@ -277,6 +286,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--agree-tos", "--no-eff-email", "-q", "--register-unsafely-without-email")
 			err := cmd.Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}
@@ -286,6 +296,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			cmd := exec.Command("certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 			err := cmd.Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}
@@ -293,6 +304,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			cmd := exec.Command("sudo", "certbot", "certonly", "--webroot", "-w", domainDirPath, "-d", domainName, "--email", email, "--agree-tos", "--no-eff-email", "-q")
 			err := cmd.Run()
 			if err != nil {
+				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Certbot failed to obtain the certificate for %s: %v", domainName, err))
 				pterm.Error.Printfln("Certbot failed to obtain the certificate for %s: %v", domainName, err)
 				os.Exit(1)
 			}

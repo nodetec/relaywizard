@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
 	"github.com/nodetec/rwz/pkg/utils/directories"
 	"github.com/nodetec/rwz/pkg/utils/files"
+	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/pterm/pterm"
 )
 
@@ -50,8 +52,9 @@ func SetUpRelayDataDir(currentUsername, relayUser, howToHandleExistingDatabase, 
 		}
 		RemoveAuxiliaryDatabaseFiles(currentUsername, relayName)
 	} else {
+		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, "Failed to set up data directory")
 		pterm.Println()
-		pterm.Error.Println(("Failed to set up data directory"))
+		pterm.Error.Println("Failed to set up data directory")
 		os.Exit(1)
 	}
 
