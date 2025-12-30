@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/nodetec/rwz/pkg/logs"
 	"github.com/nodetec/rwz/pkg/relays"
@@ -63,20 +64,25 @@ func AptInstallPackages(selectedRelayOption, currentUsername string) {
 
 	packages := []string{"sysvinit-utils", "lsof", "curl", "gnupg", "openssh-server", "ufw", "fail2ban", "nginx", "certbot", "python3-certbot-nginx"}
 
+	testedPackageVersions := []string{SysvinitUtilsTestedVersion, LsofTestedVersion, CurlTestedVersion, GnuPGTestedVersion, OpenSSHServerTestedVersion, UfwTestedVersion, Fail2banTestedVersion, NginxTestedVersion, CertbotTestedVersion, Python3CertbotNginxTestedVersion}
+
 	if selectedRelayOption == relays.NostrRsRelayName || selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.WotRelayName || selectedRelayOption == relays.Strfry29RelayName {
 		packages = append(packages, "git")
+		testedPackageVersions = append(testedPackageVersions, GitTestedVersion)
 	}
 
 	if selectedRelayOption == relays.NostrRsRelayName {
 		packages = append(packages, "sqlite3", "libsqlite3-dev")
+		testedPackageVersions = append(testedPackageVersions, SQLite3TestedVersion, LibSQLite3DevTestedVersion)
 	}
 
 	if selectedRelayOption == relays.StrfryRelayName || selectedRelayOption == relays.Strfry29RelayName {
 		packages = append(packages, "libssl-dev", "zlib1g-dev", "liblmdb-dev", "libflatbuffers-dev", "libsecp256k1-dev", "libzstd-dev")
+		testedPackageVersions = append(testedPackageVersions, LibSSLDevTestedVersion, Zlib1gDevTestedVersion, LibLMDBDevTestedVersion, LibFlatBuffersDevTestedVersion, Libsecp256k1DevTestedVersion, LibzstdDevTestedVersion)
 	}
 
-	// Check if package is installed, install if not
-	for _, p := range packages {
+	for index, p := range packages {
+		// Check if package is installed, install if not
 		if isPackageInstalled(currentUsername, p) {
 			spinner.UpdateText(fmt.Sprintf("%s is already installed.", p))
 		} else {
@@ -98,6 +104,25 @@ func AptInstallPackages(selectedRelayOption, currentUsername string) {
 					os.Exit(1)
 				}
 			}
+		}
+
+		// Check if the installed package version matches the tested version, if they don't match then log a warning to the rwz log file
+		spinner.UpdateText(fmt.Sprintf("Checking %s version...", p))
+
+		dpkgSOutput, err := exec.Command("dpkg", "-s", p).CombinedOutput()
+		if err != nil {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to check the version for the %s package: %v", p, err))
+			pterm.Println()
+			pterm.Error.Printfln("Failed to check the version for the %s package: %v", p, err)
+			os.Exit(1)
+		}
+
+		dpkgStatusOutput := string(dpkgSOutput)
+
+		_, _, found := strings.Cut(dpkgStatusOutput, testedPackageVersions[index])
+
+		if !found {
+			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Warning: The installed version of %s is different than the tested version", p))
 		}
 	}
 

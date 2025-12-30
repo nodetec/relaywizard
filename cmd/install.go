@@ -64,8 +64,11 @@ var installCmd = &cobra.Command{
 		// Display the selected option to the user with a green color for emphasis
 		pterm.Info.Printfln("Selected option: %s", pterm.Green(selectedRelayOption))
 
-		// Check if the selected relay's port is available to use
 		pterm.Println()
+		// Install necessary packages using APT
+		manager.AptInstallPackages(selectedRelayOption, currentUsername)
+
+		// Check if the selected relay's port is available to use
 		network.CheckPort(currentUsername, selectedRelayOption)
 
 		var privKey string
@@ -101,10 +104,6 @@ var installCmd = &cobra.Command{
 
 		pterm.Println()
 		pterm.Println(pterm.Yellow("If you make a mistake, you can always re-run this installer."))
-		pterm.Println()
-
-		// Install necessary packages using APT
-		manager.AptInstallPackages(selectedRelayOption, currentUsername)
 
 		// Configure Nginx
 		network.ConfigureNginx(currentUsername)
