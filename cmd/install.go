@@ -15,7 +15,6 @@ import (
 	"github.com/nodetec/rwz/pkg/relays/strfry"
 	"github.com/nodetec/rwz/pkg/relays/strfry29"
 	"github.com/nodetec/rwz/pkg/relays/wot_relay"
-	"github.com/nodetec/rwz/pkg/ui"
 	"github.com/nodetec/rwz/pkg/utils/files"
 	"github.com/nodetec/rwz/pkg/utils/logging"
 	"github.com/nodetec/rwz/pkg/utils/users"
@@ -29,8 +28,6 @@ var installCmd = &cobra.Command{
 	Long:  `Install and configure your Nostr relay, including package installation, firewall setup, Nginx configuration, SSL/TLS certificates, and starting the relay service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ThemeDefault := pterm.ThemeDefault
-
-		ui.Greet()
 
 		// Check current username
 		currentUsername := users.CheckCurrentUsername()
