@@ -65,14 +65,12 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 	}
 
 	spinner.Success("Relay domain available")
-
 	pterm.Println()
-	spinner, _ = pterm.DefaultSpinner.Start("Checking for existing relay site...")
 
 	relayDomainDirPath := fmt.Sprintf("%s/%s", WWWDirPath, relayDomain)
 
 	if directories.DirExists(relayDomainDirPath) {
-		spinner.Info("Relay site found...")
+		pterm.Info.Println("Relay site found...")
 
 		pterm.Println()
 		pterm.Printfln(pterm.LightCyan("If you haven't modified any content or installed a different type of relay in %s, then you can safely overwrite the relay site."), relayDomainDirPath)
@@ -95,7 +93,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 
 		if result == "no" {
 			pterm.Println()
-			pterm.Info.Printfln("Canceling installation...")
+			pterm.Info.Println("Canceling installation...")
 			os.Exit(1)
 		} else if result == "yes" {
 			pterm.Println()
@@ -107,7 +105,7 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 
 			if result == "no" {
 				pterm.Println()
-				pterm.Info.Printfln("Canceling installation...")
+				pterm.Info.Println("Canceling installation...")
 				os.Exit(1)
 			} else if result == "yes" {
 				if currentUsername == relays.RootUser {
@@ -130,6 +128,6 @@ func CheckDomainUsage(currentUsername, relayDomain, nginxConfigFilePath string) 
 			os.Exit(1)
 		}
 	} else {
-		spinner.Info("Relay site not found continuing with installation...")
+		pterm.Info.Println("Relay site not found continuing with installation...")
 	}
 }
