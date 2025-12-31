@@ -16,6 +16,12 @@ func SetUpRelaySite(currentUsername, domain string) {
 	// Path to the /var/www/domain directory
 	wwwDomainDirPath := fmt.Sprintf("%s/%s", network.WWWDirPath, domain)
 
+	// Path to the add-to-whitelist directory
+	addToWhitelistDirPath := fmt.Sprintf("%s/%s", wwwDomainDirPath, AddToWhitelistDir)
+
+	// Path to the remove-from-whitelist directory
+	removeFromWhitelistDirPath := fmt.Sprintf("%s/%s", wwwDomainDirPath, RemoveFromWhitelistDir)
+
 	// Path to the browse directory
 	browseDirPath := fmt.Sprintf("%s/%s", wwwDomainDirPath, BrowseDir)
 
@@ -23,6 +29,32 @@ func SetUpRelaySite(currentUsername, domain string) {
 	reportsDirPath := fmt.Sprintf("%s/%s", wwwDomainDirPath, ReportsDir)
 
 	if currentUsername == relays.RootUser {
+		// Remove the add-to-whitelist directory and all of its content if it exists
+		spinner.UpdateText("Removing add-to-whitelist directory...")
+		directories.RemoveDirectory(addToWhitelistDirPath)
+
+		// Create the add-to-whitelist directory
+		directories.CreateAllDirectories(addToWhitelistDirPath, 0755)
+
+		// Set permissions for the add-to-whitelist directory
+		directories.SetPermissions(addToWhitelistDirPath, 0755)
+
+		// Use chown command to set ownership of the add-to-whitelist directory and its content to the www-data user
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, addToWhitelistDirPath)
+
+		// Remove the remove-from-whitelist directory and all of its content if it exists
+		spinner.UpdateText("Removing remove-from-whitelist directory...")
+		directories.RemoveDirectory(removeFromWhitelistDirPath)
+
+		// Create the remove-from-whitelist directory
+		directories.CreateAllDirectories(removeFromWhitelistDirPath, 0755)
+
+		// Set permissions for the remove-from-whitelist directory
+		directories.SetPermissions(removeFromWhitelistDirPath, 0755)
+
+		// Use chown command to set ownership of the remove-from-whitelist directory and its content to the www-data user
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, removeFromWhitelistDirPath)
+
 		// Remove the browse directory and all of its content if it exists
 		spinner.UpdateText("Removing browse directory...")
 		directories.RemoveDirectory(browseDirPath)
@@ -49,6 +81,32 @@ func SetUpRelaySite(currentUsername, domain string) {
 		// Use chown command to set ownership of the reports directory and its content to the www-data user
 		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, reportsDirPath)
 	} else {
+		// Remove the add-to-whitelist directory and all of its content if it exists
+		spinner.UpdateText("Removing add-to-whitelist directory...")
+		directories.RemoveDirectoryUsingLinux(currentUsername, addToWhitelistDirPath)
+
+		// Create the add-to-whitelist directory
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, addToWhitelistDirPath)
+
+		// Set permissions for the add-to-whitelist directory
+		directories.SetPermissionsUsingLinux(currentUsername, addToWhitelistDirPath, "0755")
+
+		// Use chown command to set ownership of the add-to-whitelist directory and its content to the www-data user
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, addToWhitelistDirPath)
+
+		// Remove the remove-from-whitelist directory and all of its content if it exists
+		spinner.UpdateText("Removing remove-from-whitelist directory...")
+		directories.RemoveDirectoryUsingLinux(currentUsername, removeFromWhitelistDirPath)
+
+		// Create the remove-from-whitelist directory
+		directories.CreateAllDirectoriesUsingLinux(currentUsername, removeFromWhitelistDirPath)
+
+		// Set permissions for the remove-from-whitelist directory
+		directories.SetPermissionsUsingLinux(currentUsername, removeFromWhitelistDirPath, "0755")
+
+		// Use chown command to set ownership of the remove-from-whitelist directory and its content to the www-data user
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relays.NginxUser, relays.NginxUser, removeFromWhitelistDirPath)
+
 		// Remove the browse directory and all of its content if it exists
 		spinner.UpdateText("Removing browse directory...")
 		directories.RemoveDirectoryUsingLinux(currentUsername, browseDirPath)
