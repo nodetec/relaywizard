@@ -107,8 +107,6 @@ func AptInstallPackages(selectedRelayOption, currentUsername string) {
 		}
 
 		// Check if the installed package version matches the tested version, if they don't match then log a warning to the rwz log file
-		spinner.UpdateText(fmt.Sprintf("Checking %s version...", p))
-
 		dpkgSOutput, err := exec.Command("dpkg", "-s", p).CombinedOutput()
 		if err != nil {
 			logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to check the version for the %s package: %v", p, err))
