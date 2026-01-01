@@ -183,38 +183,9 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 
 		pterm.Println()
 		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-	} else if strings.Contains(certbotAccountData, "Email contact: none") {
-		certbotSpinner.Info("Certbot email currently set to none.")
-
-		pterm.Println()
-		pterm.Println(pterm.LightCyan("Set your Certbot email to receive notifications from Let's Encrypt about your SSL/TLS certificates."))
-
-		pterm.Println()
-		pterm.Println(pterm.Yellow("Leave email empty if you don't want to receive notifications."))
-
-		pterm.Println()
-		email, _ = pterm.DefaultInteractiveTextInput.Show("Email address")
-
-		if currentUsername == relays.RootUser {
-			err := exec.Command("certbot", "update_account", "--email", email, "--no-eff-email").Run()
-			if err != nil {
-				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to set Certbot email: %v", err))
-				pterm.Println()
-				pterm.Error.Printfln("Failed to set Certbot email: %v", err)
-				os.Exit(1)
-			}
-		} else {
-			err := exec.Command("sudo", "certbot", "update_account", "--email", email, "--no-eff-email").Run()
-			if err != nil {
-				logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to set Certbot email: %v", err))
-				pterm.Println()
-				pterm.Error.Printfln("Failed to set Certbot email: %v", err)
-				os.Exit(1)
-			}
-		}
 	} else {
-		_, currentEmail, _ := strings.Cut(certbotAccountData, "Email contact: ")
-		certbotSpinner.Info(fmt.Sprintf("Email used with Certbot account: %s", currentEmail))
+		certbotSpinner.Info("Certbot account found.")
+		pterm.Println()
 
 		prompt := pterm.InteractiveContinuePrinter{
 			DefaultValueIndex: 0,

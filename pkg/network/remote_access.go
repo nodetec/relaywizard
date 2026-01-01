@@ -112,6 +112,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 				}
 			} else {
 				files.AppendContentToFile(RootHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
+				files.SetPermissions(RootHiddenSSHAuthorizedKeysFilePath, 0600)
 			}
 		} else {
 			userHiddenSSHAuthorizedKeysFilePath := fmt.Sprintf("/home/%s/.ssh/authorized_keys", currentUsername)
@@ -124,6 +125,7 @@ func ConfigureRemoteAccess(currentUsername string) {
 				}
 			} else {
 				files.AppendContentToFile(userHiddenSSHAuthorizedKeysFilePath, authorizedKey, 0600)
+				files.SetPermissions(userHiddenSSHAuthorizedKeysFilePath, 0600)
 			}
 		}
 

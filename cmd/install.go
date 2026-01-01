@@ -25,7 +25,7 @@ import (
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install and configure your Nostr relay",
-	Long:  `Install and configure your Nostr relay, including package installation, firewall setup, Nginx configuration, SSL/TLS certificates, and starting the relay service.`,
+	Long:  `Install and configure your Nostr relay, including package installation, firewall setup, Nginx configuration, SSL/TLS certificates, starting the relay service, and more.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ThemeDefault := pterm.ThemeDefault
 
