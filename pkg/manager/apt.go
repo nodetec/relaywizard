@@ -83,9 +83,7 @@ func AptInstallPackages(selectedRelayOption, currentUsername string) {
 
 	for index, p := range packages {
 		// Check if package is installed, install if not
-		if isPackageInstalled(currentUsername, p) {
-			spinner.UpdateText(fmt.Sprintf("%s is already installed.", p))
-		} else {
+		if !isPackageInstalled(currentUsername, p) {
 			spinner.UpdateText(fmt.Sprintf("Installing %s...", p))
 			if currentUsername == relays.RootUser {
 				err := exec.Command("apt", "install", "-y", "-qq", p).Run()
