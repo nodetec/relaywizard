@@ -14,6 +14,7 @@ import (
 // Function to configure the firewall
 func ConfigureFirewall(currentUsername string) {
 	spinner, _ := pterm.DefaultSpinner.Start("Configuring firewall...")
+
 	if currentUsername == relays.RootUser {
 		// Allow SSH connections
 		err := exec.Command("ufw", "allow", "ssh").Run()
@@ -23,6 +24,7 @@ func ConfigureFirewall(currentUsername string) {
 			pterm.Error.Printfln("Failed to allow SSH: %v", err)
 			os.Exit(1)
 		}
+
 		// Allow HTTP and HTTPS traffic
 		err = exec.Command("ufw", "allow", "Nginx Full").Run()
 		if err != nil {
@@ -58,6 +60,7 @@ func ConfigureFirewall(currentUsername string) {
 			pterm.Error.Printfln("Failed to allow SSH: %v", err)
 			os.Exit(1)
 		}
+
 		// Allow HTTP and HTTPS traffic
 		err = exec.Command("sudo", "ufw", "allow", "Nginx Full").Run()
 		if err != nil {

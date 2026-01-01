@@ -58,7 +58,6 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 
 	// Use GPG to verify the manifest signature file
 	out, err := exec.Command("gpg", "--status-fd", "1", "--verify", relaysManifestSigFilePath).Output()
-
 	if err != nil {
 		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to run the gpg verify command on the %s file: %v", relaysManifestSigFilePath, err))
 		pterm.Println()
@@ -79,7 +78,6 @@ func VerifyRelayBinary(currentUsername, relayName, path string) {
 
 	// Compute the SHA512 hash of the compressed relay binary file
 	out, err = exec.Command("sha512sum", path).Output()
-
 	if err != nil {
 		logging.AppendRWZLogFile(currentUsername, logs.RWZLogFilePath, fmt.Sprintf("Failed to compute the SHA512 hash of the %s file: %v", path, err))
 		pterm.Println()

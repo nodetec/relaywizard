@@ -19,7 +19,7 @@ func backupUsersFile(currentUsername, relayUser string) {
 		directories.CreateAllDirectories(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
 		directories.SetPermissions(UsersFileUsersDirPath, UsersFileUsersDirPerms)
 		directories.SetPermissions(UsersFileBackupsDirPath, UsersFileBackupsDirPerms)
-		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, UsersFilePath)
+		directories.SetOwnerAndGroupForAllContentUsingLinux(currentUsername, relayUser, relayUser, UsersFileUsersDirPath)
 	} else {
 		directories.CreateAllDirectoriesUsingLinux(currentUsername, UsersFileBackupsDirPath)
 		directories.SetPermissionsUsingLinux(currentUsername, UsersFileUsersDirPath, "0755")
