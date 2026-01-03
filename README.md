@@ -94,7 +94,7 @@ You should see output similar to the following if the verification was successfu
 
 ```bash
 gpg: assuming signed data in 'rwz-0.3.0-beta1-manifest.sha512sum'
-gpg: Signature made Sat 03 Jan 2026 03:32:00 AM UTC
+gpg: Signature made Sat 03 Jan 2026 04:35:51 AM UTC
 gpg:                using RSA key 252F57B9DCD920EBF14E6151A8841CC4D10CC288
 gpg: Good signature from "NODE-TEC Devs <devs@node-tec.com>" [unknown]
 gpg:                 aka "[jpeg image of size 5143]" [unknown]
