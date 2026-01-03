@@ -3,7 +3,7 @@ package strfry
 const GitRepoBranch = "1.0.4"
 const GitRepoURL = "https://github.com/hoytech/strfry.git"
 const GitRepoTmpDirPath = "/tmp/strfry"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/strfry-1.0.4-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.6.0/strfry-1.0.4-x86_64-linux-gnu.tar.gz"
 const BinaryName = "strfry"
 const BinaryVersion = "1.0.4"
 const DataDirPath = "/var/lib/strfry"
