@@ -3,7 +3,7 @@ package wot_relay
 const GitRepoBranch = "v0.1.16"
 const GitRepoURL = "https://github.com/bitvora/wot-relay.git"
 const GitRepoTmpDirPath = "/tmp/wot-relay"
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/wot-relay-0.1.16-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.6.0/wot-relay-0.1.16-x86_64-linux-gnu.tar.gz"
 const BinaryName = "wot-relay"
 const DataDirPath = "/var/lib/wot-relay"
 const ConfigDirPath = "/etc/wot-relay"

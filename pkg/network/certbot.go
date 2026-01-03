@@ -191,7 +191,7 @@ func GetCertificates(currentUsername, domainName, nginxConfigFilePath string) bo
 			DefaultValueIndex: 0,
 			DefaultText:       "Do you want to remove or update your Certbot email?",
 			TextStyle:         &ThemeDefault.PrimaryStyle,
-			Options:           []string{"yes", "no"},
+			Options:           []string{"no", "yes"},
 			OptionsStyle:      &ThemeDefault.SuccessMessageStyle,
 			SuffixStyle:       &ThemeDefault.SecondaryStyle,
 			Delimiter:         ": ",

@@ -1,6 +1,6 @@
 package khatru_pyramid
 
-const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.5.0/khatru-pyramid-0.2.2-x86_64-linux-gnu.tar.gz"
+const DownloadURL = "https://github.com/nodetec/relays/releases/download/v0.6.0/khatru-pyramid-0.2.2-x86_64-linux-gnu.tar.gz"
 const BinaryName = "khatru-pyramid"
 const DataDirPath = "/var/lib/khatru-pyramid"
 const DatabaseFilePath = "/var/lib/khatru-pyramid/db/data.mdb"
